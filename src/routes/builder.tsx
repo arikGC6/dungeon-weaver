@@ -398,10 +398,15 @@ function Step7Spells({ c, update }: { c: Character; update: (p: Partial<Characte
     const has = c.spellIds.includes(id);
     update({ spellIds: has ? c.spellIds.filter(x => x !== id) : [...c.spellIds, id] });
   };
+  const togglePrep = (id: string) => {
+    const has = c.preparedSpellIds.includes(id);
+    update({ preparedSpellIds: has ? c.preparedSpellIds.filter(x => x !== id) : [...c.preparedSpellIds, id] });
+  };
 
   return (
     <div className="space-y-3">
       <h2 className="display text-2xl text-primary">כישופים</h2>
+      <p className="text-xs text-muted-foreground">סמן ✓ כדי <b>לדעת/ללמוד</b> כישוף. ✦ = מוכן ביום הזה (יודפס ב-PDF כ"מוכן").</p>
       {grantedIds.length > 0 && (
         <div className="p-2 rounded bg-accent/20 border border-accent/40 text-xs">
           <b>{sub?.nameHe}:</b> כישופים שמוענקים אוטומטית (תמיד מוכנים): {grantedIds.map(id => SPELLS.find(s => s.id === id)?.name).join(", ")}
@@ -420,20 +425,32 @@ function Step7Spells({ c, update }: { c: Character; update: (p: Partial<Characte
         </select>
         <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={classOnly} onChange={e => setClassOnly(e.target.checked)} /> רק לקלאס שלי</label>
       </div>
-      <div className="text-xs text-muted-foreground">נבחרו {c.spellIds.length} כישופים מתוך {filtered.length} מוצגים</div>
+      <div className="text-xs text-muted-foreground">יודעים {c.spellIds.length} · מוכנים {c.preparedSpellIds.length} · מוצגים {filtered.length}</div>
       <div className="max-h-[420px] overflow-y-auto space-y-1">
         {filtered.map(s => {
-          const selected = c.spellIds.includes(s.id);
+          const known = c.spellIds.includes(s.id);
+          const prep = c.preparedSpellIds.includes(s.id);
           return (
-            <button key={s.id} onClick={() => toggle(s.id)}
-              className={`block w-full text-right p-2 rounded border text-sm ${selected ? "bg-primary/15 border-primary" : "border-border hover:bg-secondary/30"}`}>
-              <div className="flex justify-between gap-2">
-                <span className="font-semibold">{s.name}</span>
-                <span className="text-xs text-muted-foreground">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {SCHOOL_LABELS_HE[s.school]}{s.concentration ? " · C" : ""}{s.ritual ? " · R" : ""}</span>
+            <div key={s.id} className={`p-2 rounded border text-sm ${known ? "bg-primary/15 border-primary" : "border-border hover:bg-secondary/30"}`}>
+              <div className="flex items-start gap-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs flex items-center gap-1 cursor-pointer" title="יודע">
+                    <input type="checkbox" checked={known} onChange={() => toggle(s.id)} /> יודע
+                  </label>
+                  <label className="text-xs flex items-center gap-1 cursor-pointer" title="מוכן ליום">
+                    <input type="checkbox" checked={prep} disabled={!known} onChange={() => togglePrep(s.id)} /> ✦ מוכן
+                  </label>
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between gap-2">
+                    <span className="font-semibold">{s.name}</span>
+                    <span className="text-xs text-muted-foreground">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {SCHOOL_LABELS_HE[s.school]}{s.concentration ? " · C" : ""}{s.ritual ? " · R" : ""}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">{s.castingTime} · {s.range} · {s.duration}</div>
+                  <div className="text-xs mt-1">{s.description}</div>
+                </div>
               </div>
-              <div className="text-[11px] text-muted-foreground">{s.castingTime} · {s.range} · {s.duration}</div>
-              <div className="text-xs mt-1">{s.description}</div>
-            </button>
+            </div>
           );
         })}
       </div>
