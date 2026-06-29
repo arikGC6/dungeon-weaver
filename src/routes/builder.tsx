@@ -89,19 +89,6 @@ function Builder() {
     </div>
   );
 }
-      </div>
-
-      <div className="flex justify-between mt-4">
-        <button onClick={prev} disabled={step === 0} className="px-5 py-2 rounded-md bg-secondary disabled:opacity-30 hover:bg-accent">→ הקודם</button>
-        {step < STEPS.length - 1 ? (
-          <button onClick={next} className="px-5 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90">הבא ←</button>
-        ) : (
-          <button onClick={finish} className="px-6 py-2 rounded-md bg-accent text-accent-foreground font-semibold hover:opacity-90 ember-glow">סיים ושמור 🍷</button>
-        )}
-      </div>
-    </div>
-  );
-}
 
 function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void }) {
   return (
