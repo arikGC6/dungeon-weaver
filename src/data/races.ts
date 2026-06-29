@@ -404,7 +404,7 @@ export const RACES: Race[] = [
     subraces: [
       { id: "genasi-air", name: "Air Genasi", nameHe: "ג'נאסי אוויר", abilityBonuses: [{ ability: "dex", amount: 1 }], traits: [{ name: "Unending Breath", desc: "נושם זמן בלתי מוגבל." }, { name: "Mingle with the Wind", desc: "Levitate פעם פר rest ארוך." }] },
       { id: "genasi-earth", name: "Earth Genasi", nameHe: "ג'נאסי אדמה", abilityBonuses: [{ ability: "str", amount: 1 }], traits: [{ name: "Earth Walk", desc: "ללא קושי על אבן/אדמה." }, { name: "Merge with Stone", desc: "Pass without Trace פעם פר rest." }] },
-      { id: "genasi-fire", name: "Fire Genasi", nameHe: "ג'נאסי אש", abilityBonuses: [{ ability: "int", amount: 1 }], darkvision: 60 as any, traits: [{ name: "Fire Resistance", desc: "Resistance לאש." }, { name: "Reach to the Blaze", desc: "Produce Flame cantrip; Burning Hands ברמה 3." }] },
+      { id: "genasi-fire", name: "Fire Genasi", nameHe: "ג'נאסי אש", abilityBonuses: [{ ability: "int", amount: 1 }], traits: [{ name: "Darkvision", desc: "60ft." }, { name: "Fire Resistance", desc: "Resistance לאש." }, { name: "Reach to the Blaze", desc: "Produce Flame cantrip; Burning Hands ברמה 3." }] },
       { id: "genasi-water", name: "Water Genasi", nameHe: "ג'נאסי מים", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Amphibious", desc: "נשימה במים." }, { name: "Swim Speed", desc: "30ft שחיה." }, { name: "Acid Resistance", desc: "" }, { name: "Call to the Wave", desc: "Shape Water cantrip; Create or Destroy Water ברמה 3." }] },
     ],
   },
