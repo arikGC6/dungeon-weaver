@@ -27,10 +27,22 @@ const STEPS = [
 ] as const;
 
 function Builder() {
-  const { saveCharacter } = useCharacters();
+  const { saveCharacter, getCharacter } = useCharacters();
   const navigate = useNavigate();
+  const { edit } = Route.useSearch();
   const [step, setStep] = useState(0);
-  const [c, setC] = useState<Character>(() => emptyCharacter());
+  const [c, setC] = useState<Character>(() => {
+    if (edit) {
+      const existing = getCharacter(edit);
+      if (existing) return existing;
+    }
+    return emptyCharacter();
+  });
+
+  // Auto-save every change when editing existing character
+  useEffect(() => {
+    if (edit && c.id) saveCharacter(c);
+  }, [c, edit, saveCharacter]);
 
   const update = (patch: Partial<Character>) => setC(prev => ({ ...prev, ...patch }));
 
