@@ -161,7 +161,11 @@ export interface Character {
   featIds: string[];
   spellIds: string[];      // known/learned spells
   preparedSpellIds: string[];
-  itemIds: { id: string; equipped: boolean }[];
+  itemIds: { id: string; equipped: boolean; quantity?: number }[];
+  // Free-text equipment the player wrote in (לפיד, אוהל, חבל...)
+  equipment?: { name: string; quantity: number; notes?: string }[];
+  // Custom attacks (נשק קסום, התקפת unarmed וכו')
+  attacks?: { name: string; bonus: string; damage: string; notes?: string }[];
   hpMax?: number; // override
   hpCurrent?: number;
   acOverride?: number;
@@ -192,3 +196,17 @@ export function mod(score: number): number {
 export function formatMod(v: number): string {
   return v >= 0 ? `+${v}` : `${v}`;
 }
+
+export const ALIGNMENTS: { id: string; label: string }[] = [
+  { id: "LG", label: "Lawful Good — חוקי טוב" },
+  { id: "NG", label: "Neutral Good — נייטרלי טוב" },
+  { id: "CG", label: "Chaotic Good — כאוטי טוב" },
+  { id: "LN", label: "Lawful Neutral — חוקי נייטרלי" },
+  { id: "TN", label: "True Neutral — נייטרלי" },
+  { id: "CN", label: "Chaotic Neutral — כאוטי נייטרלי" },
+  { id: "LE", label: "Lawful Evil — חוקי רע" },
+  { id: "NE", label: "Neutral Evil — נייטרלי רע" },
+  { id: "CE", label: "Chaotic Evil — כאוטי רע" },
+];
+
+export const STANDARD_ARRAY_VALUES = [8, 10, 12, 13, 14, 15] as const;

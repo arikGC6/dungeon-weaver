@@ -45,7 +45,8 @@ function CharacterPage() {
         <h1 className="display text-3xl text-primary flex-1">{c.name || "ללא שם"}</h1>
         <button onClick={() => exportCharacterPdf(c)} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm hover:opacity-90">📄 PDF</button>
         <button onClick={() => exportCharacterJson(c)} className="px-3 py-1.5 rounded bg-secondary text-sm hover:bg-accent">💾 JSON</button>
-        <button onClick={() => setEditing(e => !e)} className="px-3 py-1.5 rounded bg-secondary text-sm hover:bg-accent">{editing ? "סיים עריכה" : "✏️ עריכה"}</button>
+        <Link to="/builder" search={{ edit: c.id }} className="px-3 py-1.5 rounded bg-accent text-accent-foreground text-sm hover:opacity-90">🪄 ערוך באשף</Link>
+        <button onClick={() => setEditing(e => !e)} className="px-3 py-1.5 rounded bg-secondary text-sm hover:bg-accent">{editing ? "סיים עריכה" : "✏️ עריכה מהירה"}</button>
         <button onClick={() => { if (confirm("למחוק?")) { deleteCharacter(c.id); navigate({ to: "/" }); } }} className="px-3 py-1.5 rounded bg-destructive/70 text-destructive-foreground text-sm hover:bg-destructive">מחק</button>
       </div>
 
@@ -177,18 +178,40 @@ function CharacterPage() {
           </div>
         </div>
 
+        {/* Custom Attacks */}
+        {c.attacks && c.attacks.length > 0 && (
+          <div className="tavern-card p-4 md:col-span-3">
+            <h3 className="display text-lg text-primary mb-2">⚔️ התקפות</h3>
+            <table className="w-full text-sm">
+              <thead className="text-xs text-muted-foreground">
+                <tr><th className="text-right">שם</th><th>בונוס</th><th>נזק</th><th className="text-right">הערות</th></tr>
+              </thead>
+              <tbody>
+                {c.attacks.map((a, i) => (
+                  <tr key={i} className="border-t border-border/40">
+                    <td className="py-1 font-semibold">{a.name}</td>
+                    <td className="text-center">{a.bonus}</td>
+                    <td className="text-center">{a.damage}</td>
+                    <td className="text-muted-foreground">{a.notes}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {/* Items */}
         {c.itemIds.length > 0 && (
           <div className="tavern-card p-4 md:col-span-3">
             <h3 className="display text-lg text-primary mb-2">פריטים</h3>
             <div className="grid sm:grid-cols-2 gap-2 text-sm">
-              {c.itemIds.map(({ id, equipped }) => {
+              {c.itemIds.map(({ id, equipped, quantity }) => {
                 const item = getItem(id);
                 if (!item) return null;
                 return (
                   <div key={id} className={`p-2 rounded border ${equipped ? "bg-primary/10 border-primary" : "border-border"}`}>
                     <div className="flex justify-between">
-                      <b>{item.nameHe ?? item.name}</b>
+                      <b>{item.nameHe ?? item.name}{quantity && quantity > 1 ? ` ×${quantity}` : ""}</b>
                       <span className="text-xs">{equipped ? "חמוש" : "בתיק"}</span>
                     </div>
                     <div className="text-xs text-muted-foreground">{item.description}</div>
@@ -196,6 +219,21 @@ function CharacterPage() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {/* Equipment (free) */}
+        {c.equipment && c.equipment.length > 0 && (
+          <div className="tavern-card p-4 md:col-span-3">
+            <h3 className="display text-lg text-primary mb-2">📦 ציוד נוסף</h3>
+            <ul className="grid sm:grid-cols-2 gap-x-6 text-sm">
+              {c.equipment.map((eq, i) => (
+                <li key={i} className="flex justify-between border-b border-border/40 py-1">
+                  <span>{eq.name} {eq.quantity > 1 && <span className="text-muted-foreground">×{eq.quantity}</span>}</span>
+                  {eq.notes && <span className="text-xs text-muted-foreground">{eq.notes}</span>}
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -207,11 +245,15 @@ function CharacterPage() {
               {spells.map(s => (
                 <div key={s!.id} className="p-2 rounded bg-background/30 border border-border">
                   <div className="flex justify-between flex-wrap gap-2">
-                    <b className="text-primary">{s!.name}</b>
+                    <b className="text-primary">
+                      {c.preparedSpellIds.includes(s!.id) || d.alwaysPreparedSpellIds.includes(s!.id) ? "✦ " : "○ "}
+                      {s!.name}
+                    </b>
                     <span className="text-xs text-muted-foreground">
                       {s!.level === 0 ? "קנטריפ" : `רמה ${s!.level}`} · {SCHOOL_LABELS_HE[s!.school]}
                       {s!.concentration && " · ריכוז"}{s!.ritual && " · טקס"}
                       {d.alwaysPreparedSpellIds.includes(s!.id) && " · 🎁 מוענק מתת-קלאס"}
+                      {c.preparedSpellIds.includes(s!.id) && " · מוכן"}
                     </span>
                   </div>
                   <div className="text-xs text-muted-foreground">{s!.castingTime} · {s!.range} · {s!.components} · {s!.duration}</div>

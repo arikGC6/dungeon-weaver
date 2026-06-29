@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCharacters } from "@/lib/character-store";
 import { emptyCharacter } from "@/lib/calculations";
 import { RACES } from "@/data/races";
@@ -8,10 +8,11 @@ import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS } from "@/data/feats";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
-import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
+import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STANDARD_ARRAY_VALUES, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
 import { calculateCharacter, getClass } from "@/lib/calculations";
 
 export const Route = createFileRoute("/builder")({
+  validateSearch: (s: Record<string, unknown>) => ({ edit: typeof s.edit === "string" ? s.edit : undefined }),
   head: () => ({
     meta: [
       { title: "בונה דמות חדשה — בר הקסמים" },
@@ -22,14 +23,26 @@ export const Route = createFileRoute("/builder")({
 });
 
 const STEPS = [
-  "פרטים", "גזע", "קלאס", "רקע", "יכולות", "מיומנויות", "Feats", "כישופים", "פריטים", "סקירה",
+  "פרטים", "גזע", "קלאס", "רקע", "יכולות", "מיומנויות", "Feats", "כישופים", "פריטים", "התקפות", "סקירה",
 ] as const;
 
 function Builder() {
-  const { saveCharacter } = useCharacters();
+  const { saveCharacter, getCharacter } = useCharacters();
   const navigate = useNavigate();
+  const { edit } = Route.useSearch();
   const [step, setStep] = useState(0);
-  const [c, setC] = useState<Character>(() => emptyCharacter());
+  const [c, setC] = useState<Character>(() => {
+    if (edit) {
+      const existing = getCharacter(edit);
+      if (existing) return existing;
+    }
+    return emptyCharacter();
+  });
+
+  // Auto-save every change when editing existing character
+  useEffect(() => {
+    if (edit && c.id) saveCharacter(c);
+  }, [c, edit, saveCharacter]);
 
   const update = (patch: Partial<Character>) => setC(prev => ({ ...prev, ...patch }));
 
@@ -61,7 +74,8 @@ function Builder() {
         {step === 6 && <Step6Feats c={c} update={update} />}
         {step === 7 && <Step7Spells c={c} update={update} />}
         {step === 8 && <Step8Items c={c} update={update} />}
-        {step === 9 && <Step9Review c={c} update={update} />}
+        {step === 9 && <Step9Attacks c={c} update={update} />}
+        {step === 10 && <Step10Review c={c} update={update} />}
       </div>
 
       <div className="flex justify-between mt-4">
@@ -69,7 +83,7 @@ function Builder() {
         {step < STEPS.length - 1 ? (
           <button onClick={next} className="px-5 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90">הבא ←</button>
         ) : (
-          <button onClick={finish} className="px-6 py-2 rounded-md bg-accent text-accent-foreground font-semibold hover:opacity-90 ember-glow">סיים ושמור 🍷</button>
+          <button onClick={finish} className="px-6 py-2 rounded-md bg-accent text-accent-foreground font-semibold hover:opacity-90 ember-glow">{edit ? "שמור וצפה 🍷" : "סיים ושמור 🍷"}</button>
         )}
       </div>
     </div>
@@ -118,7 +132,12 @@ function Step0Basics({ c, update }: { c: Character; update: (p: Partial<Characte
           <Field label="שם הדמות"><input value={c.name} onChange={e => update({ name: e.target.value })} className="input" /></Field>
           <Field label="שם השחקן"><input value={c.player ?? ""} onChange={e => update({ player: e.target.value })} className="input" /></Field>
           <Field label="רמה"><input type="number" min={1} max={20} value={c.level} onChange={e => update({ level: Math.max(1, Math.min(20, +e.target.value || 1)) })} className="input" /></Field>
-          <Field label="מערך (Alignment)"><input value={c.alignment ?? ""} onChange={e => update({ alignment: e.target.value })} className="input" placeholder="לדוגמה: Chaotic Good" /></Field>
+          <Field label="מערך (Alignment)">
+            <select className="input" value={c.alignment ?? ""} onChange={e => update({ alignment: e.target.value })}>
+              <option value="">— בחר —</option>
+              {ALIGNMENTS.map(a => <option key={a.id} value={a.label}>{a.label}</option>)}
+            </select>
+          </Field>
         </div>
       </div>
     </div>
@@ -263,7 +282,18 @@ function Step4Abilities({ c, update }: { c: Character; update: (p: Partial<Chara
           return (
             <div key={a} className="p-3 rounded-md bg-background/40 border border-border text-center">
               <div className="display text-primary text-sm">{ABILITY_LABELS[a]}</div>
-              <input type="number" min={1} max={20} value={base} onChange={e => set(a, +e.target.value || 0)} className="input text-center text-2xl w-full mt-1" />
+              {method === "standard" ? (
+                <div className="flex flex-wrap justify-center gap-1 mt-2">
+                  {STANDARD_ARRAY_VALUES.map(v => (
+                    <button key={v} onClick={() => set(a, v)}
+                      className={`px-2 py-1 rounded text-sm border ${base === v ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border hover:bg-accent"}`}>
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <input type="number" min={1} max={20} value={base} onChange={e => set(a, +e.target.value || 0)} className="input text-center text-2xl w-full mt-1" />
+              )}
               <div className="text-xs text-muted-foreground mt-1">בסיס. מודיפיקטור גזע יחושב בנפרד.</div>
               <div className="display text-accent text-lg mt-1">mod {formatMod(mod(base))}</div>
             </div>
@@ -368,10 +398,15 @@ function Step7Spells({ c, update }: { c: Character; update: (p: Partial<Characte
     const has = c.spellIds.includes(id);
     update({ spellIds: has ? c.spellIds.filter(x => x !== id) : [...c.spellIds, id] });
   };
+  const togglePrep = (id: string) => {
+    const has = c.preparedSpellIds.includes(id);
+    update({ preparedSpellIds: has ? c.preparedSpellIds.filter(x => x !== id) : [...c.preparedSpellIds, id] });
+  };
 
   return (
     <div className="space-y-3">
       <h2 className="display text-2xl text-primary">כישופים</h2>
+      <p className="text-xs text-muted-foreground">סמן ✓ כדי <b>לדעת/ללמוד</b> כישוף. ✦ = מוכן ביום הזה (יודפס ב-PDF כ"מוכן").</p>
       {grantedIds.length > 0 && (
         <div className="p-2 rounded bg-accent/20 border border-accent/40 text-xs">
           <b>{sub?.nameHe}:</b> כישופים שמוענקים אוטומטית (תמיד מוכנים): {grantedIds.map(id => SPELLS.find(s => s.id === id)?.name).join(", ")}
@@ -390,20 +425,32 @@ function Step7Spells({ c, update }: { c: Character; update: (p: Partial<Characte
         </select>
         <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={classOnly} onChange={e => setClassOnly(e.target.checked)} /> רק לקלאס שלי</label>
       </div>
-      <div className="text-xs text-muted-foreground">נבחרו {c.spellIds.length} כישופים מתוך {filtered.length} מוצגים</div>
+      <div className="text-xs text-muted-foreground">יודעים {c.spellIds.length} · מוכנים {c.preparedSpellIds.length} · מוצגים {filtered.length}</div>
       <div className="max-h-[420px] overflow-y-auto space-y-1">
         {filtered.map(s => {
-          const selected = c.spellIds.includes(s.id);
+          const known = c.spellIds.includes(s.id);
+          const prep = c.preparedSpellIds.includes(s.id);
           return (
-            <button key={s.id} onClick={() => toggle(s.id)}
-              className={`block w-full text-right p-2 rounded border text-sm ${selected ? "bg-primary/15 border-primary" : "border-border hover:bg-secondary/30"}`}>
-              <div className="flex justify-between gap-2">
-                <span className="font-semibold">{s.name}</span>
-                <span className="text-xs text-muted-foreground">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {SCHOOL_LABELS_HE[s.school]}{s.concentration ? " · C" : ""}{s.ritual ? " · R" : ""}</span>
+            <div key={s.id} className={`p-2 rounded border text-sm ${known ? "bg-primary/15 border-primary" : "border-border hover:bg-secondary/30"}`}>
+              <div className="flex items-start gap-2">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs flex items-center gap-1 cursor-pointer" title="יודע">
+                    <input type="checkbox" checked={known} onChange={() => toggle(s.id)} /> יודע
+                  </label>
+                  <label className="text-xs flex items-center gap-1 cursor-pointer" title="מוכן ליום">
+                    <input type="checkbox" checked={prep} disabled={!known} onChange={() => togglePrep(s.id)} /> ✦ מוכן
+                  </label>
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between gap-2">
+                    <span className="font-semibold">{s.name}</span>
+                    <span className="text-xs text-muted-foreground">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {SCHOOL_LABELS_HE[s.school]}{s.concentration ? " · C" : ""}{s.ritual ? " · R" : ""}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">{s.castingTime} · {s.range} · {s.duration}</div>
+                  <div className="text-xs mt-1">{s.description}</div>
+                </div>
               </div>
-              <div className="text-[11px] text-muted-foreground">{s.castingTime} · {s.range} · {s.duration}</div>
-              <div className="text-xs mt-1">{s.description}</div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -419,17 +466,25 @@ function Step8Items({ c, update }: { c: Character; update: (p: Partial<Character
   const toggle = (id: string) => {
     const has = c.itemIds.find(x => x.id === id);
     if (has) update({ itemIds: c.itemIds.filter(x => x.id !== id) });
-    else update({ itemIds: [...c.itemIds, { id, equipped: true }] });
+    else update({ itemIds: [...c.itemIds, { id, equipped: true, quantity: 1 }] });
   };
   const toggleEquip = (id: string) => {
     update({ itemIds: c.itemIds.map(x => x.id === id ? { ...x, equipped: !x.equipped } : x) });
   };
+  const setQty = (id: string, n: number) => {
+    update({ itemIds: c.itemIds.map(x => x.id === id ? { ...x, quantity: Math.max(1, n) } : x) });
+  };
+
+  const equipment = c.equipment ?? [];
+  const setEq = (next: typeof equipment) => update({ equipment: next });
+  const [newEqName, setNewEqName] = useState("");
+
   return (
     <div className="space-y-3">
-      <h2 className="display text-2xl text-primary">פריטים וציוד</h2>
-      <p className="text-xs text-muted-foreground">בונוסי AC, יכולת, HP ומהירות יתווספו אוטומטית כשהפריט "חמוש".</p>
-      <div className="flex gap-2">
-        <input className="input flex-1" placeholder="חפש פריט..." value={q} onChange={e => setQ(e.target.value)} />
+      <h2 className="display text-2xl text-primary">פריטים, ציוד וקטלוג</h2>
+      <p className="text-xs text-muted-foreground">בונוסי AC/יכולת/HP/מהירות מתווספים אוטומטית כשהפריט "חמוש". אפשר לקבוע <b>כמות</b> לכל פריט.</p>
+      <div className="flex gap-2 flex-wrap">
+        <input className="input flex-1 min-w-[180px]" placeholder="חפש פריט..." value={q} onChange={e => setQ(e.target.value)} />
         <select className="input" value={cat} onChange={e => setCat(e.target.value)}>
           <option value="all">כל הקטגוריות</option>
           <option value="armor">שריון</option>
@@ -440,9 +495,11 @@ function Step8Items({ c, update }: { c: Character; update: (p: Partial<Character
           <option value="potion">שיקוי</option>
           <option value="wand">שרביט</option>
           <option value="staff">מטה</option>
+          <option value="rod">מטה-מלוכה</option>
+          <option value="gear">ציוד</option>
         </select>
       </div>
-      <div className="max-h-[420px] overflow-y-auto space-y-1">
+      <div className="max-h-[360px] overflow-y-auto space-y-1">
         {list.map(item => {
           const cur = c.itemIds.find(x => x.id === item.id);
           return (
@@ -453,21 +510,79 @@ function Step8Items({ c, update }: { c: Character; update: (p: Partial<Character
                   <div className="text-xs">{item.description}</div>
                 </button>
                 {cur && (
-                  <label className="flex items-center gap-1 text-xs">
-                    <input type="checkbox" checked={cur.equipped} onChange={() => toggleEquip(item.id)} /> חמוש
-                  </label>
+                  <div className="flex items-center gap-2 text-xs">
+                    <label className="flex items-center gap-1">כמות
+                      <input type="number" min={1} value={cur.quantity ?? 1} onChange={e => setQty(item.id, +e.target.value || 1)} className="input w-14 h-7 px-1 text-center" />
+                    </label>
+                    {(item.category === "armor" || item.category === "shield" || item.category === "weapon" || item.category === "wondrous" || item.category === "ring") && (
+                      <label className="flex items-center gap-1">
+                        <input type="checkbox" checked={cur.equipped} onChange={() => toggleEquip(item.id)} /> חמוש
+                      </label>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Free equipment list */}
+      <div className="pt-3 border-t border-border">
+        <h3 className="display text-lg text-primary mb-2">📝 ציוד נוסף בכתב יד</h3>
+        <p className="text-xs text-muted-foreground mb-2">רשום פריטים חופשיים שלא נמצאו בקטלוג (כסף, חפצי משחק, מתנות וכו').</p>
+        <div className="flex gap-2 mb-2">
+          <input className="input flex-1" placeholder="שם הפריט (לדוגמה: 50 מטבעות זהב)" value={newEqName}
+            onChange={e => setNewEqName(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && newEqName.trim()) { setEq([...equipment, { name: newEqName.trim(), quantity: 1 }]); setNewEqName(""); }}} />
+          <button onClick={() => { if (newEqName.trim()) { setEq([...equipment, { name: newEqName.trim(), quantity: 1 }]); setNewEqName(""); }}}
+            className="px-3 py-1 rounded bg-primary text-primary-foreground text-sm">+ הוסף</button>
+        </div>
+        <ul className="space-y-1">
+          {equipment.map((eq, i) => (
+            <li key={i} className="flex items-center gap-2 p-2 rounded border border-border bg-background/40 text-sm">
+              <input className="input flex-1" value={eq.name} onChange={e => setEq(equipment.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
+              <input type="number" min={1} className="input w-16 text-center" value={eq.quantity}
+                onChange={e => setEq(equipment.map((x, j) => j === i ? { ...x, quantity: Math.max(1, +e.target.value || 1) } : x))} />
+              <input className="input flex-1" placeholder="הערות" value={eq.notes ?? ""}
+                onChange={e => setEq(equipment.map((x, j) => j === i ? { ...x, notes: e.target.value } : x))} />
+              <button onClick={() => setEq(equipment.filter((_, j) => j !== i))} className="text-destructive text-sm">✕</button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
 
-// ============ Step 9 — Review with manual overrides ============
-function Step9Review({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
+// ============ Step 9 — Custom Attacks ============
+function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
+  const attacks = c.attacks ?? [];
+  const set = (next: typeof attacks) => update({ attacks: next });
+  const add = () => set([...attacks, { name: "", bonus: "+0", damage: "1d6", notes: "" }]);
+  return (
+    <div className="space-y-3">
+      <h2 className="display text-2xl text-primary">⚔️ התקפות</h2>
+      <p className="text-xs text-muted-foreground">רשום נשקים והתקפות (כולל unarmed, breath weapon, spell attack) — יופיע על הגיליון וב-PDF.</p>
+      <button onClick={add} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm">+ הוסף התקפה</button>
+      <div className="space-y-2">
+        {attacks.map((a, i) => (
+          <div key={i} className="p-3 rounded border border-border bg-background/40 grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_2fr_auto] gap-2">
+            <input className="input" placeholder="שם (Longsword)" value={a.name} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
+            <input className="input" placeholder="+בונוס" value={a.bonus} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, bonus: e.target.value } : x))} />
+            <input className="input" placeholder="נזק (1d8+3 slashing)" value={a.damage} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, damage: e.target.value } : x))} />
+            <input className="input" placeholder="הערות (טווח, reach, finesse...)" value={a.notes ?? ""} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, notes: e.target.value } : x))} />
+            <button onClick={() => set(attacks.filter((_, j) => j !== i))} className="text-destructive">✕</button>
+          </div>
+        ))}
+        {attacks.length === 0 && <p className="text-xs text-muted-foreground">עדיין אין התקפות. לחץ "+ הוסף התקפה".</p>}
+      </div>
+    </div>
+  );
+}
+
+// ============ Step 10 — Review with manual overrides ============
+function Step10Review({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const d = calculateCharacter(c);
   const setOverride = (key: keyof NonNullable<Character["manualOverrides"]>, value: any) => {
     update({ manualOverrides: { ...(c.manualOverrides ?? {}), [key]: value } });

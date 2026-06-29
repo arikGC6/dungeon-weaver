@@ -153,6 +153,8 @@ export const CLASSES: DnDClass[] = [
       { id: "beastmaster", name: "Beast Master", nameHe: "מאלף", features: [{ level: 3, name: "Ranger's Companion", desc: "" }] },
       { id: "gloomstalker", name: "Gloom Stalker", nameHe: "צייד אופל", grantedSpells: [{ level: 3, spellIds: ["disguise_self"] }], features: [{ level: 3, name: "Dread Ambusher", desc: "" }] },
       { id: "fey_wanderer", name: "Fey Wanderer", nameHe: "נווד פיות", grantedSpells: [{ level: 3, spellIds: ["charm_person"] }], features: [{ level: 3, name: "Dreadful Strikes", desc: "" }] },
+      { id: "horizon_walker", name: "Horizon Walker", nameHe: "צועד-אופק", grantedSpells: [{ level: 3, spellIds: ["protection_from_evil_and_good"] }], features: [{ level: 3, name: "Detect Portal", desc: "" }, { level: 3, name: "Planar Warrior", desc: "+1d8 force לפגיעה בנשק." }] },
+      { id: "monster_slayer", name: "Monster Slayer", nameHe: "צייד מפלצות", grantedSpells: [{ level: 3, spellIds: ["protection_from_evil_and_good"] }], features: [{ level: 3, name: "Hunter's Sense", desc: "" }, { level: 3, name: "Slayer's Prey", desc: "+1d6 לפגיעה ראשונה בתור." }] },
     ],
     features: [
       { level: 1, name: "Favored Enemy", desc: "" },
@@ -173,6 +175,15 @@ export const CLASSES: DnDClass[] = [
       { id: "assassin", name: "Assassin", nameHe: "מתנקש", features: [{ level: 3, name: "Assassinate", desc: "" }] },
       { id: "arcane_trickster", name: "Arcane Trickster", nameHe: "תעלולן נסתר", features: [{ level: 3, name: "Spellcasting (1/3)", desc: "" }, { level: 3, name: "Mage Hand Legerdemain", desc: "" }] },
       { id: "swashbuckler", name: "Swashbuckler", nameHe: "פיראט", features: [{ level: 3, name: "Fancy Footwork", desc: "" }] },
+      { id: "soulknife", name: "Soulknife", nameHe: "סכין-הנפש", features: [
+        { level: 3, name: "Psionic Power", desc: "Psionic Energy dice — מוסיף לבדיקות, ריפוי קל." },
+        { level: 3, name: "Psychic Blades", desc: "מטיל להבים פסיכיים — d6 psychic + Sneak Attack, טווח 60ft." },
+        { level: 9, name: "Soul Blades", desc: "Homing Strikes — re-roll התקפה; Psychic Teleportation עד 30ft." },
+      ] },
+      { id: "phantom", name: "Phantom", nameHe: "רוח-רפאים", features: [
+        { level: 3, name: "Whispers of the Dead", desc: "Proficiency במיומנות לבחירה בכל short rest." },
+        { level: 3, name: "Wails from the Grave", desc: "התקפת Sneak Attack — נזק necrotic נוסף ליצור סמוך." },
+      ] },
     ],
     features: [
       { level: 1, name: "Expertise", desc: "" },
