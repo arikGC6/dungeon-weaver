@@ -178,13 +178,26 @@ export function exportCharacterPdf(c: Character) {
 
   ${cls ? `<h2>תכונות קלאס</h2><ul class="features">${cls.features.filter(f => f.level <= c.level).map(f => `<li><b>רמה ${f.level} — ${f.name}:</b> ${f.desc}</li>`).join("")}${sub ? sub.features.filter(f => f.level <= c.level).map(f => `<li><b>תת-קלאס (${sub.nameHe}) — ${f.name}:</b> ${f.desc}</li>`).join("") : ""}</ul>` : ""}
 
-  ${items.length ? `<h2>פריטים</h2>${items.map(({ item, equipped }) => `<div class="item-row"><span><b>${item!.nameHe ?? item!.name}</b> <span style="color:#7b5a3a;font-size:11px">${item!.name}</span> ${equipped ? '<span class="pill">חמוש</span>' : ''}</span><span style="color:#5b3010;font-size:11px">${item!.description}</span></div>`).join("")}` : ""}
+  ${items.length ? `<h2>פריטים</h2>${items.map(({ item, equipped }) => {
+    const ci = c.itemIds.find(x => x.id === item!.id);
+    const qty = ci?.quantity && ci.quantity > 1 ? ` ×${ci.quantity}` : "";
+    return `<div class="item-row"><span><b>${item!.nameHe ?? item!.name}${qty}</b> <span style="color:#7b5a3a;font-size:11px">${item!.name}</span> ${equipped ? '<span class="pill">חמוש</span>' : ''}</span><span style="color:#5b3010;font-size:11px">${item!.description}</span></div>`;
+  }).join("")}` : ""}
 
-  ${knownSpells.length ? `<h2>כישופים</h2>${knownSpells.map(s => `
-    <div class="spell">
-      <div class="name">${s!.name} <span class="meta">— רמה ${s!.level === 0 ? "קנטריפ" : s!.level} · ${SCHOOL_LABELS_HE[s!.school]} · ${s!.castingTime} · ${s!.range} · ${s!.components} · ${s!.duration}${s!.concentration ? " · ריכוז" : ""}${s!.ritual ? " · טקס" : ""}</span></div>
+  ${c.equipment && c.equipment.length ? `<h2>📦 ציוד נוסף</h2>${c.equipment.map(eq => `<div class="item-row"><span><b>${eq.name}</b>${eq.quantity > 1 ? ` <span style="color:#7b5a3a">×${eq.quantity}</span>` : ""}</span><span style="color:#5b3010;font-size:11px">${eq.notes ?? ""}</span></div>`).join("")}` : ""}
+
+  ${c.attacks && c.attacks.length ? `<h2>⚔️ התקפות</h2><table style="width:100%;font-size:13px;border-collapse:collapse">
+    <thead><tr style="background:#e9d5a5"><th style="text-align:right;padding:4px 8px">שם</th><th style="padding:4px 8px">בונוס</th><th style="padding:4px 8px">נזק</th><th style="text-align:right;padding:4px 8px">הערות</th></tr></thead>
+    <tbody>${c.attacks.map(a => `<tr style="border-bottom:1px dashed #b88a3a"><td style="padding:4px 8px"><b>${a.name}</b></td><td style="text-align:center">${a.bonus}</td><td style="text-align:center">${a.damage}</td><td style="color:#5b3010">${a.notes ?? ""}</td></tr>`).join("")}</tbody>
+  </table>` : ""}
+
+  ${knownSpells.length ? `<h2>כישופים</h2>${knownSpells.map(s => {
+    const isPrep = c.preparedSpellIds.includes(s!.id) || d.alwaysPreparedSpellIds.includes(s!.id);
+    return `<div class="spell">
+      <div class="name">${isPrep ? "✦ " : "○ "}${s!.name} <span class="meta">— רמה ${s!.level === 0 ? "קנטריפ" : s!.level} · ${SCHOOL_LABELS_HE[s!.school]} · ${s!.castingTime} · ${s!.range} · ${s!.components} · ${s!.duration}${s!.concentration ? " · ריכוז" : ""}${s!.ritual ? " · טקס" : ""}${isPrep ? " · <b>מוכן</b>" : ""}</span></div>
       <div class="desc">${s!.description}</div>
-    </div>`).join("")}` : ""}
+    </div>`;
+  }).join("")}` : ""}
 
   ${c.notes ? `<h2>הערות</h2><div style="white-space: pre-wrap; font-size:13px;">${c.notes}</div>` : ""}
 </div>
