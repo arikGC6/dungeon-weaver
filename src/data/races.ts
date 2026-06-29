@@ -395,6 +395,73 @@ export const RACES: Race[] = [
       { name: "Thri-kreen Telepathy", desc: "טלפתיה 120ft עם יצורים שמכירים שפה משותפת." },
     ],
   },
+  {
+    id: "genasi", name: "Genasi", nameHe: "ג'נאסי", source: "EEPC",
+    speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "con", amount: 2 }],
+    languages: ["Common", "Primordial"],
+    traits: [{ name: "Elemental Heritage", desc: "צאצא של יסוד — בחר תת-גזע." }],
+    subraces: [
+      { id: "genasi-air", name: "Air Genasi", nameHe: "ג'נאסי אוויר", abilityBonuses: [{ ability: "dex", amount: 1 }], traits: [{ name: "Unending Breath", desc: "נושם זמן בלתי מוגבל." }, { name: "Mingle with the Wind", desc: "Levitate פעם פר rest ארוך." }] },
+      { id: "genasi-earth", name: "Earth Genasi", nameHe: "ג'נאסי אדמה", abilityBonuses: [{ ability: "str", amount: 1 }], traits: [{ name: "Earth Walk", desc: "ללא קושי על אבן/אדמה." }, { name: "Merge with Stone", desc: "Pass without Trace פעם פר rest." }] },
+      { id: "genasi-fire", name: "Fire Genasi", nameHe: "ג'נאסי אש", abilityBonuses: [{ ability: "int", amount: 1 }], darkvision: 60 as any, traits: [{ name: "Fire Resistance", desc: "Resistance לאש." }, { name: "Reach to the Blaze", desc: "Produce Flame cantrip; Burning Hands ברמה 3." }] },
+      { id: "genasi-water", name: "Water Genasi", nameHe: "ג'נאסי מים", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Amphibious", desc: "נשימה במים." }, { name: "Swim Speed", desc: "30ft שחיה." }, { name: "Acid Resistance", desc: "" }, { name: "Call to the Wave", desc: "Shape Water cantrip; Create or Destroy Water ברמה 3." }] },
+    ],
+  },
+  {
+    id: "aarakocra", name: "Aarakocra", nameHe: "אאראקוקרה", source: "EEPC",
+    speed: 25, size: "Medium",
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "wis", amount: 1 }],
+    languages: ["Common", "Aarakocra", "Auran"],
+    traits: [
+      { name: "Flight", desc: "מהירות תעופה 50ft (ללא medium/heavy armor)." },
+      { name: "Talons", desc: "Unarmed strike 1d4 slashing." },
+    ],
+  },
+  {
+    id: "loxodon", name: "Loxodon", nameHe: "לוקסודון", source: "GGtR",
+    speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "con", amount: 2 }, { ability: "wis", amount: 1 }],
+    languages: ["Common", "Loxodon"],
+    traits: [
+      { name: "Natural Armor", desc: "AC = 12 + CON mod (אם גבוה יותר משריון אחר)." },
+      { name: "Trunk", desc: "אחיזה — 1d6 unarmed; חוש ריח חזק." },
+      { name: "Loxodon Serenity", desc: "Advantage על saves נגד charm/frightened." },
+    ],
+  },
+  {
+    id: "owlin", name: "Owlin", nameHe: "אאוולין", source: "SACoC",
+    speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "wis", amount: 1 }],
+    darkvision: 120,
+    languages: ["Common", "+1 choice"],
+    traits: [
+      { name: "Flight", desc: "מהירות תעופה 30ft (ללא medium/heavy armor)." },
+      { name: "Silent Feathers", desc: "Proficiency ב-Stealth." },
+    ],
+  },
+  {
+    id: "plasmoid", name: "Plasmoid", nameHe: "פלזמואיד", source: "SACoC",
+    speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "con", amount: 2 }, { ability: "dex", amount: 1 }],
+    languages: ["Common"],
+    traits: [
+      { name: "Amorphous", desc: "מעבר דרך פתח 1 inch." },
+      { name: "Hold Breath", desc: "עד שעה." },
+      { name: "Natural Resilience", desc: "Resistance ל-acid ול-poison." },
+    ],
+  },
+  {
+    id: "autognome", name: "Autognome", nameHe: "אאוטוגנום", source: "SACoC",
+    speed: 30, size: "Small",
+    abilityBonuses: [{ ability: "con", amount: 2 }, { ability: "int", amount: 1 }],
+    languages: ["Common", "Gnomish"],
+    traits: [
+      { name: "Armored Casing", desc: "+1 AC." },
+      { name: "Constructed Resilience", desc: "Advantage על saves נגד רעל ו-charm; ללא צורך באוויר/אוכל/שינה." },
+      { name: "Sentry's Rest", desc: "6 שעות פסיביות = long rest." },
+    ],
+  },
 ];
 
 export function getRace(id?: string): Race | undefined {
