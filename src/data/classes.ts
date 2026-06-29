@@ -173,6 +173,15 @@ export const CLASSES: DnDClass[] = [
       { id: "assassin", name: "Assassin", nameHe: "מתנקש", features: [{ level: 3, name: "Assassinate", desc: "" }] },
       { id: "arcane_trickster", name: "Arcane Trickster", nameHe: "תעלולן נסתר", features: [{ level: 3, name: "Spellcasting (1/3)", desc: "" }, { level: 3, name: "Mage Hand Legerdemain", desc: "" }] },
       { id: "swashbuckler", name: "Swashbuckler", nameHe: "פיראט", features: [{ level: 3, name: "Fancy Footwork", desc: "" }] },
+      { id: "soulknife", name: "Soulknife", nameHe: "סכין-הנפש", features: [
+        { level: 3, name: "Psionic Power", desc: "Psionic Energy dice — מוסיף לבדיקות, ריפוי קל." },
+        { level: 3, name: "Psychic Blades", desc: "מטיל להבים פסיכיים — d6 psychic + Sneak Attack, טווח 60ft." },
+        { level: 9, name: "Soul Blades", desc: "Homing Strikes — re-roll התקפה; Psychic Teleportation עד 30ft." },
+      ] },
+      { id: "phantom", name: "Phantom", nameHe: "רוח-רפאים", features: [
+        { level: 3, name: "Whispers of the Dead", desc: "Proficiency במיומנות לבחירה בכל short rest." },
+        { level: 3, name: "Wails from the Grave", desc: "התקפת Sneak Attack — נזק necrotic נוסף ליצור סמוך." },
+      ] },
     ],
     features: [
       { level: 1, name: "Expertise", desc: "" },
