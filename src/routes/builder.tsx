@@ -74,7 +74,21 @@ function Builder() {
         {step === 6 && <Step6Feats c={c} update={update} />}
         {step === 7 && <Step7Spells c={c} update={update} />}
         {step === 8 && <Step8Items c={c} update={update} />}
-        {step === 9 && <Step9Review c={c} update={update} />}
+        {step === 9 && <Step9Attacks c={c} update={update} />}
+        {step === 10 && <Step10Review c={c} update={update} />}
+      </div>
+
+      <div className="flex justify-between mt-4">
+        <button onClick={prev} disabled={step === 0} className="px-5 py-2 rounded-md bg-secondary disabled:opacity-30 hover:bg-accent">→ הקודם</button>
+        {step < STEPS.length - 1 ? (
+          <button onClick={next} className="px-5 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90">הבא ←</button>
+        ) : (
+          <button onClick={finish} className="px-6 py-2 rounded-md bg-accent text-accent-foreground font-semibold hover:opacity-90 ember-glow">{edit ? "שמור וצפה 🍷" : "סיים ושמור 🍷"}</button>
+        )}
+      </div>
+    </div>
+  );
+}
       </div>
 
       <div className="flex justify-between mt-4">
