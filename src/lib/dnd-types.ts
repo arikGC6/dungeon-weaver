@@ -161,7 +161,11 @@ export interface Character {
   featIds: string[];
   spellIds: string[];      // known/learned spells
   preparedSpellIds: string[];
-  itemIds: { id: string; equipped: boolean }[];
+  itemIds: { id: string; equipped: boolean; quantity?: number }[];
+  // Free-text equipment the player wrote in (לפיד, אוהל, חבל...)
+  equipment?: { name: string; quantity: number; notes?: string }[];
+  // Custom attacks (נשק קסום, התקפת unarmed וכו')
+  attacks?: { name: string; bonus: string; damage: string; notes?: string }[];
   hpMax?: number; // override
   hpCurrent?: number;
   acOverride?: number;
