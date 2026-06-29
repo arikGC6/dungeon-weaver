@@ -12,6 +12,7 @@ import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STAND
 import { calculateCharacter, getClass } from "@/lib/calculations";
 
 export const Route = createFileRoute("/builder")({
+  validateSearch: (s: Record<string, unknown>) => ({ edit: typeof s.edit === "string" ? s.edit : undefined }),
   head: () => ({
     meta: [
       { title: "בונה דמות חדשה — בר הקסמים" },
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/builder")({
 });
 
 const STEPS = [
-  "פרטים", "גזע", "קלאס", "רקע", "יכולות", "מיומנויות", "Feats", "כישופים", "פריטים", "סקירה",
+  "פרטים", "גזע", "קלאס", "רקע", "יכולות", "מיומנויות", "Feats", "כישופים", "פריטים", "התקפות", "סקירה",
 ] as const;
 
 function Builder() {
