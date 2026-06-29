@@ -45,7 +45,8 @@ function CharacterPage() {
         <h1 className="display text-3xl text-primary flex-1">{c.name || "ללא שם"}</h1>
         <button onClick={() => exportCharacterPdf(c)} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm hover:opacity-90">📄 PDF</button>
         <button onClick={() => exportCharacterJson(c)} className="px-3 py-1.5 rounded bg-secondary text-sm hover:bg-accent">💾 JSON</button>
-        <button onClick={() => setEditing(e => !e)} className="px-3 py-1.5 rounded bg-secondary text-sm hover:bg-accent">{editing ? "סיים עריכה" : "✏️ עריכה"}</button>
+        <Link to="/builder" search={{ edit: c.id }} className="px-3 py-1.5 rounded bg-accent text-accent-foreground text-sm hover:opacity-90">🪄 ערוך באשף</Link>
+        <button onClick={() => setEditing(e => !e)} className="px-3 py-1.5 rounded bg-secondary text-sm hover:bg-accent">{editing ? "סיים עריכה" : "✏️ עריכה מהירה"}</button>
         <button onClick={() => { if (confirm("למחוק?")) { deleteCharacter(c.id); navigate({ to: "/" }); } }} className="px-3 py-1.5 rounded bg-destructive/70 text-destructive-foreground text-sm hover:bg-destructive">מחק</button>
       </div>
 
