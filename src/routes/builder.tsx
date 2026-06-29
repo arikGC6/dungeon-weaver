@@ -132,7 +132,12 @@ function Step0Basics({ c, update }: { c: Character; update: (p: Partial<Characte
           <Field label="שם הדמות"><input value={c.name} onChange={e => update({ name: e.target.value })} className="input" /></Field>
           <Field label="שם השחקן"><input value={c.player ?? ""} onChange={e => update({ player: e.target.value })} className="input" /></Field>
           <Field label="רמה"><input type="number" min={1} max={20} value={c.level} onChange={e => update({ level: Math.max(1, Math.min(20, +e.target.value || 1)) })} className="input" /></Field>
-          <Field label="מערך (Alignment)"><input value={c.alignment ?? ""} onChange={e => update({ alignment: e.target.value })} className="input" placeholder="לדוגמה: Chaotic Good" /></Field>
+          <Field label="מערך (Alignment)">
+            <select className="input" value={c.alignment ?? ""} onChange={e => update({ alignment: e.target.value })}>
+              <option value="">— בחר —</option>
+              {ALIGNMENTS.map(a => <option key={a.id} value={a.label}>{a.label}</option>)}
+            </select>
+          </Field>
         </div>
       </div>
     </div>
