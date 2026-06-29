@@ -466,17 +466,25 @@ function Step8Items({ c, update }: { c: Character; update: (p: Partial<Character
   const toggle = (id: string) => {
     const has = c.itemIds.find(x => x.id === id);
     if (has) update({ itemIds: c.itemIds.filter(x => x.id !== id) });
-    else update({ itemIds: [...c.itemIds, { id, equipped: true }] });
+    else update({ itemIds: [...c.itemIds, { id, equipped: true, quantity: 1 }] });
   };
   const toggleEquip = (id: string) => {
     update({ itemIds: c.itemIds.map(x => x.id === id ? { ...x, equipped: !x.equipped } : x) });
   };
+  const setQty = (id: string, n: number) => {
+    update({ itemIds: c.itemIds.map(x => x.id === id ? { ...x, quantity: Math.max(1, n) } : x) });
+  };
+
+  const equipment = c.equipment ?? [];
+  const setEq = (next: typeof equipment) => update({ equipment: next });
+  const [newEqName, setNewEqName] = useState("");
+
   return (
     <div className="space-y-3">
-      <h2 className="display text-2xl text-primary">פריטים וציוד</h2>
-      <p className="text-xs text-muted-foreground">בונוסי AC, יכולת, HP ומהירות יתווספו אוטומטית כשהפריט "חמוש".</p>
-      <div className="flex gap-2">
-        <input className="input flex-1" placeholder="חפש פריט..." value={q} onChange={e => setQ(e.target.value)} />
+      <h2 className="display text-2xl text-primary">פריטים, ציוד וקטלוג</h2>
+      <p className="text-xs text-muted-foreground">בונוסי AC/יכולת/HP/מהירות מתווספים אוטומטית כשהפריט "חמוש". אפשר לקבוע <b>כמות</b> לכל פריט.</p>
+      <div className="flex gap-2 flex-wrap">
+        <input className="input flex-1 min-w-[180px]" placeholder="חפש פריט..." value={q} onChange={e => setQ(e.target.value)} />
         <select className="input" value={cat} onChange={e => setCat(e.target.value)}>
           <option value="all">כל הקטגוריות</option>
           <option value="armor">שריון</option>
@@ -487,9 +495,11 @@ function Step8Items({ c, update }: { c: Character; update: (p: Partial<Character
           <option value="potion">שיקוי</option>
           <option value="wand">שרביט</option>
           <option value="staff">מטה</option>
+          <option value="rod">מטה-מלוכה</option>
+          <option value="gear">ציוד</option>
         </select>
       </div>
-      <div className="max-h-[420px] overflow-y-auto space-y-1">
+      <div className="max-h-[360px] overflow-y-auto space-y-1">
         {list.map(item => {
           const cur = c.itemIds.find(x => x.id === item.id);
           return (
@@ -500,21 +510,79 @@ function Step8Items({ c, update }: { c: Character; update: (p: Partial<Character
                   <div className="text-xs">{item.description}</div>
                 </button>
                 {cur && (
-                  <label className="flex items-center gap-1 text-xs">
-                    <input type="checkbox" checked={cur.equipped} onChange={() => toggleEquip(item.id)} /> חמוש
-                  </label>
+                  <div className="flex items-center gap-2 text-xs">
+                    <label className="flex items-center gap-1">כמות
+                      <input type="number" min={1} value={cur.quantity ?? 1} onChange={e => setQty(item.id, +e.target.value || 1)} className="input w-14 h-7 px-1 text-center" />
+                    </label>
+                    {(item.category === "armor" || item.category === "shield" || item.category === "weapon" || item.category === "wondrous" || item.category === "ring") && (
+                      <label className="flex items-center gap-1">
+                        <input type="checkbox" checked={cur.equipped} onChange={() => toggleEquip(item.id)} /> חמוש
+                      </label>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Free equipment list */}
+      <div className="pt-3 border-t border-border">
+        <h3 className="display text-lg text-primary mb-2">📝 ציוד נוסף בכתב יד</h3>
+        <p className="text-xs text-muted-foreground mb-2">רשום פריטים חופשיים שלא נמצאו בקטלוג (כסף, חפצי משחק, מתנות וכו').</p>
+        <div className="flex gap-2 mb-2">
+          <input className="input flex-1" placeholder="שם הפריט (לדוגמה: 50 מטבעות זהב)" value={newEqName}
+            onChange={e => setNewEqName(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && newEqName.trim()) { setEq([...equipment, { name: newEqName.trim(), quantity: 1 }]); setNewEqName(""); }}} />
+          <button onClick={() => { if (newEqName.trim()) { setEq([...equipment, { name: newEqName.trim(), quantity: 1 }]); setNewEqName(""); }}}
+            className="px-3 py-1 rounded bg-primary text-primary-foreground text-sm">+ הוסף</button>
+        </div>
+        <ul className="space-y-1">
+          {equipment.map((eq, i) => (
+            <li key={i} className="flex items-center gap-2 p-2 rounded border border-border bg-background/40 text-sm">
+              <input className="input flex-1" value={eq.name} onChange={e => setEq(equipment.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
+              <input type="number" min={1} className="input w-16 text-center" value={eq.quantity}
+                onChange={e => setEq(equipment.map((x, j) => j === i ? { ...x, quantity: Math.max(1, +e.target.value || 1) } : x))} />
+              <input className="input flex-1" placeholder="הערות" value={eq.notes ?? ""}
+                onChange={e => setEq(equipment.map((x, j) => j === i ? { ...x, notes: e.target.value } : x))} />
+              <button onClick={() => setEq(equipment.filter((_, j) => j !== i))} className="text-destructive text-sm">✕</button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
 
-// ============ Step 9 — Review with manual overrides ============
-function Step9Review({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
+// ============ Step 9 — Custom Attacks ============
+function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
+  const attacks = c.attacks ?? [];
+  const set = (next: typeof attacks) => update({ attacks: next });
+  const add = () => set([...attacks, { name: "", bonus: "+0", damage: "1d6", notes: "" }]);
+  return (
+    <div className="space-y-3">
+      <h2 className="display text-2xl text-primary">⚔️ התקפות</h2>
+      <p className="text-xs text-muted-foreground">רשום נשקים והתקפות (כולל unarmed, breath weapon, spell attack) — יופיע על הגיליון וב-PDF.</p>
+      <button onClick={add} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm">+ הוסף התקפה</button>
+      <div className="space-y-2">
+        {attacks.map((a, i) => (
+          <div key={i} className="p-3 rounded border border-border bg-background/40 grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_2fr_auto] gap-2">
+            <input className="input" placeholder="שם (Longsword)" value={a.name} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
+            <input className="input" placeholder="+בונוס" value={a.bonus} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, bonus: e.target.value } : x))} />
+            <input className="input" placeholder="נזק (1d8+3 slashing)" value={a.damage} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, damage: e.target.value } : x))} />
+            <input className="input" placeholder="הערות (טווח, reach, finesse...)" value={a.notes ?? ""} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, notes: e.target.value } : x))} />
+            <button onClick={() => set(attacks.filter((_, j) => j !== i))} className="text-destructive">✕</button>
+          </div>
+        ))}
+        {attacks.length === 0 && <p className="text-xs text-muted-foreground">עדיין אין התקפות. לחץ "+ הוסף התקפה".</p>}
+      </div>
+    </div>
+  );
+}
+
+// ============ Step 10 — Review with manual overrides ============
+function Step10Review({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const d = calculateCharacter(c);
   const setOverride = (key: keyof NonNullable<Character["manualOverrides"]>, value: any) => {
     update({ manualOverrides: { ...(c.manualOverrides ?? {}), [key]: value } });
