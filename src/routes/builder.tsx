@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCharacters } from "@/lib/character-store";
 import { emptyCharacter } from "@/lib/calculations";
 import { RACES } from "@/data/races";
@@ -8,7 +8,7 @@ import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS } from "@/data/feats";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
-import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
+import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STANDARD_ARRAY_VALUES, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
 import { calculateCharacter, getClass } from "@/lib/calculations";
 
 export const Route = createFileRoute("/builder")({
