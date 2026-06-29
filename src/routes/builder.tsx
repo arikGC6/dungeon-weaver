@@ -282,7 +282,18 @@ function Step4Abilities({ c, update }: { c: Character; update: (p: Partial<Chara
           return (
             <div key={a} className="p-3 rounded-md bg-background/40 border border-border text-center">
               <div className="display text-primary text-sm">{ABILITY_LABELS[a]}</div>
-              <input type="number" min={1} max={20} value={base} onChange={e => set(a, +e.target.value || 0)} className="input text-center text-2xl w-full mt-1" />
+              {method === "standard" ? (
+                <div className="flex flex-wrap justify-center gap-1 mt-2">
+                  {STANDARD_ARRAY_VALUES.map(v => (
+                    <button key={v} onClick={() => set(a, v)}
+                      className={`px-2 py-1 rounded text-sm border ${base === v ? "bg-primary text-primary-foreground border-primary" : "bg-secondary border-border hover:bg-accent"}`}>
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <input type="number" min={1} max={20} value={base} onChange={e => set(a, +e.target.value || 0)} className="input text-center text-2xl w-full mt-1" />
+              )}
               <div className="text-xs text-muted-foreground mt-1">בסיס. מודיפיקטור גזע יחושב בנפרד.</div>
               <div className="display text-accent text-lg mt-1">mod {formatMod(mod(base))}</div>
             </div>
