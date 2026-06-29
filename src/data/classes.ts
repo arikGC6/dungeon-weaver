@@ -153,6 +153,8 @@ export const CLASSES: DnDClass[] = [
       { id: "beastmaster", name: "Beast Master", nameHe: "מאלף", features: [{ level: 3, name: "Ranger's Companion", desc: "" }] },
       { id: "gloomstalker", name: "Gloom Stalker", nameHe: "צייד אופל", grantedSpells: [{ level: 3, spellIds: ["disguise_self"] }], features: [{ level: 3, name: "Dread Ambusher", desc: "" }] },
       { id: "fey_wanderer", name: "Fey Wanderer", nameHe: "נווד פיות", grantedSpells: [{ level: 3, spellIds: ["charm_person"] }], features: [{ level: 3, name: "Dreadful Strikes", desc: "" }] },
+      { id: "horizon_walker", name: "Horizon Walker", nameHe: "צועד-אופק", grantedSpells: [{ level: 3, spellIds: ["protection_from_evil_and_good"] }], features: [{ level: 3, name: "Detect Portal", desc: "" }, { level: 3, name: "Planar Warrior", desc: "+1d8 force לפגיעה בנשק." }] },
+      { id: "monster_slayer", name: "Monster Slayer", nameHe: "צייד מפלצות", grantedSpells: [{ level: 3, spellIds: ["protection_from_evil_and_good"] }], features: [{ level: 3, name: "Hunter's Sense", desc: "" }, { level: 3, name: "Slayer's Prey", desc: "+1d6 לפגיעה ראשונה בתור." }] },
     ],
     features: [
       { level: 1, name: "Favored Enemy", desc: "" },
