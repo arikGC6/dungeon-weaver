@@ -27,7 +27,7 @@ export interface DerivedStats {
   spellSlots: SpellSlotsInfo;
   walking: { ftPerTurn: number; ftPerMin: number; kmPerHour: number };
   alwaysPreparedSpellIds: string[];
-  classResources: { name: string; value: string; recharge: string; desc?: string }[];
+  classResources: { name: string; value: string; recharge: string; desc?: string; className?: string }[];
 }
 
 export function calculateCharacter(c: Character): DerivedStats {
