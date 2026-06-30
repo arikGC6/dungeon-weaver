@@ -66,6 +66,15 @@ function CharacterPage() {
           <h2 className="display text-2xl text-primary mt-3">{c.name}</h2>
           <p className="text-sm text-muted-foreground">{race?.nameHe}{subrace ? ` · ${subrace.nameHe}` : ""}</p>
           <p className="text-sm text-muted-foreground">{cls?.nameHe}{sub ? ` (${sub.nameHe})` : ""} · רמה {c.level}</p>
+          {c.multiclass && c.multiclass.length > 0 && (
+            <p className="text-xs text-accent">
+              + {c.multiclass.map(mc => {
+                const mcCls = getClass(mc.classId);
+                const mcSub = mcCls?.subclasses.find(s => s.id === mc.subclassId);
+                return `${mcCls?.nameHe ?? mc.classId}${mcSub ? ` (${mcSub.nameHe})` : ""} ${mc.level}`;
+              }).join(" · ")}
+            </p>
+          )}
           {bg && <p className="text-xs text-muted-foreground mt-1">{bg.nameHe}</p>}
           {c.alignment && <p className="text-xs text-accent mt-1">{c.alignment}</p>}
         </div>
