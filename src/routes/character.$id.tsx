@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCharacters } from "@/lib/character-store";
+import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground } from "@/lib/calculations";
 import { ABILITIES, ABILITY_SHORT, SKILL_LIST, formatMod } from "@/lib/dnd-types";
 import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
@@ -12,9 +12,14 @@ export const Route = createFileRoute("/character/$id")({
 
 function CharacterPage() {
   const { id } = Route.useParams();
+  const hydrated = useHydrateCharacters();
   const { getCharacter, saveCharacter, deleteCharacter } = useCharacters();
   const c = getCharacter(id);
   const navigate = useNavigate();
+
+  if (!hydrated) {
+    return <div className="text-center py-20 text-muted-foreground"><div className="text-5xl mb-2 animate-pulse">🕯️</div>טוען דמות…</div>;
+  }
 
   if (!c) {
     return (
@@ -140,6 +145,25 @@ function CharacterPage() {
             </>
           ) : <p className="text-sm text-muted-foreground">לא מטיל קסמים</p>}
         </div>
+
+        {/* Class Resources */}
+        {d.classResources.length > 0 && (
+          <div className="tavern-card p-4 md:col-span-3">
+            <h3 className="display text-lg text-primary mb-2">⚡ משאבי קלאס</h3>
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+              {d.classResources.map((r, i) => (
+                <div key={i} className="p-3 rounded bg-background/40 border border-border">
+                  <div className="flex justify-between items-baseline">
+                    <b className="text-primary">{r.name}</b>
+                    <span className="text-lg font-mono text-accent">{r.value}</span>
+                  </div>
+                  <div className="text-[11px] text-muted-foreground">מתחדש: {r.recharge}</div>
+                  {r.desc && <div className="text-xs mt-1">{r.desc}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Feats */}
         {c.featIds.length > 0 && (

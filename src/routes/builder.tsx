@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useCharacters } from "@/lib/character-store";
+import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { emptyCharacter } from "@/lib/calculations";
 import { RACES } from "@/data/races";
 import { CLASSES } from "@/data/classes";
@@ -27,22 +27,31 @@ const STEPS = [
 ] as const;
 
 function Builder() {
+  const hydrated = useHydrateCharacters();
   const { saveCharacter, getCharacter } = useCharacters();
   const navigate = useNavigate();
   const { edit } = Route.useSearch();
   const [step, setStep] = useState(0);
-  const [c, setC] = useState<Character>(() => {
+  const [c, setC] = useState<Character>(() => emptyCharacter());
+  const [loadedEdit, setLoadedEdit] = useState(false);
+
+  // Load the character to edit AFTER persist hydration finishes,
+  // otherwise getCharacter() returns undefined on the first render and
+  // a brand-new empty character would silently replace the saved one.
+  useEffect(() => {
+    if (!hydrated || loadedEdit) return;
     if (edit) {
       const existing = getCharacter(edit);
-      if (existing) return existing;
+      if (existing) setC(existing);
     }
-    return emptyCharacter();
-  });
+    setLoadedEdit(true);
+  }, [hydrated, edit, loadedEdit, getCharacter]);
 
-  // Auto-save every change when editing existing character
+  // Auto-save every change when editing existing character (only after the
+  // existing one has been loaded, to avoid clobbering it with the empty seed).
   useEffect(() => {
-    if (edit && c.id) saveCharacter(c);
-  }, [c, edit, saveCharacter]);
+    if (edit && loadedEdit && c.id) saveCharacter(c);
+  }, [c, edit, loadedEdit, saveCharacter]);
 
   const update = (patch: Partial<Character>) => setC(prev => ({ ...prev, ...patch }));
 
@@ -54,6 +63,10 @@ function Builder() {
     saveCharacter(c);
     navigate({ to: "/character/$id", params: { id: c.id } });
   };
+
+  if (edit && !loadedEdit) {
+    return <div className="text-center py-20 text-muted-foreground"><div className="text-5xl mb-2 animate-pulse">🕯️</div>טוען דמות לעריכה…</div>;
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
