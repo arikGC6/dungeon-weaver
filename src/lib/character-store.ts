@@ -56,16 +56,26 @@ export const useCharacters = create<CharacterStore>()(
 // "characters list flashes empty then re-appears" race during SSR/CSR boot.
 let _hydrationStarted = false;
 export function useHydrateCharacters() {
-  const [ready, setReady] = useState(useCharacters.persist.hasHydrated());
+  const persist = (useCharacters as any).persist as
+    | {
+        hasHydrated?: () => boolean;
+        rehydrate?: () => Promise<void> | void;
+        onFinishHydration?: (fn: () => void) => () => void;
+      }
+    | undefined;
+  const [ready, setReady] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return persist?.hasHydrated?.() ?? false;
+  });
   useEffect(() => {
+    if (typeof window === "undefined" || !persist) return;
     if (!_hydrationStarted) {
       _hydrationStarted = true;
-      // rehydrate from localStorage now that we know we're on the client
-      void useCharacters.persist.rehydrate();
+      void persist.rehydrate?.();
     }
-    const unsub = useCharacters.persist.onFinishHydration(() => setReady(true));
-    if (useCharacters.persist.hasHydrated()) setReady(true);
+    const unsub = persist.onFinishHydration?.(() => setReady(true));
+    if (persist.hasHydrated?.()) setReady(true);
     return unsub;
-  }, []);
+  }, [persist]);
   return ready;
 }
