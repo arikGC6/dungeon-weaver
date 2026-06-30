@@ -66,6 +66,15 @@ function CharacterPage() {
           <h2 className="display text-2xl text-primary mt-3">{c.name}</h2>
           <p className="text-sm text-muted-foreground">{race?.nameHe}{subrace ? ` · ${subrace.nameHe}` : ""}</p>
           <p className="text-sm text-muted-foreground">{cls?.nameHe}{sub ? ` (${sub.nameHe})` : ""} · רמה {c.level}</p>
+          {c.multiclass && c.multiclass.length > 0 && (
+            <p className="text-xs text-accent">
+              + {c.multiclass.map(mc => {
+                const mcCls = getClass(mc.classId);
+                const mcSub = mcCls?.subclasses.find(s => s.id === mc.subclassId);
+                return `${mcCls?.nameHe ?? mc.classId}${mcSub ? ` (${mcSub.nameHe})` : ""} ${mc.level}`;
+              }).join(" · ")}
+            </p>
+          )}
           {bg && <p className="text-xs text-muted-foreground mt-1">{bg.nameHe}</p>}
           {c.alignment && <p className="text-xs text-accent mt-1">{c.alignment}</p>}
         </div>
@@ -157,6 +166,7 @@ function CharacterPage() {
                     <b className="text-primary">{r.name}</b>
                     <span className="text-lg font-mono text-accent">{r.value}</span>
                   </div>
+                  {r.className && <div className="text-[10px] text-muted-foreground">{r.className}</div>}
                   <div className="text-[11px] text-muted-foreground">מתחדש: {r.recharge}</div>
                   {r.desc && <div className="text-xs mt-1">{r.desc}</div>}
                 </div>

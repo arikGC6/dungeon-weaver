@@ -244,6 +244,68 @@ function Step2Class({ c, update }: { c: Character; update: (p: Partial<Character
           )}
         </>
       )}
+
+      {/* Multiclass */}
+      <div className="p-3 rounded-md bg-background/30 border border-border space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="display text-primary">⚔️ מולטיקלאס (אופציונלי)</h3>
+          <button
+            type="button"
+            onClick={() => update({ multiclass: [...(c.multiclass ?? []), { classId: "", level: 1 }] })}
+            className="text-xs px-2 py-1 rounded bg-secondary hover:bg-accent"
+          >
+            + הוסף קלאס
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground">כל קלאס יחושב לו פול משאבים עצמאי (Rage / Ki / Sorcery Points / Psionic Dice וכו׳) לפי רמתו ותת-הקלאס שלו.</p>
+        {(c.multiclass ?? []).map((mc, idx) => {
+          const mcCls = CLASSES.find(x => x.id === mc.classId);
+          const updateMc = (patch: Partial<typeof mc>) => {
+            const next = [...(c.multiclass ?? [])];
+            next[idx] = { ...next[idx], ...patch };
+            update({ multiclass: next });
+          };
+          const removeMc = () => update({ multiclass: (c.multiclass ?? []).filter((_, i) => i !== idx) });
+          return (
+            <div key={idx} className="p-2 rounded border border-border bg-background/40 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  className="input flex-1 min-w-[140px]"
+                  value={mc.classId}
+                  onChange={e => updateMc({ classId: e.target.value, subclassId: undefined })}
+                >
+                  <option value="">בחר קלאס…</option>
+                  {CLASSES.filter(cl => cl.id !== c.classId).map(cl => (
+                    <option key={cl.id} value={cl.id}>{cl.nameHe} ({cl.name})</option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={mc.level}
+                  onChange={e => updateMc({ level: Math.max(1, Math.min(20, +e.target.value || 1)) })}
+                  className="input w-20"
+                  aria-label="רמה"
+                />
+                <button onClick={removeMc} className="text-xs px-2 py-1 rounded bg-destructive/70 text-destructive-foreground hover:bg-destructive">הסר</button>
+              </div>
+              {mcCls && mc.level >= mcCls.subclassLevel && (
+                <select
+                  className="input w-full"
+                  value={mc.subclassId ?? ""}
+                  onChange={e => updateMc({ subclassId: e.target.value || undefined })}
+                >
+                  <option value="">תת-קלאס…</option>
+                  {mcCls.subclasses.map(s => (
+                    <option key={s.id} value={s.id}>{s.nameHe} ({s.name})</option>
+                  ))}
+                </select>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
