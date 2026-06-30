@@ -152,6 +152,8 @@ export interface Character {
   subraceId?: string;
   classId: string;
   subclassId?: string;
+  // Optional multiclass entries. Each has its own level/subclass for resource computation.
+  multiclass?: { classId: string; subclassId?: string; level: number }[];
   backgroundId?: string;
   alignment?: string;
   baseAbilities: Record<Ability, number>;
