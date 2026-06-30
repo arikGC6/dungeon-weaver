@@ -219,8 +219,15 @@ export function calculateCharacter(c: Character): DerivedStats {
     if (level >= g.level) alwaysPreparedSpellIds.push(...g.spellIds);
   });
 
-  // ===== Per-class resource pools =====
-  const classResources = computeClassResources(c.classId, c.subclassId, level, abilityMods, proficiencyBonus);
+  // ===== Per-class resource pools (main class + any multiclass entries) =====
+  const classResources = [
+    ...computeClassResources(c.classId, c.subclassId, level, abilityMods, proficiencyBonus).map(r => ({ ...r, className: cls?.nameHe ?? c.classId })),
+    ...(c.multiclass ?? []).flatMap(mc => {
+      const mcCls = getClass(mc.classId);
+      return computeClassResources(mc.classId, mc.subclassId, Math.max(1, Math.min(20, mc.level)), abilityMods, proficiencyBonus)
+        .map(r => ({ ...r, className: mcCls?.nameHe ?? mc.classId }));
+    }),
+  ];
 
   return {
     abilities, abilityMods, proficiencyBonus, ac, hpMax, speed, initiative,
