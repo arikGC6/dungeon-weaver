@@ -27,6 +27,7 @@ export interface DerivedStats {
   spellSlots: SpellSlotsInfo;
   walking: { ftPerTurn: number; ftPerMin: number; kmPerHour: number };
   alwaysPreparedSpellIds: string[];
+  classResources: { name: string; value: string; recharge: string; desc?: string }[];
 }
 
 export function calculateCharacter(c: Character): DerivedStats {
@@ -218,6 +219,9 @@ export function calculateCharacter(c: Character): DerivedStats {
     if (level >= g.level) alwaysPreparedSpellIds.push(...g.spellIds);
   });
 
+  // ===== Per-class resource pools =====
+  const classResources = computeClassResources(c.classId, c.subclassId, level, abilityMods, proficiencyBonus);
+
   return {
     abilities, abilityMods, proficiencyBonus, ac, hpMax, speed, initiative,
     saves, saveProfs, skills, skillProfs,
@@ -225,7 +229,138 @@ export function calculateCharacter(c: Character): DerivedStats {
     spellSaveDc, spellAttackBonus, spellcastingAbility, spellSlots,
     walking: { ftPerTurn, ftPerMin, kmPerHour: Math.round(kmPerHour * 10) / 10 },
     alwaysPreparedSpellIds,
+    classResources,
   };
+}
+
+// Map of class/subclass features that grant a limited-use resource pool.
+// Numbers follow PHB / Xanathar / Tasha tables.
+function computeClassResources(
+  classId: string,
+  subclassId: string | undefined,
+  level: number,
+  mods: Record<Ability, number>,
+  prof: number,
+): { name: string; value: string; recharge: string; desc?: string }[] {
+  const out: { name: string; value: string; recharge: string; desc?: string }[] = [];
+  const max1 = (n: number) => Math.max(1, n);
+
+  switch (classId) {
+    case "barbarian": {
+      const rages = level >= 20 ? "∞" : level >= 17 ? "6" : level >= 12 ? "5" : level >= 6 ? "4" : level >= 3 ? "3" : "2";
+      const rageDmg = level >= 16 ? "+4" : level >= 9 ? "+3" : "+2";
+      out.push({ name: "Rage", value: `${rages}/יום`, recharge: "Long Rest", desc: `+${rageDmg} נזק, יתרון על Strength` });
+      break;
+    }
+    case "monk": {
+      out.push({ name: "Ki Points", value: `${level}`, recharge: "Short Rest", desc: `DC ${8 + prof + mods.wis}` });
+      if (subclassId === "soul-knife" || subclassId === "soulknife" || subclassId === "way_of_the_soul_knife") {
+        // (in case monk subclass) — Soul Knife is actually rogue. ignore here
+      }
+      break;
+    }
+    case "sorcerer": {
+      if (level >= 2) out.push({ name: "Sorcery Points", value: `${level}`, recharge: "Long Rest", desc: "להמיר ל/מ-spell slots וליצור Metamagic" });
+      break;
+    }
+    case "warlock": {
+      // Pact slots handled in spellSlots. Mystic Arcanum + Invocations are flavor.
+      const invocations = level >= 18 ? 8 : level >= 15 ? 7 : level >= 12 ? 6 : level >= 9 ? 5 : level >= 7 ? 4 : level >= 5 ? 3 : level >= 2 ? 2 : 0;
+      if (invocations) out.push({ name: "Eldritch Invocations", value: `${invocations}`, recharge: "—", desc: "ידועות" });
+      break;
+    }
+    case "fighter": {
+      const sw = level >= 1 ? 1 : 0;
+      if (sw) out.push({ name: "Second Wind", value: "1", recharge: "Short Rest", desc: `החזר 1d10+${level} HP` });
+      const ai = level >= 17 ? 3 : level >= 7 ? 2 : level >= 2 ? 1 : 0;
+      if (ai) out.push({ name: "Action Surge", value: `${ai}`, recharge: "Short Rest" });
+      const indom = level >= 17 ? 3 : level >= 13 ? 2 : level >= 9 ? 1 : 0;
+      if (indom) out.push({ name: "Indomitable", value: `${indom}`, recharge: "Long Rest", desc: "Reroll save נכשל" });
+      if (subclassId === "battle_master" || subclassId === "battlemaster") {
+        const dice = level >= 18 ? 6 : level >= 7 ? 5 : 4;
+        const die = level >= 18 ? "d12" : level >= 10 ? "d10" : "d8";
+        out.push({ name: "Superiority Dice", value: `${dice}${die}`, recharge: "Short Rest" });
+      }
+      if (subclassId === "eldritch_knight") {
+        out.push({ name: "War Magic", value: "—", recharge: "—", desc: "מתקפת כלי + cantrip בפעולה (lvl 7+)" });
+      }
+      if (subclassId === "arcane_archer" || subclassId === "arcane-archer") {
+        const shots = level >= 18 ? 6 : level >= 15 ? 5 : level >= 10 ? 4 : level >= 7 ? 3 : 2;
+        out.push({ name: "Arcane Shot", value: `${shots}/short`, recharge: "Short Rest", desc: `DC ${8 + prof + Math.max(mods.int, mods.wis)}` });
+      }
+      if (subclassId === "psi_warrior" || subclassId === "psi-warrior") {
+        const count = 2 * prof;
+        const die = level >= 17 ? "d12" : level >= 11 ? "d10" : level >= 5 ? "d8" : "d6";
+        out.push({ name: "Psionic Energy Dice", value: `${count}${die}`, recharge: "Long Rest (חצי ב-Short)" });
+      }
+      if (subclassId === "rune_knight" || subclassId === "rune-knight") {
+        out.push({ name: "Giant's Might", value: `${prof}/long`, recharge: "Long Rest" });
+      }
+      break;
+    }
+    case "rogue": {
+      const sa = Math.ceil(level / 2);
+      out.push({ name: "Sneak Attack", value: `${sa}d6`, recharge: "פעם בתור" });
+      if (subclassId === "soul_knife" || subclassId === "soulknife" || subclassId === "soul-knife") {
+        const count = 2 * prof;
+        const die = level >= 17 ? "d12" : level >= 13 ? "d10" : level >= 9 ? "d8" : "d6";
+        out.push({ name: "Psionic Energy Dice", value: `${count}${die}`, recharge: "Long Rest (חצי ב-Short)", desc: "Psychic Blades / Psi-Bolstered Knack" });
+      }
+      if (subclassId === "phantom") {
+        out.push({ name: "Wails from the Grave", value: `${Math.floor(prof / 2)}/long`, recharge: "Long Rest", desc: "מהרמה ה-9" });
+      }
+      if (subclassId === "arcane_trickster") {
+        out.push({ name: "Mage Hand Legerdemain", value: "—", recharge: "—", desc: "כשפים ידועים מתוך רשימת Wizard (INT)" });
+      }
+      break;
+    }
+    case "paladin": {
+      out.push({ name: "Lay on Hands", value: `${level * 5} HP`, recharge: "Long Rest" });
+      out.push({ name: "Channel Divinity", value: "1", recharge: "Short Rest" });
+      if (level >= 3) out.push({ name: "Divine Smite", value: "spell slot → נזק קורן", recharge: "—" });
+      break;
+    }
+    case "cleric": {
+      const cd = level >= 18 ? 3 : level >= 6 ? 2 : level >= 2 ? 1 : 0;
+      if (cd) out.push({ name: "Channel Divinity", value: `${cd}`, recharge: "Short Rest" });
+      out.push({ name: "Prepared Spells", value: `${max1(level + mods.wis)}`, recharge: "Long Rest" });
+      break;
+    }
+    case "druid": {
+      out.push({ name: "Wild Shape", value: `2/short`, recharge: "Short Rest" });
+      out.push({ name: "Prepared Spells", value: `${max1(level + mods.wis)}`, recharge: "Long Rest" });
+      break;
+    }
+    case "wizard": {
+      out.push({ name: "Arcane Recovery", value: `עד ${Math.ceil(level / 2)} רמות slot`, recharge: "Long Rest (פעם ביום)" });
+      out.push({ name: "Prepared Spells", value: `${max1(level + mods.int)}`, recharge: "Long Rest" });
+      break;
+    }
+    case "bard": {
+      const die = level >= 15 ? "d12" : level >= 10 ? "d10" : level >= 5 ? "d8" : "d6";
+      const uses = Math.max(1, mods.cha);
+      out.push({ name: "Bardic Inspiration", value: `${uses}× ${die}`, recharge: level >= 5 ? "Short Rest" : "Long Rest" });
+      if (level >= 2) out.push({ name: "Song of Rest", value: `+${die}`, recharge: "Short Rest" });
+      break;
+    }
+    case "ranger": {
+      if (subclassId === "gloom_stalker" || subclassId === "gloom-stalker") {
+        out.push({ name: "Dread Ambusher", value: "+10 speed, +1d8 בתור הראשון", recharge: "פעם ב-combat" });
+      }
+      if (subclassId === "horizon_walker" || subclassId === "horizon-walker") {
+        out.push({ name: "Planar Warrior", value: `+1d8 force (lvl 3) / +2d8 (lvl 11)`, recharge: "—" });
+      }
+      break;
+    }
+    case "artificer": {
+      const infusions = level >= 18 ? 6 : level >= 14 ? 5 : level >= 10 ? 4 : level >= 6 ? 3 : 2;
+      const known = level >= 18 ? 12 : level >= 14 ? 10 : level >= 10 ? 8 : level >= 6 ? 6 : 4;
+      out.push({ name: "Infusions Known / Active", value: `${known} / ${infusions}`, recharge: "Long Rest" });
+      out.push({ name: "Prepared Spells", value: `${max1(Math.ceil(level / 2) + mods.int)}`, recharge: "Long Rest" });
+      break;
+    }
+  }
+  return out;
 }
 
 export function emptyCharacter(): Character {
