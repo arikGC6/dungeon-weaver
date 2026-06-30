@@ -64,6 +64,10 @@ function Builder() {
     navigate({ to: "/character/$id", params: { id: c.id } });
   };
 
+  if (edit && !loadedEdit) {
+    return <div className="text-center py-20 text-muted-foreground"><div className="text-5xl mb-2 animate-pulse">🕯️</div>טוען דמות לעריכה…</div>;
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
       <header className="flex items-center gap-3 mb-4">
