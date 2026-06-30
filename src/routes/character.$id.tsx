@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCharacters } from "@/lib/character-store";
+import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground } from "@/lib/calculations";
 import { ABILITIES, ABILITY_SHORT, SKILL_LIST, formatMod } from "@/lib/dnd-types";
 import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
@@ -12,9 +12,14 @@ export const Route = createFileRoute("/character/$id")({
 
 function CharacterPage() {
   const { id } = Route.useParams();
+  const hydrated = useHydrateCharacters();
   const { getCharacter, saveCharacter, deleteCharacter } = useCharacters();
   const c = getCharacter(id);
   const navigate = useNavigate();
+
+  if (!hydrated) {
+    return <div className="text-center py-20 text-muted-foreground"><div className="text-5xl mb-2 animate-pulse">🕯️</div>טוען דמות…</div>;
+  }
 
   if (!c) {
     return (
