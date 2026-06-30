@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef } from "react";
-import { useCharacters } from "@/lib/character-store";
+import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { getRace, getClass } from "@/lib/calculations";
 import { importCharacterJson, exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
 
@@ -17,6 +17,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const hydrated = useHydrateCharacters();
   const { characters, deleteCharacter, duplicate, saveCharacter } = useCharacters();
   const navigate = useNavigate();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -73,7 +74,12 @@ function Home() {
           <span className="text-sm text-muted-foreground">{characters.length} דמויות שמורות</span>
         </div>
 
-        {characters.length === 0 ? (
+        {!hydrated ? (
+          <div className="tavern-card p-10 text-center text-muted-foreground">
+            <div className="text-5xl mb-2 animate-pulse">🕯️</div>
+            טוען את המגילות מהמרתף…
+          </div>
+        ) : characters.length === 0 ? (
           <div className="tavern-card p-10 text-center text-muted-foreground">
             <div className="text-5xl mb-2">🕯️</div>
             אין דמויות שמורות עדיין. צור את הראשונה כדי להתחיל את ההרפתקה.
