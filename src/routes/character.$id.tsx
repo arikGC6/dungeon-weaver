@@ -157,6 +157,7 @@ function CharacterPage() {
                     <b className="text-primary">{r.name}</b>
                     <span className="text-lg font-mono text-accent">{r.value}</span>
                   </div>
+                  {r.className && <div className="text-[10px] text-muted-foreground">{r.className}</div>}
                   <div className="text-[11px] text-muted-foreground">מתחדש: {r.recharge}</div>
                   {r.desc && <div className="text-xs mt-1">{r.desc}</div>}
                 </div>
