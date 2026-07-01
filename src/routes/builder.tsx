@@ -191,11 +191,35 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
         </div>
       )}
       {race && (
-        <div className="mt-4 p-3 rounded-md bg-background/40 border border-border">
+        <div className="mt-4 p-3 rounded-md bg-background/40 border border-border space-y-3">
           <h4 className="display text-primary mb-1">תכונות {race.nameHe}</h4>
           <ul className="text-sm space-y-1">
-            {race.traits.map(t => <li key={t.name}><b className="text-primary">{t.name}:</b> {t.desc}</li>)}
+            {race.traits.concat(race.subraces?.find(s => s.id === c.subraceId)?.traits ?? []).map(t => (
+              <li key={t.name}><b className="text-primary">{t.name}:</b> {t.desc}</li>
+            ))}
           </ul>
+          <div className="pt-2 border-t border-border">
+            <div className="display text-sm text-accent mb-1">✏️ עריכת בונוסי גזע (STR/DEX/…)</div>
+            <p className="text-xs text-muted-foreground mb-2">אם ה-DM שלך משתמש בכללי Tasha (בונוסים גמישים) — דרוס פה את הבונוס לכל יכולת.</p>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {ABILITIES.map(a => {
+                const defaultVal = (race.abilityBonuses.find(b => b.ability === a)?.amount ?? 0)
+                  + ((race.subraces?.find(s => s.id === c.subraceId)?.abilityBonuses.find(b => b.ability === a)?.amount) ?? 0);
+                const cur = c.raceAbilityBonusOverrides?.[a];
+                return (
+                  <div key={a} className="text-center">
+                    <div className="display text-xs text-primary">{ABILITY_SHORT[a]}</div>
+                    <div className="text-[10px] text-muted-foreground">ברירת מחדל {defaultVal >= 0 ? "+" : ""}{defaultVal}</div>
+                    <input type="number" className="input w-full text-center mt-1"
+                      placeholder={String(defaultVal)}
+                      value={cur ?? ""}
+                      onChange={e => update({ raceAbilityBonusOverrides: { ...(c.raceAbilityBonusOverrides ?? {}), [a]: e.target.value === "" ? undefined : +e.target.value } })}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>
