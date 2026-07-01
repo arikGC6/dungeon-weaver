@@ -175,6 +175,34 @@ function CharacterPage() {
           </div>
         )}
 
+        {/* Action economy */}
+        <div className="tavern-card p-4 md:col-span-2">
+          <h3 className="display text-lg text-primary mb-2">🎬 כלכלת פעולות</h3>
+          <div className="grid grid-cols-3 gap-2 text-center text-sm mb-2">
+            <div className="p-2 rounded bg-background/40 border border-border"><div className="display text-xs text-primary">Action</div><div className="text-2xl font-bold">{d.actionEconomy.actions}</div></div>
+            <div className="p-2 rounded bg-background/40 border border-border"><div className="display text-xs text-primary">Bonus</div><div className="text-2xl font-bold">{d.actionEconomy.bonusActions}</div></div>
+            <div className="p-2 rounded bg-background/40 border border-border"><div className="display text-xs text-primary">Reaction</div><div className="text-2xl font-bold">{d.actionEconomy.reactions}</div></div>
+          </div>
+          {d.actionEconomy.extras.length > 0 && (
+            <ul className="text-xs space-y-0.5">
+              {d.actionEconomy.extras.map((x, i) => <li key={i}>• {x}</li>)}
+            </ul>
+          )}
+        </div>
+
+        {/* ASI availability */}
+        <div className="tavern-card p-4 md:col-span-1">
+          <h3 className="display text-lg text-primary mb-2">🎯 חיזוקי יכולת (ASI)</h3>
+          <div className="text-sm">
+            <div>סה״כ שהושגו: <b className="text-accent">{d.asi.total}</b></div>
+            <div>בשימוש (Feats): <b>{d.asi.used}</b></div>
+            <div>נותרו לחלוקה: <b className="text-accent">{d.asi.remaining}</b></div>
+            {d.asi.nextAt && <div className="text-xs text-muted-foreground mt-1">הבא ברמה {d.asi.nextAt}</div>}
+            <div className="text-[11px] text-muted-foreground mt-1">רמות ASI לקלאס: {d.asi.levels.join(", ")}</div>
+          </div>
+        </div>
+
+
         {/* Feats */}
         {c.featIds.length > 0 && (
           <div className="tavern-card p-4 md:col-span-3">
