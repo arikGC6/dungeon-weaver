@@ -240,6 +240,41 @@ export function calculateCharacter(c: Character): DerivedStats {
     }),
   ];
 
+  // ===== Action economy =====
+  const extras: string[] = [];
+  let actions = 1, bonusActions = 1, reactions = 1;
+  if (c.classId === "fighter" && level >= 5) extras.push("Extra Attack — 2 attacks per Action");
+  if (c.classId === "fighter" && level >= 11) extras.push("Extra Attack (11) — 3 attacks per Action");
+  if (c.classId === "fighter" && level >= 20) extras.push("Extra Attack (20) — 4 attacks per Action");
+  if ((c.classId === "barbarian" || c.classId === "paladin" || c.classId === "ranger") && level >= 5) extras.push("Extra Attack — 2 attacks per Action");
+  if (c.classId === "monk" && level >= 5) extras.push("Extra Attack — 2 attacks per Action");
+  if (c.classId === "monk") extras.push("Martial Arts — Bonus unarmed strike after Attack action");
+  if (c.classId === "monk" && level >= 2) extras.push("Flurry of Blows / Patient Defense / Step of the Wind (1 Ki, Bonus)");
+  if (c.classId === "rogue" && level >= 2) extras.push("Cunning Action — Dash / Disengage / Hide (Bonus)");
+  if (c.classId === "fighter" && level >= 2) { extras.push("Action Surge — extra Action (Short Rest)"); }
+  if (c.classId === "barbarian") extras.push("Rage — Bonus action to enter");
+  if (c.classId === "paladin" && level >= 2) extras.push("Divine Smite — reactive/on-hit");
+  if (c.classId === "sorcerer" && level >= 3) extras.push("Quickened Spell (Metamagic) — cast 1-action spell as Bonus");
+  if (c.classId === "bard") extras.push("Bardic Inspiration — Bonus action");
+  if (c.featIds.includes("polearm_master")) extras.push("Polearm Master — bonus attack (butt end 1d4)");
+  if (c.featIds.includes("crossbow_expert")) extras.push("Crossbow Expert — bonus hand-crossbow shot");
+  if (c.featIds.includes("great_weapon_master")) extras.push("GWM — bonus attack on crit / kill");
+  (c.extraActionNotes ?? []).forEach(n => extras.push(n));
+  const actionEconomy = { actions, bonusActions, reactions, extras };
+
+  // ===== ASI / Feat availability =====
+  // Standard schedule: 4,8,12,16,19 (Fighter adds 6,14 ; Rogue adds 10).
+  const asiSchedule: number[] = [4, 8, 12, 16, 19];
+  if (c.classId === "fighter") asiSchedule.push(6, 14);
+  if (c.classId === "rogue") asiSchedule.push(10);
+  const asiLevels = Array.from(new Set(asiSchedule)).sort((a, b) => a - b);
+  const asiTotal = asiLevels.filter(l => l <= level).length;
+  // Rough "used" counter — each feat = 1, each +1 from override on baseAbilities beyond default 8-15 = 0 (we only tally featIds).
+  const asiUsed = c.featIds.length;
+  const asiRemaining = Math.max(0, asiTotal - asiUsed);
+  const asiNextAt = asiLevels.find(l => l > level);
+  const asi = { total: asiTotal, used: asiUsed, remaining: asiRemaining, levels: asiLevels, nextAt: asiNextAt };
+
   return {
     abilities, abilityMods, proficiencyBonus, ac, hpMax, speed, initiative,
     saves, saveProfs, skills, skillProfs,
@@ -248,6 +283,9 @@ export function calculateCharacter(c: Character): DerivedStats {
     walking: { ftPerTurn, ftPerMin, kmPerHour: Math.round(kmPerHour * 10) / 10 },
     alwaysPreparedSpellIds,
     classResources,
+    actionEconomy,
+    asi,
+    raceBonuses,
   };
 }
 
