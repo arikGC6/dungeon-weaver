@@ -44,9 +44,17 @@ export function calculateCharacter(c: Character): DerivedStats {
   // Base abilities
   const abilities: Record<Ability, number> = { ...c.baseAbilities };
 
-  // Race bonuses
-  race?.abilityBonuses.forEach(b => { abilities[b.ability] = (abilities[b.ability] ?? 10) + b.amount; });
-  subrace?.abilityBonuses.forEach(b => { abilities[b.ability] = (abilities[b.ability] ?? 10) + b.amount; });
+  // Effective race bonuses (respecting per-ability overrides).
+  const raceBonuses: Partial<Record<Ability, number>> = {};
+  const addRaceBonus = (a: Ability, amt: number) => { raceBonuses[a] = (raceBonuses[a] ?? 0) + amt; };
+  race?.abilityBonuses.forEach(b => addRaceBonus(b.ability, b.amount));
+  subrace?.abilityBonuses.forEach(b => addRaceBonus(b.ability, b.amount));
+  // Apply overrides — if defined for an ability, replace the computed sum.
+  for (const a of ABILITIES) {
+    const ov = c.raceAbilityBonusOverrides?.[a];
+    if (ov !== undefined) raceBonuses[a] = ov;
+    if (raceBonuses[a]) abilities[a] = (abilities[a] ?? 10) + (raceBonuses[a] ?? 0);
+  }
 
   // Feats
   c.featIds.forEach(id => {
