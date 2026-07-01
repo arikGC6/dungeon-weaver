@@ -185,6 +185,10 @@ export interface Character {
     initiative?: number;
     proficiencyBonus?: number;
   };
+  // Per-ability override of the racial bonus (replaces race+subrace bonus for that ability).
+  raceAbilityBonusOverrides?: Partial<Record<Ability, number>>;
+  // Extra action-economy slots the player wants tracked (e.g. Haste, Bloodlust).
+  extraActionNotes?: string[];
 }
 
 export const PROFICIENCY_BY_LEVEL = [

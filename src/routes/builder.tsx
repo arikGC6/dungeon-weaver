@@ -191,11 +191,35 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
         </div>
       )}
       {race && (
-        <div className="mt-4 p-3 rounded-md bg-background/40 border border-border">
+        <div className="mt-4 p-3 rounded-md bg-background/40 border border-border space-y-3">
           <h4 className="display text-primary mb-1">תכונות {race.nameHe}</h4>
           <ul className="text-sm space-y-1">
-            {race.traits.map(t => <li key={t.name}><b className="text-primary">{t.name}:</b> {t.desc}</li>)}
+            {race.traits.concat(race.subraces?.find(s => s.id === c.subraceId)?.traits ?? []).map(t => (
+              <li key={t.name}><b className="text-primary">{t.name}:</b> {t.desc}</li>
+            ))}
           </ul>
+          <div className="pt-2 border-t border-border">
+            <div className="display text-sm text-accent mb-1">✏️ עריכת בונוסי גזע (STR/DEX/…)</div>
+            <p className="text-xs text-muted-foreground mb-2">אם ה-DM שלך משתמש בכללי Tasha (בונוסים גמישים) — דרוס פה את הבונוס לכל יכולת.</p>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {ABILITIES.map(a => {
+                const defaultVal = (race.abilityBonuses.find(b => b.ability === a)?.amount ?? 0)
+                  + ((race.subraces?.find(s => s.id === c.subraceId)?.abilityBonuses.find(b => b.ability === a)?.amount) ?? 0);
+                const cur = c.raceAbilityBonusOverrides?.[a];
+                return (
+                  <div key={a} className="text-center">
+                    <div className="display text-xs text-primary">{ABILITY_SHORT[a]}</div>
+                    <div className="text-[10px] text-muted-foreground">ברירת מחדל {defaultVal >= 0 ? "+" : ""}{defaultVal}</div>
+                    <input type="number" className="input w-full text-center mt-1"
+                      placeholder={String(defaultVal)}
+                      value={cur ?? ""}
+                      onChange={e => update({ raceAbilityBonusOverrides: { ...(c.raceAbilityBonusOverrides ?? {}), [a]: e.target.value === "" ? undefined : +e.target.value } })}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -339,6 +363,7 @@ function Step4Abilities({ c, update }: { c: Character; update: (p: Partial<Chara
     const cost = v <= 13 ? v - 8 : v === 14 ? 7 : v === 15 ? 9 : 0;
     return sum + Math.max(0, cost);
   }, 0);
+  const d = calculateCharacter(c);
   return (
     <div className="space-y-4">
       <h2 className="display text-2xl text-primary">חלוקת יכולות</h2>
@@ -347,6 +372,11 @@ function Step4Abilities({ c, update }: { c: Character; update: (p: Partial<Chara
         <button onClick={() => setMethod("pointbuy")} className={`px-3 py-1 rounded ${method === "pointbuy" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>Point Buy (27)</button>
         <button onClick={() => setMethod("manual")} className={`px-3 py-1 rounded ${method === "manual" ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>ידני</button>
       </div>
+      <div className="p-2 rounded bg-accent/10 border border-accent/40 text-xs">
+        ✨ <b>ASI/Feat זמינים:</b> {d.asi.total} · השתמשת ב-{d.asi.used} · נותרו <b className="text-accent">{d.asi.remaining}</b>
+        {d.asi.nextAt && <> · הבא ברמה {d.asi.nextAt}</>}
+        <span className="ms-2 text-muted-foreground">רמות ASI: {d.asi.levels.join(", ")}</span>
+      </div>
       {method === "standard" && <p className="text-xs text-muted-foreground">הכנס {STANDARD_ARRAY.join(", ")} פעם אחת בכל יכולת.</p>}
       {method === "pointbuy" && (
         <p className="text-xs text-muted-foreground">סך נקודות: <b className={totalPB > 27 ? "text-destructive" : "text-primary"}>{totalPB}/27</b>. ערכים בין 8 ל-15.</p>
@@ -354,9 +384,12 @@ function Step4Abilities({ c, update }: { c: Character; update: (p: Partial<Chara
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {ABILITIES.map(a => {
           const base = c.baseAbilities[a];
+          const raceBonus = d.raceBonuses[a] ?? 0;
+          const canBoost = d.asi.remaining > 0 && d.abilities[a] < 20;
           return (
-            <div key={a} className="p-3 rounded-md bg-background/40 border border-border text-center">
+            <div key={a} className={`p-3 rounded-md border text-center ${canBoost ? "bg-accent/10 border-accent" : "bg-background/40 border-border"}`}>
               <div className="display text-primary text-sm">{ABILITY_LABELS[a]}</div>
+              {canBoost && <div className="text-[10px] text-accent">🎯 ניתן לחיזוק (ASI)</div>}
               {method === "standard" ? (
                 <div className="flex flex-wrap justify-center gap-1 mt-2">
                   {STANDARD_ARRAY_VALUES.map(v => (
@@ -369,13 +402,13 @@ function Step4Abilities({ c, update }: { c: Character; update: (p: Partial<Chara
               ) : (
                 <input type="number" min={1} max={20} value={base} onChange={e => set(a, +e.target.value || 0)} className="input text-center text-2xl w-full mt-1" />
               )}
-              <div className="text-xs text-muted-foreground mt-1">בסיס. מודיפיקטור גזע יחושב בנפרד.</div>
-              <div className="display text-accent text-lg mt-1">mod {formatMod(mod(base))}</div>
+              <div className="text-xs text-muted-foreground mt-1">בסיס {base} {raceBonus ? `+ גזע ${raceBonus >= 0 ? "+" : ""}${raceBonus}` : ""} = <b>{d.abilities[a]}</b></div>
+              <div className="display text-accent text-lg mt-1">mod {formatMod(d.abilityMods[a])}</div>
             </div>
           );
         })}
       </div>
-      <p className="text-xs text-muted-foreground">* בסקירה הסופית תוכל לדרוס כל ערך בידנית.</p>
+      <p className="text-xs text-muted-foreground">* בסקירה הסופית תוכל לדרוס כל ערך בידנית. * לעריכת בונוסי גזע חזור לשלב "גזע".</p>
     </div>
   );
 }
