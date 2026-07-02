@@ -336,15 +336,21 @@ function Step2Class({ c, update }: { c: Character; update: (p: Partial<Character
 
 // ============ Step 3 — Background ============
 function Step3Background({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
+  const pickBg = (b: typeof BACKGROUNDS[number]) => {
+    // Auto-add background skill proficiencies (without duplicating existing ones).
+    const merged = Array.from(new Set([...c.skillProficiencies, ...b.skills]));
+    update({ backgroundId: b.id, skillProficiencies: merged });
+  };
   return (
     <div className="space-y-3">
       <h2 className="display text-2xl text-primary">בחר רקע</h2>
+      <p className="text-xs text-muted-foreground">בחירת רקע מוסיפה אוטומטית את מיומנויות הבקיאות שלו למיומנויות שלך.</p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {BACKGROUNDS.map(b => (
-          <button key={b.id} onClick={() => update({ backgroundId: b.id })}
+          <button key={b.id} onClick={() => pickBg(b)}
             className={`text-right p-3 rounded-md border ${c.backgroundId === b.id ? "bg-primary/20 border-primary" : "border-border hover:bg-secondary/40"}`}>
             <div className="font-semibold">{b.nameHe} <span className="text-xs text-muted-foreground">({b.name})</span></div>
-            <div className="text-xs text-muted-foreground">{b.skills.map(s => SKILL_LIST.find(x => x.id === s)?.label).join(", ")}</div>
+            <div className="text-xs text-accent">✓ מיומנויות: {b.skills.map(s => SKILL_LIST.find(x => x.id === s)?.label).join(", ")}</div>
             <div className="text-xs mt-1">{b.description}</div>
           </button>
         ))}
