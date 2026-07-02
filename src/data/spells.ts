@@ -227,7 +227,7 @@ export const SPELLS: Spell[] = [
   S(2, "prayer_of_healing", "Prayer of Healing", "evocation", ["cleric"], "10 min", "30 ft", "V", "Instantaneous", "עד 6 יצורים — 2d8+mod HP."),
   S(2, "warding_bond", "Warding Bond", "abjuration", ["cleric"], "1 action", "Touch", "V, S, M", "1 hour", "+1 AC/saves לבן ברית; חצי מהנזק עובר אליך."),
   S(3, "protection_from_energy", "Protection from Energy", "abjuration", ["cleric", "druid", "ranger", "sorcerer", "wizard", "artificer"], "1 action", "Touch", "V, S", "Concentration, 1 hour", "Resistance לסוג נזק אחד. C", { concentration: true }),
-  S(2, "hold_person", "Hold Person (dup)", "enchantment", ["bard"], "1 action", "60 ft", "V, S, M", "Concentration, 1 min", "duplicate — ignore", { concentration: true }),
+  
 ];
 
 export function getSpell(id: string) { return SPELLS.find(s => s.id === id); }
