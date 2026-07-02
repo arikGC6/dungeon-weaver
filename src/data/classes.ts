@@ -212,6 +212,7 @@ export const CLASSES: DnDClass[] = [
       { id: "aberrant_mind", name: "Aberrant Mind", nameHe: "מוח מוזר", grantedSpells: [{ level: 1, spellIds: ["arms_of_hadar", "dissonant_whispers"] }, { level: 3, spellIds: ["calm_emotions", "detect_thoughts"] }, { level: 5, spellIds: ["hunger_of_hadar", "sending"] }, { level: 7, spellIds: ["evards_black_tentacles", "summon_aberration"] }, { level: 9, spellIds: ["rary_telepathic_bond", "telekinesis"] }], features: [{ level: 1, name: "Psionic Spells", desc: "כישופים תמידיים." }, { level: 1, name: "Telepathic Speech", desc: "טלפתיה עד CHA mod × 10 דקות." }] },
       { id: "clockwork_soul", name: "Clockwork Soul", nameHe: "נשמת שעון", grantedSpells: [{ level: 1, spellIds: ["alarm", "protection_from_evil_and_good"] }, { level: 3, spellIds: ["aid", "lesser_restoration"] }, { level: 5, spellIds: ["dispel_magic", "protection_from_energy"] }, { level: 7, spellIds: ["freedom_of_movement", "summon_construct"] }, { level: 9, spellIds: ["greater_restoration", "wall_of_force"] }], features: [{ level: 1, name: "Restore Balance", desc: "reaction — מבטל advantage/disadvantage." }] },
       { id: "storm", name: "Storm Sorcery", nameHe: "קסם סערה", features: [{ level: 1, name: "Wind Speaker", desc: "מדבר Primordial." }, { level: 1, name: "Tempestuous Magic", desc: "לאחר הטלת spell ≥1 — לעוף 10ft ללא AoO." }] },
+    ],
 
     features: [
       { level: 1, name: "Spellcasting", desc: "" },
