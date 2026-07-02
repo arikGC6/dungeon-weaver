@@ -181,6 +181,53 @@ export const SPELLS: Spell[] = [
   S(9, "power_word_kill", "Power Word Kill", "enchantment", ["bard", "sorcerer", "warlock", "wizard"], "1 action", "60 ft", "V", "Instantaneous", "מטרה ≤100 HP — מתה."),
   S(9, "mass_heal", "Mass Heal", "evocation", ["cleric"], "1 action", "60 ft", "V, S", "Instantaneous", "מחלק 700 HP."),
   S(9, "true_resurrection", "True Resurrection", "necromancy", ["cleric", "druid"], "1 hour", "Touch", "V, S, M", "Instantaneous", "מחיה מת מכל סיבה תוך 200 שנה."),
+
+  // ===== Summon spells (Tasha's) =====
+  S(2, "summon_beast", "Summon Beast", "conjuration", ["druid", "ranger"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן רוח חיה (Air/Land/Water) — Bestial Spirit statblock. C", { concentration: true }),
+  S(3, "summon_fey", "Summon Fey", "conjuration", ["druid", "ranger", "warlock", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Fey Spirit (Fuming/Mirthful/Tricksy). C", { concentration: true }),
+  S(3, "summon_undead", "Summon Undead", "necromancy", ["warlock", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Undead Spirit (Ghostly/Putrid/Skeletal). C", { concentration: true }),
+  S(4, "summon_aberration", "Summon Aberration", "conjuration", ["warlock", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Aberrant Spirit (Beholderkin/Slaad/Star Spawn). C", { concentration: true }),
+  S(4, "summon_construct", "Summon Construct", "conjuration", ["artificer", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Construct Spirit (Clay/Metal/Stone). C", { concentration: true }),
+  S(4, "summon_elemental", "Summon Elemental", "conjuration", ["druid", "ranger", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Elemental Spirit (Air/Earth/Fire/Water). C", { concentration: true }),
+  S(5, "summon_celestial", "Summon Celestial", "conjuration", ["cleric", "paladin"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Celestial Spirit (Avenger/Defender). C", { concentration: true }),
+  S(6, "summon_fiend", "Summon Fiend", "conjuration", ["warlock", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Fiendish Spirit (Demon/Devil/Yugoloth). C", { concentration: true }),
+  S(5, "summon_draconic_spirit", "Summon Draconic Spirit", "conjuration", ["druid", "sorcerer", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Draconic Spirit (Chromatic/Metallic/Gem). C", { concentration: true }),
+  S(3, "summon_shadowspawn", "Summon Shadowspawn", "conjuration", ["warlock", "wizard"], "1 action", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Shadow Spirit (Fury/Despair/Fear). C", { concentration: true }),
+
+  // ===== Classic Conjure spells =====
+  S(3, "conjure_animals", "Conjure Animals", "conjuration", ["druid", "ranger"], "1 action", "60 ft", "V, S", "Concentration, 1 hour", "מזמן חיות פיות (1×CR2 / 2×CR1 / 4×CR½ / 8×CR¼). C", { concentration: true }),
+  S(4, "conjure_woodland_beings", "Conjure Woodland Beings", "conjuration", ["druid", "ranger"], "1 action", "60 ft", "V, S, M", "Concentration, 1 hour", "מזמן יצורי fey (pixies, sprites, satyrs). C", { concentration: true }),
+  S(4, "conjure_minor_elementals", "Conjure Minor Elementals", "conjuration", ["druid", "wizard"], "1 min", "90 ft", "V, S", "Concentration, 1 hour", "מזמן elementals קטנים. C", { concentration: true }),
+  S(5, "conjure_elemental", "Conjure Elemental", "conjuration", ["druid", "wizard"], "1 min", "90 ft", "V, S, M", "Concentration, 1 hour", "מזמן Elemental (Air/Earth/Fire/Water) CR5. C", { concentration: true }),
+  S(6, "conjure_fey", "Conjure Fey", "conjuration", ["druid", "warlock"], "1 min", "90 ft", "V, S", "Concentration, 1 hour", "מזמן יצור fey עד CR6. C", { concentration: true }),
+  S(7, "conjure_celestial", "Conjure Celestial", "conjuration", ["cleric"], "1 min", "90 ft", "V, S", "Concentration, 1 hour", "מזמן Celestial עד CR4 (CR5 ב-slot 9). C", { concentration: true }),
+
+  // ===== Necromancy additions =====
+  S(5, "danse_macabre", "Danse Macabre", "necromancy", ["warlock", "wizard"], "1 action", "60 ft", "V, S", "Concentration, 1 hour", "עד 5 גוויות/שלדים קמים ונשלטים לתקוף. C", { concentration: true }),
+  S(6, "create_undead", "Create Undead", "necromancy", ["cleric", "warlock", "wizard"], "1 min", "10 ft", "V, S, M", "Instantaneous", "יוצר ghouls (או ghast/wight/mummy ב-slot גבוה). שליטה 24 שעות."),
+  S(5, "negative_energy_flood", "Negative Energy Flood", "necromancy", ["warlock", "wizard"], "1 action", "60 ft", "V, M", "Instantaneous", "5d12 necrotic. אם המטרה מתה — קמה כ-zombie."),
+  S(6, "circle_of_death", "Circle of Death", "necromancy", ["sorcerer", "warlock", "wizard"], "1 action", "150 ft", "V, S, M", "Instantaneous", "8d6 necrotic ב-60ft sphere. CON save חצי."),
+  S(4, "shadow_of_moil", "Shadow of Moil", "necromancy", ["warlock"], "1 action", "Self", "V, S, M", "Concentration, 1 min", "צלליות עוטפות אותך — resistance necrotic, אויב שפוגע במגע סופג 2d8. C", { concentration: true }),
+  S(3, "speak_with_dead", "Speak with Dead", "necromancy", ["bard", "cleric", "warlock"], "1 action", "10 ft", "V, S, M", "10 min", "שואל 5 שאלות מגופה."),
+
+  // ===== Utility & misc gaps =====
+  S(1, "bless_water", "Bless Water", "transmutation", ["cleric", "paladin"], "1 min", "Touch", "V, S, M", "Instantaneous", "יוצר Holy Water.", { ritual: true }),
+  S(2, "augury", "Augury", "divination", ["cleric"], "1 min", "Self", "V, S, M", "Instantaneous", "שואל את הכוחות על תוצאת פעולה תוך 30 דק'.", { ritual: true }),
+  S(3, "clairvoyance", "Clairvoyance", "divination", ["bard", "cleric", "sorcerer", "wizard"], "10 min", "1 mile", "V, S, M", "Concentration, 10 min", "רואה/שומע במקום מוכר. C", { concentration: true }),
+  S(4, "arcane_eye", "Arcane Eye", "divination", ["wizard", "artificer"], "1 action", "30 ft", "V, S, M", "Concentration, 1 hour", "עין רפאית מעופפת 30ft/turn. C", { concentration: true }),
+  S(2, "spike_growth", "Spike Growth", "transmutation", ["druid", "ranger"], "1 action", "150 ft", "V, S, M", "Concentration, 10 min", "20ft — קרקע דוקרת. 2d4 לכל 5ft. C", { concentration: true }),
+  S(3, "plant_growth", "Plant Growth", "transmutation", ["bard", "druid", "ranger"], "1 action / 8 hours", "150 ft", "V, S", "Instantaneous", "צמחיה עבה — difficult terrain 100ft, או הכפלת יבול."),
+  S(4, "freedom_of_movement", "Freedom of Movement", "abjuration", ["bard", "cleric", "druid", "ranger", "artificer"], "1 action", "Touch", "V, S, M", "1 hour", "מטרה חסינה ל-difficult terrain, restrained, paralyzed, grappled."),
+  S(5, "geas", "Geas", "enchantment", ["bard", "cleric", "druid", "paladin", "wizard"], "1 min", "60 ft", "V", "30 days", "פקודה של עד 25 מילים. אי-ציות = 5d10 psychic ליום."),
+  S(5, "wall_of_stone", "Wall of Stone", "evocation", ["druid", "sorcerer", "wizard", "artificer"], "1 action", "120 ft", "V, S, M", "Concentration, 10 min", "קיר אבן — 10 פאנלים 10×10. C", { concentration: true }),
+  S(4, "phantasmal_killer", "Phantasmal Killer", "illusion", ["wizard"], "1 action", "120 ft", "V, S", "Concentration, 1 min", "4d10 psychic; WIS save. Frightened. C", { concentration: true }),
+  S(6, "eyebite", "Eyebite", "necromancy", ["bard", "sorcerer", "warlock", "wizard"], "1 action", "Self", "V, S", "Concentration, 1 min", "WIS save או Asleep/Panicked/Sickened. C", { concentration: true }),
+  S(2, "healing_spirit", "Healing Spirit", "conjuration", ["druid", "ranger"], "1 bonus action", "60 ft", "V, S", "Concentration, 1 min", "רוח מרפאת — 1d6 HP למי שעובר. C", { concentration: true }),
+  S(3, "aura_of_vitality", "Aura of Vitality", "evocation", ["paladin"], "1 action", "Self (30 ft)", "V", "Concentration, 1 min", "Bonus action — 2d6 ריפוי. C", { concentration: true }),
+  S(2, "prayer_of_healing", "Prayer of Healing", "evocation", ["cleric"], "10 min", "30 ft", "V", "Instantaneous", "עד 6 יצורים — 2d8+mod HP."),
+  S(2, "warding_bond", "Warding Bond", "abjuration", ["cleric"], "1 action", "Touch", "V, S, M", "1 hour", "+1 AC/saves לבן ברית; חצי מהנזק עובר אליך."),
+  S(3, "protection_from_energy", "Protection from Energy", "abjuration", ["cleric", "druid", "ranger", "sorcerer", "wizard", "artificer"], "1 action", "Touch", "V, S", "Concentration, 1 hour", "Resistance לסוג נזק אחד. C", { concentration: true }),
+  S(2, "hold_person", "Hold Person (dup)", "enchantment", ["bard"], "1 action", "60 ft", "V, S, M", "Concentration, 1 min", "duplicate — ignore", { concentration: true }),
 ];
 
 export function getSpell(id: string) { return SPELLS.find(s => s.id === id); }
