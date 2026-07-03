@@ -449,6 +449,74 @@ export const ITEMS: Item[] = [
     description: "לחיצת כפתור — נעצר בחלל, מחזיק עד 8000 lb." },
   { id: "portable_hole", name: "Portable Hole", nameHe: "חור נייד", category: "wondrous", rarity: "rare",
     description: "בורח ממדי בקוטר 6ft, עומק 10ft." },
+
+  // === Boots ===
+  { id: "boots_levitation", name: "Boots of Levitation", nameHe: "מגפי ריחוף", category: "wondrous", rarity: "rare", attunement: true,
+    description: "At will — Levitate על עצמך." },
+  { id: "boots_of_stealth", name: "Boots of Stealth (homebrew)", nameHe: "מגפי התגנבות", category: "wondrous", rarity: "uncommon", attunement: true,
+    description: "Advantage על Stealth; +2 AC נגד OA." },
+  { id: "boots_wild", name: "Boots of the Winterlands", nameHe: "מגפי החורף", category: "wondrous", rarity: "uncommon", attunement: true,
+    description: "Resistance לקור; מהירות רגילה על שלג/קרח." },
+
+  // === Gloves ===
+  { id: "gloves_missile_snaring", name: "Gloves of Missile Snaring", nameHe: "כפפות תפיסת קליעים", category: "wondrous", rarity: "uncommon", attunement: true,
+    description: "Reaction — הפחתת נזק ranged ב-1d10 + DEX; אם 0 — תופס." },
+  { id: "gloves_swim_climb", name: "Gloves of Swimming and Climbing", nameHe: "כפפות שחיה וטיפוס", category: "wondrous", rarity: "uncommon", attunement: true,
+    description: "מהירות שחיה וטיפוס = הליכה; advantage על STR (Athletics) לטיפוס." },
+  { id: "insignia_claws", name: "Insignia of Claws", nameHe: "טבעת-הטופר", category: "wondrous", rarity: "uncommon", attunement: true,
+    description: "Unarmed strikes +1 magical, 1d6 slashing." },
+
+  // === Hats / Helms / Circlets ===
+  { id: "helm_comprehending", name: "Helm of Comprehending Languages", nameHe: "קסדת הבנת שפות", category: "wondrous", rarity: "uncommon",
+    description: "At will — Comprehend Languages." },
+  { id: "helm_telepathy", name: "Helm of Telepathy", nameHe: "קסדת טלפתיה", category: "wondrous", rarity: "uncommon", attunement: true,
+    description: "At will — Detect Thoughts; Suggestion 1×/day." },
+  { id: "helm_brilliance", name: "Helm of Brilliance", nameHe: "קסדת הזוהר", category: "wondrous", rarity: "very rare", attunement: true,
+    description: "Daylight/Fireball/Prismatic Spray + נזק אש נוסף." },
+  { id: "circlet_blasting", name: "Circlet of Blasting", nameHe: "עטרת הפיצוץ", category: "wondrous", rarity: "uncommon",
+    description: "1×/day — Scorching Ray (+5 attack, 2d6 fire)." },
+  { id: "helm_teleport", name: "Helm of Teleportation", nameHe: "קסדת הטלפורט", category: "wondrous", rarity: "rare", attunement: true,
+    description: "3 charges — Teleport." },
+
+  // === More rings ===
+  { id: "ring_shooting_stars", name: "Ring of Shooting Stars", nameHe: "טבעת הכוכבים הנופלים", category: "ring", rarity: "very rare", attunement: true,
+    description: "אפקטים מבוססי-אור; 6d3 dancing lights." },
+  { id: "ring_free_action", name: "Ring of Free Action", nameHe: "טבעת פעולה חופשית", category: "ring", rarity: "rare", attunement: true,
+    description: "difficult terrain לא משפיע; חסין paralyzed/restrained." },
+  { id: "ring_regeneration", name: "Ring of Regeneration", nameHe: "טבעת התחדשות", category: "ring", rarity: "very rare", attunement: true,
+    description: "1d6 HP/10 min; צומחות גפיים 1d6+1 ימים." },
+  { id: "ring_djinni", name: "Ring of Djinni Summoning", nameHe: "טבעת זימון ג'יני", category: "ring", rarity: "legendary", attunement: true,
+    description: "1×/day — מזמן ג'יני לשירות." },
+
+  // === Cloaks / Wondrous body ===
+  { id: "cloak_displacement", name: "Cloak of Displacement", nameHe: "גלימת הזזה", category: "wondrous", rarity: "rare", attunement: true,
+    description: "אשליית זווית — disadvantage לתקוף אותך." },
+  { id: "cloak_bat", name: "Cloak of the Bat", nameHe: "גלימת העטלף", category: "wondrous", rarity: "rare", attunement: true,
+    description: "Advantage על Stealth בחשיכה; ניתן להפוך לעטלף בלילה." },
+  { id: "vestment_shalm", name: "Vestment of the Shalm", nameHe: "גלימת השאלם", category: "wondrous", rarity: "rare", attunement: true,
+    description: "+1 AC + Speak with Animals at will." },
+
+  // === Bows / Ranged variety ===
+  { id: "bow_hurricane", name: "Bow of the Hurricane", nameHe: "קשת ההוריקן", category: "weapon", rarity: "rare", attunement: true,
+    description: "+1 attack/damage; ballance — +1d6 lightning.", bonuses: { attackBonus: 1, damageBonus: 1 } },
+  { id: "longbow_plus2", name: "+2 Longbow", nameHe: "קשת ארוכה +2", category: "weapon", rarity: "rare",
+    description: "+2 attack/damage.", bonuses: { attackBonus: 2, damageBonus: 2 } },
+  { id: "sling_giant_slayer", name: "Sling of Giant-Slaying", nameHe: "קלע קוטל-ענקים", category: "weapon", rarity: "rare",
+    description: "+1 attack/damage; +2d6 vs Giants.", bonuses: { attackBonus: 1, damageBonus: 1 } },
+  { id: "arrows_slaying", name: "Arrow of Slaying", nameHe: "חץ הקוטל", category: "gear", rarity: "very rare",
+    description: "פגיעה על סוג יעד — 6d10 נזק נוסף." },
+
+  // === Consumables extras ===
+  { id: "elixir_giant_wisdom", name: "Potion of Storm Giant Strength", nameHe: "שיקוי כוח-ענק סערה", category: "potion", rarity: "legendary",
+    description: "STR הופך ל-29 לשעה." },
+  { id: "potion_frost_giant", name: "Potion of Frost Giant Strength", nameHe: "שיקוי כוח-ענק קרח", category: "potion", rarity: "rare",
+    description: "STR הופך ל-23 לשעה." },
+  { id: "potion_diminution", name: "Potion of Diminution", nameHe: "שיקוי הקטנה", category: "potion", rarity: "rare",
+    description: "מטרה נעשית קטנה יותר לשעה." },
+  { id: "potion_growth", name: "Potion of Growth", nameHe: "שיקוי גדילה", category: "potion", rarity: "uncommon",
+    description: "Enlarge 1d4 hours." },
+  { id: "elixir_mana_lesser", name: "Elixir of Minor Mana", nameHe: "אליקסיר מנה קטן", category: "potion", rarity: "uncommon",
+    description: "מחזיר spell slot רמה 1." },
 ];
 
 export function getItem(id: string) { return ITEMS.find(i => i.id === id); }
