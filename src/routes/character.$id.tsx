@@ -3,7 +3,8 @@ import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground } from "@/lib/calculations";
 import { ABILITIES, ABILITY_SHORT, SKILL_LIST, formatMod } from "@/lib/dnd-types";
 import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
-import { SCHOOL_LABELS_HE } from "@/data/spells";
+import { SCHOOL_LABELS_HE, SPELL_SCHOOLS } from "@/data/spells";
+import { getSummonsForSpell } from "@/data/summons";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/character/$id")({
@@ -301,30 +302,13 @@ function CharacterPage() {
 
         {/* Spells */}
         {spells.length > 0 && (
-          <div className="tavern-card p-4 md:col-span-3">
-            <h3 className="display text-lg text-primary mb-2">ספר הכישופים ({spells.length})</h3>
-            <div className="space-y-2 text-sm">
-              {spells.map(s => (
-                <div key={s!.id} className="p-2 rounded bg-background/30 border border-border">
-                  <div className="flex justify-between flex-wrap gap-2">
-                    <b className="text-primary">
-                      {c.preparedSpellIds.includes(s!.id) || d.alwaysPreparedSpellIds.includes(s!.id) ? "✦ " : "○ "}
-                      {s!.name}
-                    </b>
-                    <span className="text-xs text-muted-foreground">
-                      {s!.level === 0 ? "קנטריפ" : `רמה ${s!.level}`} · {SCHOOL_LABELS_HE[s!.school]}
-                      {s!.concentration && " · ריכוז"}{s!.ritual && " · טקס"}
-                      {d.alwaysPreparedSpellIds.includes(s!.id) && " · 🎁 מוענק מתת-קלאס"}
-                      {c.preparedSpellIds.includes(s!.id) && " · מוכן"}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">{s!.castingTime} · {s!.range} · {s!.components} · {s!.duration}</div>
-                  <div className="text-sm mt-1">{s!.description}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SpellBook
+            spells={spells as any}
+            preparedIds={c.preparedSpellIds}
+            grantedIds={d.alwaysPreparedSpellIds}
+          />
         )}
+
 
         {c.notes && (
           <div className="tavern-card p-4 md:col-span-3">
