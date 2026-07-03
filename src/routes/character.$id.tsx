@@ -354,3 +354,89 @@ function QuickEdit({ c, onSave }: { c: any; onSave: (c: any) => void }) {
     </div>
   );
 }
+
+function SpellBook({ spells, preparedIds, grantedIds }: {
+  spells: any[]; preparedIds: string[]; grantedIds: string[];
+}) {
+  const [q, setQ] = useState("");
+  const [level, setLevel] = useState<string>("all");
+  const [school, setSchool] = useState<string>("all");
+  const filtered = spells.filter(s => {
+    if (!s) return false;
+    if (level !== "all" && String(s.level) !== level) return false;
+    if (school !== "all" && s.school !== school) return false;
+    if (q && !(`${s.name} ${s.description}`.toLowerCase().includes(q.toLowerCase()))) return false;
+    return true;
+  });
+  const granted = filtered.filter(s => grantedIds.includes(s.id));
+  const known = filtered.filter(s => !grantedIds.includes(s.id));
+  const renderSpell = (s: any) => (
+    <div key={s.id} className="p-2 rounded bg-background/30 border border-border">
+      <div className="flex justify-between flex-wrap gap-2">
+        <b className="text-primary">
+          {preparedIds.includes(s.id) || grantedIds.includes(s.id) ? "✦ " : "○ "}
+          {s.name}
+        </b>
+        <span className="text-xs text-muted-foreground">
+          {s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {SCHOOL_LABELS_HE[s.school]}
+          {s.concentration && " · ריכוז"}{s.ritual && " · טקס"}
+          {grantedIds.includes(s.id) && " · 🎁 מוענק מתת-קלאס"}
+          {preparedIds.includes(s.id) && " · מוכן"}
+        </span>
+      </div>
+      <div className="text-xs text-muted-foreground">{s.castingTime} · {s.range} · {s.components} · {s.duration}</div>
+      <div className="text-sm mt-1">{s.description}</div>
+      {(() => {
+        const sums = getSummonsForSpell(s.id);
+        if (!sums.length) return null;
+        return (
+          <div className="mt-2 border-t border-border/50 pt-2">
+            <div className="display text-xs text-accent mb-1">👥 יצורי זימון אפשריים</div>
+            <div className="grid sm:grid-cols-2 gap-1 text-xs">
+              {sums.map(m => (
+                <div key={m.id} className="p-1.5 rounded bg-background/50 border border-border/70">
+                  <div className="font-semibold text-primary">{m.nameHe} <span className="text-muted-foreground">({m.type})</span></div>
+                  <div className="text-[11px]">AC {m.ac} · HP {m.hp} · מהירות {m.speed}</div>
+                  <div className="text-[11px]">🗡 {m.attack}</div>
+                  {m.special && <div className="text-[11px] text-accent">✧ {m.special}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+    </div>
+  );
+  return (
+    <div className="tavern-card p-4 md:col-span-3">
+      <div className="flex flex-wrap justify-between items-baseline gap-2 mb-2">
+        <h3 className="display text-lg text-primary">ספר הכישופים ({filtered.length}/{spells.length})</h3>
+      </div>
+      <div className="grid sm:grid-cols-3 gap-2 mb-3">
+        <input className="input" placeholder="🔍 חיפוש..." value={q} onChange={e => setQ(e.target.value)} />
+        <select className="input" value={level} onChange={e => setLevel(e.target.value)}>
+          <option value="all">כל הרמות</option>
+          <option value="0">קנטריפ</option>
+          {[1,2,3,4,5,6,7,8,9].map(l => <option key={l} value={String(l)}>רמה {l}</option>)}
+        </select>
+        <select className="input" value={school} onChange={e => setSchool(e.target.value)}>
+          <option value="all">כל האסכולות</option>
+          {SPELL_SCHOOLS.map(s => <option key={s} value={s}>{SCHOOL_LABELS_HE[s]}</option>)}
+        </select>
+      </div>
+      {granted.length > 0 && (
+        <div className="mb-3">
+          <div className="display text-sm text-accent mb-1">✨ כישופי תת-קלאס (תמיד מוכנים)</div>
+          <div className="space-y-2">{granted.map(renderSpell)}</div>
+        </div>
+      )}
+      {known.length > 0 && (
+        <div>
+          <div className="display text-sm text-accent mb-1">📖 הספר שלי</div>
+          <div className="space-y-2">{known.map(renderSpell)}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
