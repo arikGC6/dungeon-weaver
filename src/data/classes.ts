@@ -78,6 +78,9 @@ export const CLASSES: DnDClass[] = [
       { id: "land", name: "Circle of the Land", nameHe: "מעגל היבשה", features: [{ level: 2, name: "Bonus Cantrip + Natural Recovery", desc: "" }] },
       { id: "shepherd", name: "Circle of the Shepherd", nameHe: "מעגל הרועה", features: [{ level: 2, name: "Speech of the Woods", desc: "" }] },
       { id: "spores", name: "Circle of Spores", nameHe: "מעגל הנבגים", features: [{ level: 2, name: "Halo of Spores", desc: "" }] },
+      { id: "stars", name: "Circle of Stars", nameHe: "מעגל הכוכבים", grantedSpells: [{ level: 2, spellIds: ["guiding_bolt"] }, { level: 3, spellIds: ["augury"] }, { level: 5, spellIds: ["clairvoyance"] }, { level: 7, spellIds: ["arcane_eye"] }, { level: 9, spellIds: ["scrying"] }], features: [{ level: 2, name: "Star Map", desc: "מפה שמייצגת את המזלות." }, { level: 2, name: "Starry Form", desc: "Bonus action — צורת כוכב (Archer/Chalice/Dragon)." }] },
+      { id: "wildfire", name: "Circle of Wildfire", nameHe: "מעגל האש הפראית", grantedSpells: [{ level: 3, spellIds: ["burning_hands", "cure_wounds"] }, { level: 5, spellIds: ["flaming_sphere", "scorching_ray"] }, { level: 7, spellIds: ["plant_growth", "revivify"] }, { level: 9, spellIds: ["aura_of_vitality", "fire_shield"] }, { level: 11, spellIds: ["flame_strike", "mass_cure_wounds"] }], features: [{ level: 2, name: "Summon Wildfire Spirit", desc: "מזמן רוח אש קטנה — 5+5×level HP." }] },
+      { id: "dreams", name: "Circle of Dreams", nameHe: "מעגל החלומות", features: [{ level: 2, name: "Balm of the Summer Court", desc: "d6 healing pool = level." }, { level: 2, name: "Hearth of Moonlight and Shadow", desc: "מקדש מוגן ל-rest." }] },
     ],
     features: [
       { level: 1, name: "Druidic", desc: "שפת הדרואידים." },
@@ -97,6 +100,10 @@ export const CLASSES: DnDClass[] = [
       { id: "eldritch_knight", name: "Eldritch Knight", nameHe: "אביר נסתר", features: [{ level: 3, name: "Spellcasting (1/3)", desc: "" }] },
       { id: "samurai", name: "Samurai", nameHe: "סמוראי", features: [{ level: 3, name: "Fighting Spirit", desc: "" }] },
       { id: "rune_knight", name: "Rune Knight", nameHe: "אביר רונות", features: [{ level: 3, name: "Rune Carver", desc: "" }] },
+      { id: "echo_knight", name: "Echo Knight", nameHe: "אביר-הד", features: [{ level: 3, name: "Manifest Echo", desc: "מוציא הד ממדים 15ft — יכול לתקוף דרכו." }, { level: 3, name: "Unleash Incarnation", desc: "התקפה נוספת דרך ההד." }] },
+      { id: "psi_warrior", name: "Psi Warrior", nameHe: "לוחם-פסי", features: [{ level: 3, name: "Psionic Power", desc: "Psionic Energy dice — Protective Field, Psionic Strike, Telekinetic Movement." }] },
+      { id: "cavalier", name: "Cavalier", nameHe: "קאבלייר", features: [{ level: 3, name: "Born to the Saddle", desc: "יתרון בפעולות רכיבה." }, { level: 3, name: "Unwavering Mark", desc: "אויב שתקוף — disadvantage לתקוף אחרים." }] },
+      { id: "arcane_archer", name: "Arcane Archer", nameHe: "קשת-נסתר", features: [{ level: 3, name: "Arcane Shot", desc: "2 Arcane Shots — Banishing Arrow, Piercing Arrow, Seeking Arrow ועוד." }, { level: 3, name: "Magic Arrow", desc: "כל חץ נחשב קסום." }] },
     ],
     features: [
       { level: 1, name: "Fighting Style", desc: "" },
@@ -260,6 +267,9 @@ export const CLASSES: DnDClass[] = [
 
       { id: "bladesinging", name: "Bladesinging", nameHe: "שירת להב", features: [{ level: 2, name: "Bladesong", desc: "+CHA AC, +10 speed, advantage על acrobatics." }] },
       { id: "war_magic", name: "War Magic", nameHe: "קסם מלחמה", features: [{ level: 2, name: "Arcane Deflection", desc: "" }] },
+      { id: "chronurgy", name: "Chronurgy Magic", nameHe: "כרונורגיה", grantedSpells: [{ level: 2, spellIds: ["longstrider"] }, { level: 3, spellIds: ["gift_of_alacrity"] }], features: [{ level: 2, name: "Chronal Shift", desc: "2×/rest — reroll d20 של יצור בטווח 30ft." }, { level: 2, name: "Temporal Awareness", desc: "+INT ליוזמה." }] },
+      { id: "graviturgy", name: "Graviturgy Magic", nameHe: "גרוויטורגיה", features: [{ level: 2, name: "Adjust Density", desc: "פי-2 או חצי המשקל של יצור." }, { level: 2, name: "Gravity Well", desc: "כל spell — יעד זז 5ft." }] },
+      { id: "order_of_scribes", name: "Order of Scribes", nameHe: "מסדר הסופרים", features: [{ level: 2, name: "Wizardly Quill", desc: "עט קסום לחתימת ספרי כישופים." }, { level: 2, name: "Awakened Spellbook", desc: "הספר מחליף school ל-spells + טקסים מוזרים." }] },
     ],
     features: [
       { level: 1, name: "Spellcasting", desc: "" },

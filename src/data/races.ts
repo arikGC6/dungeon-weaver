@@ -462,6 +462,58 @@ export const RACES: Race[] = [
       { name: "Sentry's Rest", desc: "6 שעות פסיביות = long rest." },
     ],
   },
+  // === Verdan (Acquisitions Incorporated) ===
+  {
+    id: "verdan", name: "Verdan", nameHe: "וֶרְדַן", source: "AI",
+    speed: 30, size: "Small",
+    abilityBonuses: [{ ability: "cha", amount: 2 }, { ability: "wis", amount: 1 }],
+    languages: ["Common", "Goblin", "+1 choice"],
+    traits: [
+      { name: "Persuasive Magic", desc: "Friends cantrip; ברמה 3 — Charm Person 1×/rest." },
+      { name: "Telepathic Insight", desc: "Advantage על WIS/CHA saves נגד magic." },
+      { name: "Limited Telepathy", desc: "טלפתיה 30ft." },
+      { name: "Black Blood Healing", desc: "רגנרציה מוגברת ב-rest קצר: קוביית hit die מקסימלית." },
+    ],
+  },
+  // === Simic Hybrid (Guildmaster's Guide to Ravnica) ===
+  {
+    id: "simic-hybrid", name: "Simic Hybrid", nameHe: "היברידית סימיק", source: "GGtR",
+    speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "con", amount: 2 }, { ability: "str", amount: 1 }],
+    darkvision: 60,
+    languages: ["Common", "+1 choice"],
+    traits: [
+      { name: "Animal Enhancement (Manta Glide)", desc: "כנפי-דגל — נפילה איטית + תזוזה אופקית." },
+      { name: "Animal Enhancement (Nimble Climber)", desc: "מהירות טיפוס 30ft." },
+      { name: "Animal Enhancement (Underwater Adaptation)", desc: "מהירות שחיה 30ft + נשימה." },
+    ],
+  },
+  // === Grung ===
+  {
+    id: "grung", name: "Grung", nameHe: "גרונג", source: "OGA",
+    speed: 25, size: "Small",
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "con", amount: 1 }],
+    darkvision: 60,
+    languages: ["Grung"],
+    traits: [
+      { name: "Amphibious", desc: "נשימה מים+אוויר." },
+      { name: "Poisonous Skin", desc: "מגע — CON save DC 12 או poisoned שעה." },
+      { name: "Poisoned Weapons", desc: "עד דקה — נשק +1d4 poison." },
+      { name: "Standing Leap", desc: "קפיצה 25ft/15ft." },
+    ],
+  },
+  // === Locathah ===
+  {
+    id: "locathah", name: "Locathah", nameHe: "לוקאתה", source: "LR",
+    speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "con", amount: 1 }],
+    languages: ["Common", "Aquan"],
+    traits: [
+      { name: "Aquatic", desc: "נשימה במים; מהירות שחיה 30ft." },
+      { name: "Leviathan Will", desc: "Advantage נגד charmed, frightened, paralyzed, poisoned, stunned." },
+      { name: "Observant and Athletic", desc: "Proficiency ב-Athletics + Perception." },
+    ],
+  },
 ];
 
 export function getRace(id?: string): Race | undefined {
