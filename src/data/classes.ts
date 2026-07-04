@@ -212,7 +212,7 @@ export const CLASSES: DnDClass[] = [
     casterType: "full", spellAbility: "cha",
     subclassLevel: 1,
     subclasses: [
-      { id: "draconic", name: "Draconic Bloodline", nameHe: "שושלת דרקונית", features: [{ level: 1, name: "Draconic Resilience", desc: "+1 HP/level, AC 13 + DEX." }] },
+      { id: "draconic", name: "Draconic Bloodline", nameHe: "שושלת דרקונית", grantedSpells: [{ level: 1, spellIds: ["chromatic_orb"] }, { level: 5, spellIds: ["fear"] }, { level: 7, spellIds: ["wall_of_fire"] }, { level: 9, spellIds: ["legend_lore"] }], features: [{ level: 1, name: "Draconic Resilience", desc: "+1 HP/level, AC 13 + DEX." }] },
       { id: "wild_magic", name: "Wild Magic", nameHe: "קסם פראי", features: [{ level: 1, name: "Wild Magic Surge", desc: "" }] },
       { id: "divine_soul", name: "Divine Soul", nameHe: "נשמה אלוהית", grantedSpells: [{ level: 1, spellIds: ["cure_wounds"] }], features: [{ level: 1, name: "Divine Magic", desc: "בחר קלרי alignment: Good/Evil/Law/Chaos/Neutral — מוסיף spell מ-Cleric list." }] },
       { id: "shadow", name: "Shadow Magic", nameHe: "קסם הצל", features: [{ level: 1, name: "Eyes of the Dark", desc: "Darkvision 120ft; ברמה 3 יכול להטיל Darkness ללא slot." }, { level: 1, name: "Strength of the Grave", desc: "reaction בירידה ל-0 HP." }] },
