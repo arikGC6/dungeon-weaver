@@ -6,6 +6,7 @@ import { RACES } from "@/data/races";
 import { CLASSES } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS } from "@/data/feats";
+import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
 import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STANDARD_ARRAY_VALUES, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
