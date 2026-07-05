@@ -174,6 +174,8 @@ export interface Character {
   expertise: Skill[];
   languages: string[];
   featIds: string[];
+  fightingStyleIds?: string[]; // Fighter/Ranger/Paladin/Bard-Swords
+
   spellIds: string[];      // known/learned spells
   preparedSpellIds: string[];
   itemIds: { id: string; equipped: boolean; quantity?: number }[];
