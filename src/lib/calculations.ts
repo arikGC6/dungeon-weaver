@@ -129,6 +129,11 @@ export function calculateCharacter(c: Character): DerivedStats {
   });
   if (hasShield) ac += 2;
   ac += armorBonus;
+  // Fighting style — Defense/Mariner: +1 AC when wearing armor
+  (c.fightingStyleIds ?? []).forEach(id => {
+    const fs = getFightingStyle(id);
+    if (fs?.bonuses?.acWhenArmored && armored) ac += fs.bonuses.acWhenArmored;
+  });
   // Barbarian unarmored
   if (!armored && c.classId === "barbarian") ac = 10 + abilityMods.dex + abilityMods.con + (hasShield ? 2 : 0) + armorBonus;
   // Monk unarmored
