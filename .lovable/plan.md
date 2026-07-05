@@ -1,65 +1,68 @@
-## תוכנית עבודה — הרחבה מקיפה למחולל הדמויות
+## מה נבנה
 
-### 1. חיפוש וסינון כישופים (Spell Search)
-- קומפוננטת חיפוש חדשה בשלב הכישופים ב-`builder.tsx` ובדף הדמות `character.$id.tsx`:
-  - שדה חיפוש טקסט חופשי (שם + תיאור)
-  - סינון לפי: מקצוע, תת-קלאס, רמה (0-9), אסכולה
-  - הצגת כישופי סאב-קלאס (grantedSpells) בסקציה נפרדת עם תג ✦
-- שילוב ב-PDF (`export-pdf.ts`) — סקציה נפרדת "כישופי תת-קלאס" עם תג always-prepared
+### 1. מילוי אוטומטי של grantedSpells לכל תת-קלאס
+עבור כל תת-קלאס שחסר לו רשימה מלאה (או שיש רק חלקית), נמלא `grantedSpells` בכל רמה שהתת-קלאס מקבל כישופים חדשים (רמות 3/5/7/9/13/17 לפלדין/רריינג'ר, 1/3/5/7/9 לכומר/וורלוק, ורמות סאב-קלאס ספציפיות למכשף/דרויד/סורסרר/בארד/מונק/פייטר).
 
-### 2. מסך פריטים מלא (Equipment Manager)
-- טאב חדש/משופר "ציוד" בשלב הבנייה:
-  - חיפוש + סינון לפי קטגוריה (weapon/armor/shield/potion/wondrous/ring/wand/staff/rod/gear)
-  - כמויות עם +/- לכל פריט
-  - סימון equipped/attuned
-  - הצגה מיידית של הבונוסים המתקבלים (AC/HP/attack/damage/ability)
-- אפליקציה של כל bonuses ב-`calculations.ts` — לוודא ש-holy_water, javelin_returning, dagger_returning, וכל הפריטים החדשים מחוברים
+דגש מיוחד על:
+- **Wizard** — כל 8 האסכולות (Evocation, Abjuration, Divination, Enchantment, Illusion, Necromancy, Transmutation, Conjuration + Bladesinging, War Magic, Chronurgy, Graviturgy, Scribes) מקבלות רשימת "signature spells" מוצעת ברמות 1/3/5/7/9.
+- **Druid** — כל המעגלים (Moon, Land×6 subtypes, Shepherd, Spores, Stars, Wildfire, Dreams) עם רמות 3/5/7/9.
+- **Fighter — Eldritch Knight / Arcane Archer / Psi Warrior / Echo Knight** — grantedSpells + arcane shots.
+- **Ranger** — כל הקונקלייבים (Hunter, Beast Master, Gloom Stalker, Horizon Walker, Monster Slayer, Fey Wanderer, Swarmkeeper, Drakewarden) עם spells ברמות 3/5/9/13/17.
+- **Sorcerer** — כל ה-Origins (Draconic, Wild Magic, Divine Soul, Shadow, Storm, Aberrant Mind, Clockwork Soul) — expanded spell lists.
+- **Monk** — Way of the Four Elements (disciplines כ-spellIds), Way of Shadow (spells ברמות 3/6/11/17), Way of the Sun Soul, Way of Mercy, Way of the Astral Self.
+- **Bard** — Colleges (Lore, Valor, Glamour, Whispers, Swords, Eloquence, Creation) — Magical Secrets מומלצים ברמה 6/14 כ-suggested list, לא forced.
 
-### 3. עורך Race Traits מלא
-- הצגת כל ה-traits של הגזע/תת-גזע כרשימה בשלב הגזע
-- לכל trait — checkbox פעיל + שדות עריכה (bonus values)
-- הרחבת `RaceTrait` בטיפוסים: `speedBonus`, `acBonus`, `hpPerLevel`, `resistances[]`, `advantages[]`, `extraAttack`
-- שילוב ב-`calculations.ts` לחישוב AC/HP/speed מותאמים
-- כרטיס "🧬 תכונות גזע פעילות" ב-character sheet וב-PDF
+כל spellId שנוסיף נאמת מול `src/data/spells.ts`; חסרים — נוסיף לספר הכישופים.
 
-### 4. הרחבת תוכן
-- **סאב-קלאסים חסרים** ב-`classes.ts`:
-  - Wizard: Bladesinging, War Magic, Chronurgy, Graviturgy, Order of Scribes
-  - Druid: Circle of Stars, Circle of Wildfire, Circle of Dreams
-  - Sorcerer: Storm, Shadow Magic, Aberrant Mind, Clockwork Soul
-  - Warrior (Fighter): Rune Knight, Echo Knight, Psi Warrior, Cavalier, Samurai, Arcane Archer
-  + `grantedSpells` לכל אחד
-- **רקעים חדשים** ב-`backgrounds.ts`: Far Traveler, Haunted One, Inheritor, Knight, Pirate, City Watch, Clan Crafter, Cloistered Scholar, Courtier, Gladiator, Anthropologist
-- **גזע Verdan** (חדש) + עוד גזעים: Kobold, Bugbear, Goblin, Hobgoblin, Tabaxi, Loxodon, Simic Hybrid, Owlin
-- **Feats** נוספים: Piercer, Slasher, Crusher, Skill Expert, Chef, Gunner, Metamagic Adept, Fighting Initiate, Poisoner, Eldritch Adept (real), Artificer Initiate
-- **כישופים** — עוד ~30 (True Polymorph, Wish, Simulacrum, Clone, Sunburst, Meteor Swarm, וכו')
-- **מפלצות/בעלי ברית לזימונים** — קובץ חדש `src/data/summons.ts`:
-  - Beast (CR by level), Fey, Undead, Elemental, Fiend, Celestial, Construct, Aberration, Draconic, Shadowspawn — כולם עם AC/HP/Attack/Damage/traits
-  - הצגה בכישופי summon בדף הדמות
-- **ציוד לבישה** ב-`items.ts`: 
-  - נעליים: Boots of Elvenkind, Boots of Speed, Boots of Striding and Springing, Winged Boots, Boots of Levitation
-  - כפפות: Gloves of Missile Snaring, Gauntlets of Ogre Power, Gloves of Thievery, Gloves of Swimming and Climbing
-  - כובעים/קסדות: Helm of Comprehending Languages, Helm of Telepathy, Helm of Brilliance, Circlet of Blasting, Hat of Disguise, Headband of Intellect
+### 2. עורך פייטס מלא (Wikidot / PHB + XGtE + TCoE)
+נחליף את `src/data/feats.ts` ברשימה מקיפה של כל הפייטס שלא קיימים עדיין. כל פייט יכלול:
+- `name`, `nameHe`, `prerequisite`, `description` (הסבר עברית קצר), `bonuses` מובנה (כשרלוונטי — ability, hp, speed, ac, initiative).
 
-### קבצים שיושפעו
-- `src/data/spells.ts` — הרחבה
-- `src/data/classes.ts` — סאב-קלאסים חדשים + grantedSpells
-- `src/data/races.ts` — Verdan + גזעים + traits מלאים
-- `src/data/backgrounds.ts` — רקעים חדשים
-- `src/data/feats.ts` — feats חדשים
-- `src/data/items.ts` — ציוד לבישה מגנטי
-- `src/data/summons.ts` — **חדש**
-- `src/lib/dnd-types.ts` — הרחבת RaceTrait + Summon type
-- `src/lib/calculations.ts` — אפקטים מגזע/פריטים
-- `src/routes/builder.tsx` — SpellSearch, EquipmentManager, RaceTraitEditor
-- `src/routes/character.$id.tsx` — הצגת traits/summons/subclass spells
-- `src/lib/export-pdf.ts` — סקציות חדשות
+פייטים שיתווספו/יעודכנו: Fey Touched, Shadow Touched, Telekinetic, Telepathic, Eldritch Adept, Metamagic Adept, Fighting Initiate, Artificer Initiate, Skill Expert, Chef, Gunner, Poisoner, Piercer, Slasher, Crusher, Gift of the Chromatic/Metallic/Gem Dragon, Fey Teleportation, Orcish Fury, Prodigy, Squat Nimbleness, Bountiful Luck, Dragon Fear, Dragon Hide, Drow High Magic, Elven Accuracy, Flames of Phlegethos, Infernal Constitution, Second Chance, Wood Elf Magic, Revenant Blade + כל ה-Racial UA feats מ-wikidot.
 
-### סדר ביצוע (Big Bang — הכל בפעימה אחת)
-1. הרחבת טיפוסים + data files (כישופים, סאב-קלאסים, גזעים, רקעים, feats, פריטים, summons)
-2. קומפוננטת חיפוש כישופים
-3. מסך פריטים
-4. עורך race traits
-5. חישובים + PDF
+**Auto-grant לפי קלאס**: נוסיף פונקציה `getAutoFeats(classId, subclassId, level)` שמחזירה fixed feats שהקלאס מקבל אוטומטית (למשל Fighter — Fighting Style לוכד `fighting_initiate`-דמוי לא נספר; Variant Human/Custom Lineage feat רמה 1). ב-`calculations.ts` וב-`builder.tsx` נצרף אותם אוטומטית ל-featIds אפקטיביים בלי לגעת ב-featIds הידני של המשתמש.
 
-זה עבודה כבדה מאוד (10+ קבצים גדולים). אפשר להתחיל?
+### 3. Fighting Styles / התמחות בנשק
+נגדיר `src/data/fighting-styles.ts` חדש עם כל ה-Fighting Styles (Archery, Defense, Dueling, Great Weapon Fighting, Protection, Two-Weapon Fighting, Blind Fighting, Interception, Superior Technique, Thrown Weapon Fighting, Unarmed Fighting, Close Quarters Shooter, Mariner, Tunnel Fighter, Druidic Warrior).
+
+טיפוס חדש `FightingStyle { id, name, nameHe, desc, bonuses? }` ב-`dnd-types.ts`.
+
+`Character` יקבל שדה `fightingStyleIds: string[]`.
+
+בונוסים אוטומטיים:
+- Archery — +2 to hit ranged (יוחל ב-`calculations.ts` על מתקפות ranged).
+- Defense — +1 AC כשלובש שריון.
+- Dueling — +2 damage עם נשק יד אחת.
+- GWF — reroll 1s/2s בנזק.
+- Two-Weapon — הוספת mod לנזק off-hand.
+
+קלאסים שמקבלים בחירת Fighting Style:
+- Fighter — רמה 1 (בחירה 1, ו-Champion רמה 10 עוד אחד).
+- Ranger — רמה 2.
+- Paladin — רמה 2.
+- כל תת-קלאס שנותן FS נוסף (Champion, Cavalier, Samurai, College of Swords, Bladesinger משתמש ב-defense אוטומטית).
+
+UI: ב-`builder.tsx` נוסיף שלב/כרטיס "סגנון קרב" שמופיע רק לקלאסים המתאימים לפי רמה, עם multi-select. ב-`character.$id.tsx` נציג את ה-styles הפעילים ואת הבונוסים הנגזרים.
+
+### 4. Regression: TS2304 + spellbook populated
+נוסיף סקריפט `scripts/validate-data.ts` שרץ ב-`bun run` וגם ב-vitest:
+- מוודא ש-`tsgo --noEmit` יוצא 0 (אין TS2304 או שגיאה אחרת).
+- טוען את `CLASSES` ו-`SPELLS`, ולכל `grantedSpells[].spellIds` בודק שקיים spellId ב-`SPELLS`. אם חסר — throw.
+- לכל `subclass.grantedSpells` — מוודא שהרשימה לא ריקה עבור subclasses של הקלאסים המרכזיים.
+- נוסיף `bun run validate` ל-package.json.
+
+### 5. קבצים שיושפעו
+- `src/data/classes.ts` — grantedSpells מורחב לכל תת-קלאס.
+- `src/data/spells.ts` — הוספת spells חסרים שנצטרך.
+- `src/data/feats.ts` — רשימה מלאה.
+- `src/data/fighting-styles.ts` — קובץ חדש.
+- `src/lib/dnd-types.ts` — `FightingStyle`, `fightingStyleIds` על Character, `autoFeats` helper type.
+- `src/lib/calculations.ts` — הפעלת bonusים מ-fighting styles ומפייטים אוטומטיים.
+- `src/routes/builder.tsx` — כרטיס Fighting Style + עדכון סקירת פייטים אוטומטיים.
+- `src/routes/character.$id.tsx` — הצגת fighting styles ופייטים אוטומטיים.
+- `src/lib/export-pdf.ts` — הוספת סעיפים ב-PDF.
+- `scripts/validate-data.ts` + `package.json` — regression.
+
+## מה לא נעשה בסבב הזה
+- לא נבנה עורך UI לכל trait של גזע (כבר קיים).
+- לא נגע במערכת הפריטים/ציוד — לא בבקשה.

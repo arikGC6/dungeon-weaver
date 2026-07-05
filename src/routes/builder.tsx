@@ -6,6 +6,7 @@ import { RACES } from "@/data/races";
 import { CLASSES } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS } from "@/data/feats";
+import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
 import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STANDARD_ARRAY_VALUES, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
@@ -464,8 +465,19 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
     const has = c.featIds.includes(id);
     update({ featIds: has ? c.featIds.filter(x => x !== id) : [...c.featIds, id] });
   };
+
+  const fsSlots = fightingStyleSlots(c.classId, c.subclassId, c.level || 1);
+  const legalFs = fightingStylesFor(c.classId);
+  const currentFs = c.fightingStyleIds ?? [];
+  const toggleFs = (id: string) => {
+    const has = currentFs.includes(id);
+    let next = has ? currentFs.filter(x => x !== id) : [...currentFs, id];
+    if (!has && next.length > fsSlots) next = next.slice(-fsSlots);
+    update({ fightingStyleIds: next });
+  };
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <h2 className="display text-2xl text-primary">Feats / Fates</h2>
       <p className="text-xs text-muted-foreground">בחר feats — בונוסים אוטומטיים (יכולות, HP, מהירות, AC) ייושמו בסקירה ובדף הדמות.</p>
       <input className="input w-full" placeholder="חפש feat..." value={q} onChange={e => setQ(e.target.value)} />
@@ -479,9 +491,29 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
           </button>
         ))}
       </div>
+
+      {fsSlots > 0 && (
+        <div className="border-t border-border pt-3">
+          <h3 className="display text-xl text-primary mb-1">סגנון קרב · Fighting Style</h3>
+          <p className="text-xs text-muted-foreground mb-2">בחר {fsSlots} סגנון{fsSlots > 1 ? "ות" : ""} מבין המותרים למקצוע שלך. הבונוסים מיושמים אוטומטית.</p>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {FIGHTING_STYLES.filter(s => legalFs.includes(s.id)).map(s => {
+              const chosen = currentFs.includes(s.id);
+              return (
+                <button key={s.id} onClick={() => toggleFs(s.id)}
+                  className={`text-right p-3 rounded-md border text-sm ${chosen ? "bg-accent/20 border-accent" : "border-border hover:bg-secondary/40"}`}>
+                  <div className="font-semibold">{s.nameHe} <span className="text-xs text-muted-foreground">({s.name})</span></div>
+                  <div className="text-xs mt-1">{s.desc}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 // ============ Step 7 — Spells ============
 function Step7Spells({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {

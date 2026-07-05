@@ -5,6 +5,7 @@ import { getFeat } from "../data/feats";
 import { getItem, ARMOR_BASE } from "../data/items";
 import { getSpell } from "../data/spells";
 import { getBackground } from "../data/backgrounds";
+import { getFightingStyle } from "../data/fighting-styles";
 
 export interface DerivedStats {
   abilities: Record<Ability, number>;
@@ -128,6 +129,11 @@ export function calculateCharacter(c: Character): DerivedStats {
   });
   if (hasShield) ac += 2;
   ac += armorBonus;
+  // Fighting style — Defense/Mariner: +1 AC when wearing armor
+  (c.fightingStyleIds ?? []).forEach(id => {
+    const fs = getFightingStyle(id);
+    if (fs?.bonuses?.acWhenArmored && armored) ac += fs.bonuses.acWhenArmored;
+  });
   // Barbarian unarmored
   if (!armored && c.classId === "barbarian") ac = 10 + abilityMods.dex + abilityMods.con + (hasShield ? 2 : 0) + armorBonus;
   // Monk unarmored
@@ -431,6 +437,7 @@ export function emptyCharacter(): Character {
     expertise: [],
     languages: [],
     featIds: [],
+    fightingStyleIds: [],
     spellIds: [],
     preparedSpellIds: [],
     itemIds: [],

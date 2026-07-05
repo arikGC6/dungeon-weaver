@@ -133,6 +133,19 @@ export interface Item {
   };
 }
 
+export interface FightingStyle {
+  id: string;
+  name: string;
+  nameHe: string;
+  desc: string;
+  bonuses?: {
+    rangedAttack?: number;
+    oneHandedDamage?: number;
+    thrownDamage?: number;
+    acWhenArmored?: number;
+  };
+}
+
 export interface Background {
   id: string;
   name: string;
@@ -161,6 +174,8 @@ export interface Character {
   expertise: Skill[];
   languages: string[];
   featIds: string[];
+  fightingStyleIds?: string[]; // Fighter/Ranger/Paladin/Bard-Swords
+
   spellIds: string[];      // known/learned spells
   preparedSpellIds: string[];
   itemIds: { id: string; equipped: boolean; quantity?: number }[];
