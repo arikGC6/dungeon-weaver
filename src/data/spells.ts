@@ -321,6 +321,21 @@ export const SPELLS: Spell[] = [
   S(4, "conjure_barrage", "Conjure Barrage", "conjuration", ["ranger"], "1 action", "Self (60 ft cone)", "V, S, M", "Instantaneous", "מטח נשק — 3d8 damage. DEX save חצי."),
   S(5, "conjure_volley", "Conjure Volley", "conjuration", ["ranger"], "1 action", "150 ft", "V, S, M", "Instantaneous", "40ft cylinder — 8d8 damage."),
 
+  // ===== Fills for granted-spell references =====
+  S(2, "gentle_repose", "Gentle Repose", "necromancy", ["cleric", "wizard"], "1 action", "Touch", "V, S, M", "10 days", "משמר גוויה מריקבון ומהזמנה כ-undead למשך 10 ימים. Ritual.", { ritual: true }),
+  S(1, "ray_of_enfeeblement", "Ray of Enfeeblement", "necromancy", ["warlock", "wizard"], "1 action", "60 ft", "V, S", "Concentration, 1 min", "התקפת ranged spell — היעד מטיל חצי נזק בהתקפות STR עד סוף הריכוז. C", { concentration: true }),
+  S(3, "daylight", "Daylight", "evocation", ["cleric", "druid", "paladin", "ranger", "sorcerer"], "1 action", "60 ft", "V, S", "1 hour", "כדור אור שמש 60ft — מבטל darkness מגי עד רמה 2."),
+  S(4, "death_ward", "Death Ward", "abjuration", ["cleric", "paladin"], "1 action", "Touch", "V, S", "8 hours", "פעם אחת — מגן על היעד מלרדת ל-0 HP; במקום זאת נשאר עם 1."),
+  S(5, "antilife_shell", "Antilife Shell", "abjuration", ["druid"], "1 action", "Self (10-ft radius)", "V, S", "Concentration, 1 hour", "כדור מגן שמונע כניסת יצורים חיים. C", { concentration: true }),
+  S(5, "insect_plague", "Insect Plague", "conjuration", ["cleric", "druid", "sorcerer"], "1 action", "300 ft", "V, S, M", "Concentration, 10 min", "ענן חרקים 20ft — 4d10 piercing, difficult terrain. C", { concentration: true }),
+  S(5, "destructive_wave", "Destructive Wave", "evocation", ["cleric", "paladin"], "1 action", "Self (30-ft radius)", "V", "Instantaneous", "גל אנרגיה — 5d6 thunder + 5d6 radiant/necrotic; CON save או knock prone."),
+  S(5, "teleportation_circle", "Teleportation Circle", "conjuration", ["bard", "sorcerer", "wizard"], "1 minute", "10 ft", "V, M", "1 round", "מעגל טלפורט קבוע ליעד ידוע."),
+  S(5, "rary_telepathic_bond", "Rary's Telepathic Bond", "divination", ["wizard"], "1 action", "30 ft", "V, S, M", "1 hour", "יוצר קשר טלפתי בין עד 8 יצורים מוכנים. Ritual.", { ritual: true }),
+  S(1, "gift_of_alacrity", "Gift of Alacrity", "divination", ["wizard"], "1 minute", "Touch", "V, S", "8 hours", "יעד מוסיף 1d8 לזריקות יוזמה למשך הכישוף."),
+  S(3, "phantom_steed", "Phantom Steed", "illusion", ["wizard"], "1 minute", "30 ft", "V, S", "1 hour", "יוצר סוס-רפאים במהירות 100 ft. Ritual.", { ritual: true }),
+  S(2, "crown_of_madness", "Crown of Madness", "enchantment", ["bard", "sorcerer", "warlock", "wizard"], "1 action", "120 ft", "V, S", "Concentration, 1 min", "יעד humanoid — WIS save או charmed. בתור שלך אתה מכוון אותו להתקוף. C", { concentration: true }),
+  S(4, "aura_of_life", "Aura of Life", "abjuration", ["paladin"], "1 action", "Self (30-ft aura)", "V", "Concentration, 10 min", "resistance ל-necrotic לבעלי ברית; HP min 1. C", { concentration: true }),
+
 ];
 
 export function getSpell(id: string) { return SPELLS.find(s => s.id === id); }
