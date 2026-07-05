@@ -5,6 +5,7 @@ import { getFeat } from "../data/feats";
 import { getItem, ARMOR_BASE } from "../data/items";
 import { getSpell } from "../data/spells";
 import { getBackground } from "../data/backgrounds";
+import { getFightingStyle } from "../data/fighting-styles";
 
 export interface DerivedStats {
   abilities: Record<Ability, number>;
