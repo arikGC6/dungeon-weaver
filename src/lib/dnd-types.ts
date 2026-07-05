@@ -133,6 +133,19 @@ export interface Item {
   };
 }
 
+export interface FightingStyle {
+  id: string;
+  name: string;
+  nameHe: string;
+  desc: string;
+  bonuses?: {
+    rangedAttack?: number;
+    oneHandedDamage?: number;
+    thrownDamage?: number;
+    acWhenArmored?: number;
+  };
+}
+
 export interface Background {
   id: string;
   name: string;
