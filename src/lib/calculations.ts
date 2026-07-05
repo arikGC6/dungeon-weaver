@@ -437,6 +437,7 @@ export function emptyCharacter(): Character {
     expertise: [],
     languages: [],
     featIds: [],
+    fightingStyleIds: [],
     spellIds: [],
     preparedSpellIds: [],
     itemIds: [],
