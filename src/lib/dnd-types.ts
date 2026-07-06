@@ -94,6 +94,12 @@ export interface Spell {
   description: string;
   concentration?: boolean;
   ritual?: boolean;
+  // Optional attack metadata — used by the Character sheet "spells as attacks" section.
+  damageDice?: string;         // "1d10" / "8d6"
+  damageType?: string;         // "fire" / "force" / "necrotic"
+  attackType?: "melee_spell" | "ranged_spell" | "save";
+  saveAbility?: Ability;       // for save-based spells
+  higherLevel?: string;        // scaling summary
 }
 
 export interface Feat {
@@ -102,6 +108,16 @@ export interface Feat {
   nameHe: string;
   prerequisite?: string;
   description: string;
+  auto?: boolean; // granted automatically by class/subclass — does not count against ASI budget
+  requirements?: {
+    race?: string[];        // raceId(s) — allowed if character.raceId in list
+    subrace?: string[];
+    class?: string[];       // classId(s) — allowed if character.classId in list
+    subclass?: string[];
+    minAbility?: Partial<Record<Ability, number>>;
+    spellcasting?: boolean;
+    armorProf?: "light" | "medium" | "heavy" | "shield";
+  };
   bonuses?: {
     ability?: AbilityBonus[];
     hpPerLevel?: number;
@@ -183,6 +199,8 @@ export interface Character {
   equipment?: { name: string; quantity: number; notes?: string }[];
   // Custom attacks (נשק קסום, התקפת unarmed וכו')
   attacks?: { name: string; bonus: string; damage: string; notes?: string }[];
+  // Spells the player marked to display as attack rows (e.g. Fire Bolt, Eldritch Blast).
+  spellAttacks?: string[];
   hpMax?: number; // override
   hpCurrent?: number;
   acOverride?: number;

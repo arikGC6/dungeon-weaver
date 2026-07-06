@@ -1,7 +1,7 @@
 import { ABILITIES, type Ability, type Character, type Skill, PROFICIENCY_BY_LEVEL, mod, SKILL_LIST } from "./dnd-types";
 import { getRace } from "../data/races";
 import { CLASSES, getClass, getSpellSlots, type SpellSlotsInfo } from "../data/classes";
-import { getFeat } from "../data/feats";
+import { getFeat, getAutoFeats, type AutoFeat } from "../data/feats";
 import { getItem, ARMOR_BASE } from "../data/items";
 import { getSpell } from "../data/spells";
 import { getBackground } from "../data/backgrounds";
@@ -31,6 +31,7 @@ export interface DerivedStats {
   classResources: { name: string; value: string; recharge: string; desc?: string; className?: string }[];
   actionEconomy: { actions: number; bonusActions: number; reactions: number; extras: string[] };
   asi: { total: number; used: number; remaining: number; levels: number[]; nextAt?: number };
+  autoFeats: AutoFeat[]; // granted by class/subclass
   raceBonuses: Partial<Record<Ability, number>>; // effective racial bonus per ability (post-override)
 }
 
@@ -57,10 +58,14 @@ export function calculateCharacter(c: Character): DerivedStats {
     if (raceBonuses[a]) abilities[a] = (abilities[a] ?? 10) + (raceBonuses[a] ?? 0);
   }
 
-  // Feats
+  // Feats — user-picked + auto-granted by class/subclass.
+  const autoFeats = getAutoFeats(c.classId, c.subclassId, level, c.multiclass);
   c.featIds.forEach(id => {
     const f = getFeat(id);
     f?.bonuses?.ability?.forEach(b => { abilities[b.ability] += b.amount; });
+  });
+  autoFeats.forEach(af => {
+    af.bonuses?.ability?.forEach(b => { abilities[b.ability] += b.amount; });
   });
 
   // Items (equipped)
@@ -291,6 +296,7 @@ export function calculateCharacter(c: Character): DerivedStats {
     classResources,
     actionEconomy,
     asi,
+    autoFeats,
     raceBonuses,
   };
 }

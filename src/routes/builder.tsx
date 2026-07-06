@@ -5,7 +5,7 @@ import { emptyCharacter } from "@/lib/calculations";
 import { RACES } from "@/data/races";
 import { CLASSES } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
-import { FEATS } from "@/data/feats";
+import { FEATS, isFeatAvailable } from "@/data/feats";
 import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
@@ -460,7 +460,18 @@ function Step5Skills({ c, update }: { c: Character; update: (p: Partial<Characte
 // ============ Step 6 — Feats ============
 function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const [q, setQ] = useState("");
-  const list = FEATS.filter(f => !q || f.name.toLowerCase().includes(q.toLowerCase()) || f.nameHe.includes(q));
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [raceFilter, setRaceFilter] = useState<string>("any");
+  const [classFilter, setClassFilter] = useState<string>("any");
+  const d = calculateCharacter(c);
+
+  const list = FEATS.filter(f => {
+    if (q && !f.name.toLowerCase().includes(q.toLowerCase()) && !f.nameHe.includes(q)) return false;
+    if (raceFilter !== "any" && !(f.requirements?.race?.includes(raceFilter))) return false;
+    if (classFilter !== "any" && !(f.requirements?.class?.includes(classFilter))) return false;
+    if (onlyAvailable && !isFeatAvailable(f, { raceId: c.raceId, subraceId: c.subraceId, classId: c.classId, subclassId: c.subclassId, abilities: d.abilities })) return false;
+    return true;
+  });
   const toggle = (id: string) => {
     const has = c.featIds.includes(id);
     update({ featIds: has ? c.featIds.filter(x => x !== id) : [...c.featIds, id] });
@@ -479,17 +490,37 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
   return (
     <div className="space-y-4">
       <h2 className="display text-2xl text-primary">Feats / Fates</h2>
-      <p className="text-xs text-muted-foreground">בחר feats — בונוסים אוטומטיים (יכולות, HP, מהירות, AC) ייושמו בסקירה ובדף הדמות.</p>
-      <input className="input w-full" placeholder="חפש feat..." value={q} onChange={e => setQ(e.target.value)} />
+      <p className="text-xs text-muted-foreground">בונוסים אוטומטיים (יכולות, HP, מהירות, AC) ייושמו בסקירה ובדף הדמות. פייטים שמוענקים אוטומטית מקלאס/תת-קלאס מופיעים בדף הדמות בנפרד.</p>
+      {d.autoFeats.length > 0 && (
+        <div className="p-2 rounded bg-accent/10 border border-accent/40 text-xs">
+          <b>🎁 פייטים אוטומטיים:</b> {d.autoFeats.map(f => `${f.nameHe} (${f.source})`).join(" · ")}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-2 items-center">
+        <input className="input flex-1 min-w-[160px]" placeholder="חפש feat..." value={q} onChange={e => setQ(e.target.value)} />
+        <select className="input" value={raceFilter} onChange={e => setRaceFilter(e.target.value)}>
+          <option value="any">כל הגזעים</option>
+          {RACES.map(r => <option key={r.id} value={r.id}>{r.nameHe}</option>)}
+        </select>
+        <select className="input" value={classFilter} onChange={e => setClassFilter(e.target.value)}>
+          <option value="any">כל הקלאסים</option>
+          {CLASSES.map(cl => <option key={cl.id} value={cl.id}>{cl.nameHe}</option>)}
+        </select>
+        <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={onlyAvailable} onChange={e => setOnlyAvailable(e.target.checked)} /> רק זמינים לי</label>
+      </div>
+      <div className="text-xs text-muted-foreground">מוצגים {list.length}/{FEATS.length}</div>
       <div className="grid sm:grid-cols-2 gap-2 max-h-[420px] overflow-y-auto">
-        {list.map(f => (
-          <button key={f.id} onClick={() => toggle(f.id)}
-            className={`text-right p-3 rounded-md border text-sm ${c.featIds.includes(f.id) ? "bg-primary/20 border-primary" : "border-border hover:bg-secondary/40"}`}>
-            <div className="font-semibold">{f.nameHe} <span className="text-xs text-muted-foreground">({f.name})</span></div>
-            {f.prerequisite && <div className="text-[11px] text-accent">תנאי: {f.prerequisite}</div>}
-            <div className="text-xs mt-1">{f.description}</div>
-          </button>
-        ))}
+        {list.map(f => {
+          const avail = isFeatAvailable(f, { raceId: c.raceId, subraceId: c.subraceId, classId: c.classId, subclassId: c.subclassId, abilities: d.abilities });
+          return (
+            <button key={f.id} onClick={() => toggle(f.id)}
+              className={`text-right p-3 rounded-md border text-sm ${c.featIds.includes(f.id) ? "bg-primary/20 border-primary" : avail ? "border-border hover:bg-secondary/40" : "border-dashed border-border/60 opacity-60"}`}>
+              <div className="font-semibold">{f.nameHe} <span className="text-xs text-muted-foreground">({f.name})</span>{!avail && <span className="text-[10px] text-destructive ms-1">⚠ תנאי חסום</span>}</div>
+              {f.prerequisite && <div className="text-[11px] text-accent">תנאי: {f.prerequisite}</div>}
+              <div className="text-xs mt-1">{f.description}</div>
+            </button>
+          );
+        })}
       </div>
 
       {fsSlots > 0 && (

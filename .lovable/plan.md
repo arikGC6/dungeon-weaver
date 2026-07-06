@@ -1,68 +1,46 @@
-## מה נבנה
+## מה נעשה
 
-### 1. מילוי אוטומטי של grantedSpells לכל תת-קלאס
-עבור כל תת-קלאס שחסר לו רשימה מלאה (או שיש רק חלקית), נמלא `grantedSpells` בכל רמה שהתת-קלאס מקבל כישופים חדשים (רמות 3/5/7/9/13/17 לפלדין/רריינג'ר, 1/3/5/7/9 לכומר/וורלוק, ורמות סאב-קלאס ספציפיות למכשף/דרויד/סורסרר/בארד/מונק/פייטר).
+### 1. Auto-grant feats לפי קלאס/תת-קלאס
+- ב-`src/data/feats.ts` נוסיף `getAutoFeats(classId, subclassId, level)` — מחזיר feats "קבועים" (למשל Champion → Remarkable Athlete בונוס דמוי-feat, Rune Knight → Rune Carver כפייט מותאם).
+- נכניס למערכת מושג `AutoFeat` — פייט שאינו נספר ב-ASI budget, מסומן ב-`auto: true`.
+- ב-`calculations.ts`: כל חישוב bonuses של feats יאחד `[...c.featIds, ...autoFeatIds]`, כך שההשפעה (ability/hp/speed/ac/initiative) חלה אוטומטית ומעדכנת סטטים מיד אחרי שינוי קלאס/תת-קלאס.
+- שדה חדש `asi.autoFeats` להצגה בדף.
 
-דגש מיוחד על:
-- **Wizard** — כל 8 האסכולות (Evocation, Abjuration, Divination, Enchantment, Illusion, Necromancy, Transmutation, Conjuration + Bladesinging, War Magic, Chronurgy, Graviturgy, Scribes) מקבלות רשימת "signature spells" מוצעת ברמות 1/3/5/7/9.
-- **Druid** — כל המעגלים (Moon, Land×6 subtypes, Shepherd, Spores, Stars, Wildfire, Dreams) עם רמות 3/5/7/9.
-- **Fighter — Eldritch Knight / Arcane Archer / Psi Warrior / Echo Knight** — grantedSpells + arcane shots.
-- **Ranger** — כל הקונקלייבים (Hunter, Beast Master, Gloom Stalker, Horizon Walker, Monster Slayer, Fey Wanderer, Swarmkeeper, Drakewarden) עם spells ברמות 3/5/9/13/17.
-- **Sorcerer** — כל ה-Origins (Draconic, Wild Magic, Divine Soul, Shadow, Storm, Aberrant Mind, Clockwork Soul) — expanded spell lists.
-- **Monk** — Way of the Four Elements (disciplines כ-spellIds), Way of Shadow (spells ברמות 3/6/11/17), Way of the Sun Soul, Way of Mercy, Way of the Astral Self.
-- **Bard** — Colleges (Lore, Valor, Glamour, Whispers, Swords, Eloquence, Creation) — Magical Secrets מומלצים ברמה 6/14 כ-suggested list, לא forced.
+### 2. סינון feats לפי תנאי (גזע/מקצוע/יכולת)
+- נעשיר את שדה `prerequisite` לשדה מובנה `requirements?: { race?: string[]; class?: string[]; subclass?: string[]; minAbility?: Partial<Record<Ability, number>>; spellcasting?: boolean; armorProf?: "light"|"medium"|"heavy"|"shield" }`.
+- ב-`builder.tsx` בשלב הפייטים: מסנן חדש (Select) לפי גזע/קלאס/רמה + toggle "הצג רק פייטים זמינים לי". פונקציית `isFeatAvailable(feat, character)`.
+- שמירה על תאימות: כל feat קיים ישאר עובד; נמלא `requirements` בהדרגה לפייטים הידועים.
 
-כל spellId שנוסיף נאמת מול `src/data/spells.ts`; חסרים — נוסיף לספר הכישופים.
+### 3. הרחבת רשימת feats
+נוסיף עוד ~25 פייטים חסרים: Athlete-variant, Blessed Warrior/Blessed Strikes, Musician, Practiced Expert, Rune Carver, Squire of Solamnia, Knight of Solamnia, Sun Blessed, Metabolic Control, Wonder Maker, Piercer/Slasher/Crusher variants (כבר יש), Aberrant Dragonmark, Strixhaven Initiate x5, Fey Touched, Shadow Touched variants, Telepathic (יש), Chef (יש), plus ~10 UA/Wikidot: Weapon Master (יש), Athlete (יש) — נסמן requirements נכון.
+נאמת שאין כפילויות עם הרשימה הקיימת.
 
-### 2. עורך פייטס מלא (Wikidot / PHB + XGtE + TCoE)
-נחליף את `src/data/feats.ts` ברשימה מקיפה של כל הפייטס שלא קיימים עדיין. כל פייט יכלול:
-- `name`, `nameHe`, `prerequisite`, `description` (הסבר עברית קצר), `bonuses` מובנה (כשרלוונטי — ability, hp, speed, ac, initiative).
+### 4. עריכה ידנית של ערכי מאפיינים
+- `manualOverrides.abilities` כבר קיים; נחשוף אותו ב-UI:
+  - ב-`builder.tsx` שלב Review: לכל מאפיין input מספרי "עקוף ידני" עם כפתור איפוס. השינוי מיידית מזין את `calculateCharacter` דרך `manualOverrides`.
+  - גם ב-`character.$id.tsx` (עריכה מהירה מדף הדמות): drawer "עריכה ידנית של מאפיינים".
 
-פייטים שיתווספו/יעודכנו: Fey Touched, Shadow Touched, Telekinetic, Telepathic, Eldritch Adept, Metamagic Adept, Fighting Initiate, Artificer Initiate, Skill Expert, Chef, Gunner, Poisoner, Piercer, Slasher, Crusher, Gift of the Chromatic/Metallic/Gem Dragon, Fey Teleportation, Orcish Fury, Prodigy, Squat Nimbleness, Bountiful Luck, Dragon Fear, Dragon Hide, Drow High Magic, Elven Accuracy, Flames of Phlegethos, Infernal Constitution, Second Chance, Wood Elf Magic, Revenant Blade + כל ה-Racial UA feats מ-wikidot.
+### 5. אוטומציה של Fighter (יכולות + כישופים)
+- ב-`src/data/classes.ts` — למחלקת fighter נוודא ש-`features` מכסים כל רמה עם הטקסט המלא של Wikidot (Second Wind, Action Surge, Extra Attack, Indomitable), וש-כל תת-קלאס (Champion, Battle Master, Eldritch Knight, Arcane Archer, Cavalier, Samurai, Psi Warrior, Echo Knight, Rune Knight, Purple Dragon Knight) מכיל `features` מלאים + `grantedSpells` (ל-EK ו-AA).
+- Auto-Fighting-Style: פייטר רמה 1 יוסיף פייטינג-סטייל מומלץ אם המשתמש טרם בחר (default = Defense).
+- Auto-feats: Champion רמה 7 → Remarkable Athlete (auto), Rune Knight → Giant's Might (כבר משאב), Battle Master → Combat Superiority (משאב).
 
-**Auto-grant לפי קלאס**: נוסיף פונקציה `getAutoFeats(classId, subclassId, level)` שמחזירה fixed feats שהקלאס מקבל אוטומטית (למשל Fighter — Fighting Style לוכד `fighting_initiate`-דמוי לא נספר; Variant Human/Custom Lineage feat רמה 1). ב-`calculations.ts` וב-`builder.tsx` נצרף אותם אוטומטית ל-featIds אפקטיביים בלי לגעת ב-featIds הידני של המשתמש.
+### 6. הוספת כישופים כהתקפות
+- טיפוס חדש `Character.spellAttacks?: string[]` — spellIds שסומנו כ"פעולת מתקפה" בגיליון.
+- ב-`character.$id.tsx` תחת סקציית "התקפות": כפתור "הוסף כישוף כמתקפה" עם דיאלוג בוחר מ-`spellIds` הידועים. עבור כל כישוף מוצג אוטומטית: שם, טווח, זמן הטלה, קומפוננטים, סוג נזק (מנותח מ-`description` או משדה חדש), קוביית נזק, To-Hit (`spellAttackBonus`) או DC (`spellSaveDc`), רמת slot נדרשת (= level, או ניתן לשדרג).
+- נוסיף לטיפוס `Spell` שדות אופציונליים: `damageDice?: string`, `damageType?: string`, `attackType?: "melee_spell" | "ranged_spell" | "save"`, `saveAbility?: Ability`. נמלא לכישופי התקפה הנפוצים ב-`src/data/spells.ts` (Fire Bolt, Eldritch Blast, Chromatic Orb, Scorching Ray, Fireball, ...).
+- כישופים ללא מטא-דאטה — נציג עדיין את השורה עם ידני-נזק ריק לעריכה.
 
-### 3. Fighting Styles / התמחות בנשק
-נגדיר `src/data/fighting-styles.ts` חדש עם כל ה-Fighting Styles (Archery, Defense, Dueling, Great Weapon Fighting, Protection, Two-Weapon Fighting, Blind Fighting, Interception, Superior Technique, Thrown Weapon Fighting, Unarmed Fighting, Close Quarters Shooter, Mariner, Tunnel Fighter, Druidic Warrior).
-
-טיפוס חדש `FightingStyle { id, name, nameHe, desc, bonuses? }` ב-`dnd-types.ts`.
-
-`Character` יקבל שדה `fightingStyleIds: string[]`.
-
-בונוסים אוטומטיים:
-- Archery — +2 to hit ranged (יוחל ב-`calculations.ts` על מתקפות ranged).
-- Defense — +1 AC כשלובש שריון.
-- Dueling — +2 damage עם נשק יד אחת.
-- GWF — reroll 1s/2s בנזק.
-- Two-Weapon — הוספת mod לנזק off-hand.
-
-קלאסים שמקבלים בחירת Fighting Style:
-- Fighter — רמה 1 (בחירה 1, ו-Champion רמה 10 עוד אחד).
-- Ranger — רמה 2.
-- Paladin — רמה 2.
-- כל תת-קלאס שנותן FS נוסף (Champion, Cavalier, Samurai, College of Swords, Bladesinger משתמש ב-defense אוטומטית).
-
-UI: ב-`builder.tsx` נוסיף שלב/כרטיס "סגנון קרב" שמופיע רק לקלאסים המתאימים לפי רמה, עם multi-select. ב-`character.$id.tsx` נציג את ה-styles הפעילים ואת הבונוסים הנגזרים.
-
-### 4. Regression: TS2304 + spellbook populated
-נוסיף סקריפט `scripts/validate-data.ts` שרץ ב-`bun run` וגם ב-vitest:
-- מוודא ש-`tsgo --noEmit` יוצא 0 (אין TS2304 או שגיאה אחרת).
-- טוען את `CLASSES` ו-`SPELLS`, ולכל `grantedSpells[].spellIds` בודק שקיים spellId ב-`SPELLS`. אם חסר — throw.
-- לכל `subclass.grantedSpells` — מוודא שהרשימה לא ריקה עבור subclasses של הקלאסים המרכזיים.
-- נוסיף `bun run validate` ל-package.json.
-
-### 5. קבצים שיושפעו
-- `src/data/classes.ts` — grantedSpells מורחב לכל תת-קלאס.
-- `src/data/spells.ts` — הוספת spells חסרים שנצטרך.
-- `src/data/feats.ts` — רשימה מלאה.
-- `src/data/fighting-styles.ts` — קובץ חדש.
-- `src/lib/dnd-types.ts` — `FightingStyle`, `fightingStyleIds` על Character, `autoFeats` helper type.
-- `src/lib/calculations.ts` — הפעלת bonusים מ-fighting styles ומפייטים אוטומטיים.
-- `src/routes/builder.tsx` — כרטיס Fighting Style + עדכון סקירת פייטים אוטומטיים.
-- `src/routes/character.$id.tsx` — הצגת fighting styles ופייטים אוטומטיים.
-- `src/lib/export-pdf.ts` — הוספת סעיפים ב-PDF.
-- `scripts/validate-data.ts` + `package.json` — regression.
+### 7. קבצים שיושפעו
+- `src/lib/dnd-types.ts` — `Feat.requirements`, `Feat.auto?`, `Spell.damageDice/type/attackType/saveAbility`, `Character.spellAttacks`.
+- `src/data/feats.ts` — הרחבה + requirements + `getAutoFeats()`.
+- `src/data/spells.ts` — הוספת שדות מטא-דאטה לכישופי התקפה.
+- `src/data/classes.ts` — השלמת features/grantedSpells לכל תת-קלאס של fighter.
+- `src/lib/calculations.ts` — מיזוג autoFeats, חשיפת `autoFeats` ב-DerivedStats.
+- `src/routes/builder.tsx` — סינון feats, UI עריכה ידנית של מאפיינים, ברירת מחדל Fighting Style ל-fighter.
+- `src/routes/character.$id.tsx` — סקציית "כישופים כמתקפות" + drawer עריכה ידנית של מאפיינים.
+- `scripts/validate-data.ts` — validation לשדות החדשים.
 
 ## מה לא נעשה בסבב הזה
-- לא נבנה עורך UI לכל trait של גזע (כבר קיים).
-- לא נגע במערכת הפריטים/ציוד — לא בבקשה.
+- לא נגע במערכת הפריטים/גזעים/רקעים.
+- לא נשנה את מנוע ה-PDF (יעודכן בסבב נפרד אם תרצה שהמתקפות-מכישוף יופיעו שם).

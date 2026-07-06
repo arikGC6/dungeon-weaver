@@ -197,8 +197,149 @@ export const FEATS: Feat[] = [
     description: "+1 INT/CHA. Sylvan. Misty Step 1×/rest ללא slot.",
     bonuses: { ability: [{ ability: "cha", amount: 1 }] } },
   { id: "svirfneblin_magic", name: "Svirfneblin Magic", nameHe: "קסם סווירפנבלין", prerequisite: "Deep Gnome",
+    requirements: { race: ["gnome"], subrace: ["deep-gnome", "svirfneblin"] },
     description: "לומד Nondetection, Blindness/Deafness, Blur, Disguise Self (1×/long rest each)." },
+
+  // ===== Additional feats (TCoE / SCAG / FTD / SAiS / Wikidot) =====
+  { id: "blessed_warrior", name: "Blessed Warrior", nameHe: "לוחם ברוך",
+    requirements: { class: ["fighter"] },
+    description: "לומד 2 cantrips מרשימת ה-Cleric (WIS). מיועד ללוחם." },
+  { id: "blessed_strikes", name: "Blessed Strikes", nameHe: "מכות ברוכות",
+    requirements: { class: ["cleric"] },
+    description: "פעם בתור — נזק +1d8 radiant בפגיעת נשק, או cantrip radiant מרשימה." },
+  { id: "practiced_expert", name: "Practiced Expert", nameHe: "מומחה מנוסה",
+    description: "+1 לכל יכולת. Proficiency במיומנות/כלי. Expertise במיומנות אחת." },
+  { id: "musician", name: "Musician", nameHe: "מוזיקאי",
+    description: "Proficiency ב-3 כלי נגינה. אחרי short/long rest — עד prof בעלי ברית מקבלים Inspiration." },
+  { id: "rune_carver", name: "Rune Carver", nameHe: "חורט רונות",
+    description: "לומד רונה של Rune Knight — Cloud/Fire/Frost/Stone/Hill/Storm." },
+  { id: "squire_of_solamnia", name: "Squire of Solamnia", nameHe: "נושא-כלים סולמניה",
+    requirements: { class: ["fighter", "paladin"] },
+    description: "אחת מ-3: Precise Strike / Adept Rider / Squire's Haste (bonus action Dash 1×/rest)." },
+  { id: "knight_of_solamnia", name: "Knight of Solamnia", nameHe: "אביר סולמניה", prerequisite: "Squire of Solamnia",
+    requirements: { class: ["fighter", "paladin"] },
+    description: "אחת מ-3: Honorable Strike / Mounted Guardian / Aggressive Advance." },
+  { id: "aberrant_dragonmark", name: "Aberrant Dragonmark", nameHe: "טביעת דרקון סוררת",
+    requirements: { race: ["human"] },
+    description: "+1 CON. לומד cantrip של Sorcerer + spell רמה 1 (1×/rest). אבל surge של קסם פראי כשמעלה רמה.",
+    bonuses: { ability: [{ ability: "con", amount: 1 }] } },
+  { id: "strixhaven_initiate", name: "Strixhaven Initiate", nameHe: "מתחיל סטריקסהייבן",
+    description: "בחר מכללה: 2 cantrips + 1 spell רמה 1 + spell נוסף רמה 2 (1×/rest)." },
+  { id: "strixhaven_mascot", name: "Strixhaven Mascot", nameHe: "מסקוט סטריקסהייבן", prerequisite: "Strixhaven Initiate + 4+",
+    description: "מזמין find familiar כמסקוט + bonus reactions לפי מכללה." },
+  { id: "gunner_alt", name: "Gunner (Repeating)", nameHe: "רובאי חוזר",
+    requirements: { minAbility: { dex: 13 } },
+    description: "+1 DEX. Loading לא חוסם; אין disadvantage מ-melee עם נשק חם.",
+    bonuses: { ability: [{ ability: "dex", amount: 1 }] } },
+  { id: "wonder_maker", name: "Wonder Maker", nameHe: "יוצר פלאות",
+    requirements: { class: ["artificer"] },
+    description: "לומד 2 סוגי nifty tricks על חפצים קטנים." },
+  { id: "sun_blessed", name: "Sun Blessed", nameHe: "מבורך שמש",
+    description: "+1 CON. Resistance ל-radiant. פעם ב-rest — bonus action פליטת אור 30ft.",
+    bonuses: { ability: [{ ability: "con", amount: 1 }] } },
+  { id: "metabolic_control", name: "Metabolic Control", nameHe: "שליטה מטבולית",
+    description: "+1 CON. אין צורך באוכל/שינה במשך 3 ימים; advantage על exhaustion saves.",
+    bonuses: { ability: [{ ability: "con", amount: 1 }] } },
+  { id: "silver_tongue", name: "Silver Tongue", nameHe: "לשון כסופה",
+    requirements: { minAbility: { cha: 13 } },
+    description: "+1 CHA. Persuasion/Deception — יעד נמוך מ-10 מגלגל כאילו הוציא 10.",
+    bonuses: { ability: [{ ability: "cha", amount: 1 }] } },
+  { id: "shield_training", name: "Shield Training", nameHe: "אימון מגן",
+    requirements: { armorProf: "shield" },
+    description: "+1 STR/DEX/CON. Proficiency במגנים. שימוש בקסם עם מגן ביד." },
 ];
 
 
 export const getFeat = (id: string) => FEATS.find(f => f.id === id);
+
+// ===== Auto feats — granted automatically by class/subclass. =====
+// These are separate "feat-like" bonuses so we can display them in the
+// character sheet and (optionally) apply structured bonuses via calculations.
+export interface AutoFeat {
+  id: string;
+  name: string;
+  nameHe: string;
+  source: string; // "Fighter · Champion (7)"
+  description: string;
+  bonuses?: Feat["bonuses"];
+}
+
+const AUTO_TABLE: { match: (classId: string, subclassId: string | undefined, level: number) => boolean; feat: AutoFeat }[] = [
+  { match: (c, _s, l) => c === "fighter" && l >= 1, feat: {
+    id: "auto_fighting_style", name: "Fighting Style", nameHe: "סגנון קרב",
+    source: "Fighter (1)", description: "בחר סגנון קרב אחד — הבונוס מיושם אוטומטית ברגע שתסמן אותו במסך ה-Feats.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "champion" && l >= 7, feat: {
+    id: "auto_remarkable_athlete", name: "Remarkable Athlete", nameHe: "אתלט יוצא דופן",
+    source: "Champion (7)", description: "מוסיף חצי בקיאות לכל בדיקת STR/DEX/CON שאינך בקיא בה + קפיצה גדולה יותר.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "champion" && l >= 15, feat: {
+    id: "auto_superior_critical", name: "Superior Critical", nameHe: "קריט עליון",
+    source: "Champion (15)", description: "קריט על 18-20.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "champion" && l >= 18, feat: {
+    id: "auto_survivor", name: "Survivor", nameHe: "שורד",
+    source: "Champion (18)", description: "בתחילת התור — 5+CON HP אם מתחת לחצי HP.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "battlemaster" && l >= 3, feat: {
+    id: "auto_combat_superiority", name: "Combat Superiority", nameHe: "עליונות בקרב",
+    source: "Battle Master (3)", description: "Superiority dice + לומד maneuvers.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "rune_knight" && l >= 3, feat: {
+    id: "auto_rune_carving", name: "Rune Carver", nameHe: "חורט רונות",
+    source: "Rune Knight (3)", description: "לומד רונות + Giant's Might.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "psi_warrior" && l >= 3, feat: {
+    id: "auto_psionic_power", name: "Psionic Power", nameHe: "כוח פסיוני",
+    source: "Psi Warrior (3)", description: "Psionic Energy dice — Protective Field, Psionic Strike, Telekinetic Movement.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "arcane_archer" && l >= 3, feat: {
+    id: "auto_arcane_shot", name: "Arcane Shot", nameHe: "חץ נסתר",
+    source: "Arcane Archer (3)", description: "2 Arcane Shots — Banishing/Piercing/Seeking Arrow. משתדרג ב-7/10/15/18.",
+  } },
+  { match: (c, s, l) => c === "fighter" && s === "echo_knight" && l >= 3, feat: {
+    id: "auto_manifest_echo", name: "Manifest Echo", nameHe: "הד ממדים",
+    source: "Echo Knight (3)", description: "מקים הד עד 15ft — יכול לתקוף/לזוז דרכו.",
+  } },
+  { match: (c, s, l) => c === "ranger" && l >= 1, feat: {
+    id: "auto_favored_enemy", name: "Favored Enemy", nameHe: "אויב מועדף",
+    source: "Ranger (1)", description: "יתרון על שרידה/חקירה ליעד המועדף.",
+  } },
+  { match: (c, s, l) => c === "paladin" && l >= 6, feat: {
+    id: "auto_aura_of_protection", name: "Aura of Protection", nameHe: "הילת הגנה",
+    source: "Paladin (6)", description: "+CHA לכל save לבעלי ברית בטווח 10ft.",
+  } },
+];
+
+export function getAutoFeats(classId: string, subclassId: string | undefined, level: number, multiclass?: { classId: string; subclassId?: string; level: number }[]): AutoFeat[] {
+  const out: AutoFeat[] = [];
+  for (const row of AUTO_TABLE) {
+    if (row.match(classId, subclassId, level)) out.push(row.feat);
+  }
+  for (const mc of multiclass ?? []) {
+    for (const row of AUTO_TABLE) {
+      if (row.match(mc.classId, mc.subclassId, mc.level)) {
+        if (!out.find(f => f.id === row.feat.id)) out.push(row.feat);
+      }
+    }
+  }
+  return out;
+}
+
+// Filter feats by whether they're available to a given character context.
+export function isFeatAvailable(feat: Feat, ctx: { raceId?: string; subraceId?: string; classId?: string; subclassId?: string; abilities?: Partial<Record<import("../lib/dnd-types").Ability, number>> }): boolean {
+  const r = feat.requirements;
+  if (!r) return true;
+  if (r.race && r.race.length && (!ctx.raceId || !r.race.includes(ctx.raceId))) return false;
+  if (r.subrace && r.subrace.length && (!ctx.subraceId || !r.subrace.includes(ctx.subraceId))) return false;
+  if (r.class && r.class.length && (!ctx.classId || !r.class.includes(ctx.classId))) return false;
+  if (r.subclass && r.subclass.length && (!ctx.subclassId || !r.subclass.includes(ctx.subclassId))) return false;
+  if (r.minAbility) {
+    for (const [k, v] of Object.entries(r.minAbility)) {
+      const cur = (ctx.abilities as any)?.[k] ?? 10;
+      if (cur < (v as number)) return false;
+    }
+  }
+  return true;
+}
+
