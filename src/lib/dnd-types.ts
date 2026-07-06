@@ -108,6 +108,16 @@ export interface Feat {
   nameHe: string;
   prerequisite?: string;
   description: string;
+  auto?: boolean; // granted automatically by class/subclass — does not count against ASI budget
+  requirements?: {
+    race?: string[];        // raceId(s) — allowed if character.raceId in list
+    subrace?: string[];
+    class?: string[];       // classId(s) — allowed if character.classId in list
+    subclass?: string[];
+    minAbility?: Partial<Record<Ability, number>>;
+    spellcasting?: boolean;
+    armorProf?: "light" | "medium" | "heavy" | "shield";
+  };
   bonuses?: {
     ability?: AbilityBonus[];
     hpPerLevel?: number;
