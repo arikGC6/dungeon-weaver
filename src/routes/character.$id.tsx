@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground } from "@/lib/calculations";
-import { ABILITIES, ABILITY_SHORT, SKILL_LIST, formatMod } from "@/lib/dnd-types";
+import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, formatMod, type Ability } from "@/lib/dnd-types";
 import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
-import { SCHOOL_LABELS_HE, SPELL_SCHOOLS } from "@/data/spells";
+import { SCHOOL_LABELS_HE, SPELL_SCHOOLS, SPELLS } from "@/data/spells";
 import { getSummonsForSpell } from "@/data/summons";
+import { getSpellAttackMeta } from "@/data/spell-attacks";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/character/$id")({
