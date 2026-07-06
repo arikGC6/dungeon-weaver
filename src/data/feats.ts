@@ -336,7 +336,7 @@ export function isFeatAvailable(feat: Feat, ctx: { raceId?: string; subraceId?: 
   if (r.subclass && r.subclass.length && (!ctx.subclassId || !r.subclass.includes(ctx.subclassId))) return false;
   if (r.minAbility) {
     for (const [k, v] of Object.entries(r.minAbility)) {
-      const cur = ctx.abilities?.[k as any] ?? 10;
+      const cur = (ctx.abilities as any)?.[k] ?? 10;
       if (cur < (v as number)) return false;
     }
   }
