@@ -199,7 +199,8 @@ export interface Character {
   equipment?: { name: string; quantity: number; notes?: string }[];
   // Custom attacks (נשק קסום, התקפת unarmed וכו')
   attacks?: { name: string; bonus: string; damage: string; notes?: string }[];
-  hpMax?: number; // override
+  // Spells the player marked to display as attack rows (e.g. Fire Bolt, Eldritch Blast).
+  spellAttacks?: string[];
   hpCurrent?: number;
   acOverride?: number;
   speedOverride?: number;
