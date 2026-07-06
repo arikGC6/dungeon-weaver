@@ -94,6 +94,12 @@ export interface Spell {
   description: string;
   concentration?: boolean;
   ritual?: boolean;
+  // Optional attack metadata — used by the Character sheet "spells as attacks" section.
+  damageDice?: string;         // "1d10" / "8d6"
+  damageType?: string;         // "fire" / "force" / "necrotic"
+  attackType?: "melee_spell" | "ranged_spell" | "save";
+  saveAbility?: Ability;       // for save-based spells
+  higherLevel?: string;        // scaling summary
 }
 
 export interface Feat {
