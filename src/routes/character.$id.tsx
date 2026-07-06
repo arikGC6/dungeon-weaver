@@ -282,6 +282,17 @@ function CharacterPage() {
           </div>
         )}
 
+        {/* Spells as Attacks */}
+        <SpellAttacks
+          c={c}
+          onSave={saveCharacter}
+          spellAttackBonus={d.spellAttackBonus}
+          spellSaveDc={d.spellSaveDc}
+        />
+
+        {/* Manual ability quick-edit */}
+        <ManualAbilityEditor c={c} onSave={saveCharacter} computed={d.abilities} />
+
         {/* Items */}
         {c.itemIds.length > 0 && (
           <div className="tavern-card p-4 md:col-span-3">
