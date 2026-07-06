@@ -201,6 +201,7 @@ export interface Character {
   attacks?: { name: string; bonus: string; damage: string; notes?: string }[];
   // Spells the player marked to display as attack rows (e.g. Fire Bolt, Eldritch Blast).
   spellAttacks?: string[];
+  hpMax?: number; // override
   hpCurrent?: number;
   acOverride?: number;
   speedOverride?: number;
