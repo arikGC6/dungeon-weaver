@@ -180,10 +180,13 @@ export const CLASSES: DnDClass[] = [
         ] },
     ],
     features: [
-      { level: 1, name: "Fighting Style", desc: "" },
-      { level: 1, name: "Second Wind", desc: "Bonus action — d10 + level הילינג." },
-      { level: 2, name: "Action Surge", desc: "" },
-      { level: 5, name: "Extra Attack", desc: "" },
+      { level: 1, name: "Fighting Style", desc: "בחירת סגנון קרב — בונוסים מוחלים אוטומטית." },
+      { level: 1, name: "Second Wind", desc: "Bonus action — 1d10+level HP. Short rest." },
+      { level: 2, name: "Action Surge", desc: "פעולה נוספת בתור. 1×short (2× ברמה 17)." },
+      { level: 5, name: "Extra Attack", desc: "התקפה נוספת (2 סה״כ)." },
+      { level: 9, name: "Indomitable", desc: "Reroll save נכשל. 1×long (עולה 2/3×)." },
+      { level: 11, name: "Extra Attack (2)", desc: "3 התקפות בפעולה." },
+      { level: 20, name: "Extra Attack (3)", desc: "4 התקפות בפעולה." },
     ],
   },
   {
