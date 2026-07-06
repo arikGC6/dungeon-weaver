@@ -296,6 +296,7 @@ export function calculateCharacter(c: Character): DerivedStats {
     classResources,
     actionEconomy,
     asi,
+    autoFeats,
     raceBonuses,
   };
 }
