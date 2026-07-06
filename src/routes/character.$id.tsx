@@ -205,6 +205,24 @@ function CharacterPage() {
         </div>
 
 
+        {/* Auto feats (granted by class/subclass) */}
+        {d.autoFeats.length > 0 && (
+          <div className="tavern-card p-4 md:col-span-3">
+            <h3 className="display text-lg text-primary mb-2">🎁 יכולות אוטומטיות (מקלאס/תת-קלאס)</h3>
+            <ul className="grid sm:grid-cols-2 gap-2 text-sm">
+              {d.autoFeats.map(f => (
+                <li key={f.id} className="p-2 rounded bg-background/40 border border-border">
+                  <div className="flex justify-between">
+                    <b className="text-primary">{f.nameHe}</b>
+                    <span className="text-[10px] text-accent">{f.source}</span>
+                  </div>
+                  <div className="text-xs mt-1">{f.description}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Feats */}
         {c.featIds.length > 0 && (
           <div className="tavern-card p-4 md:col-span-3">
