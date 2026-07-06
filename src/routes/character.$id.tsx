@@ -470,3 +470,131 @@ function SpellBook({ spells, preparedIds, grantedIds }: {
   );
 }
 
+function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
+  c: any; onSave: (c: any) => void; spellAttackBonus?: number; spellSaveDc?: number;
+}) {
+  const [picking, setPicking] = useState(false);
+  const selectedIds = c.spellAttacks ?? [];
+  const known = Array.from(new Set([...(c.spellIds ?? []), ...(c.preparedSpellIds ?? [])]));
+  const knownSpells = known.map(id => SPELLS.find(s => s.id === id)).filter(Boolean) as any[];
+  const attackable = knownSpells.filter(s => !!getSpellAttackMeta(s));
+
+  const add = (id: string) => {
+    if (selectedIds.includes(id)) return;
+    onSave({ ...c, spellAttacks: [...selectedIds, id], updatedAt: Date.now() });
+  };
+  const remove = (id: string) => onSave({ ...c, spellAttacks: selectedIds.filter((x: string) => x !== id), updatedAt: Date.now() });
+
+  return (
+    <div className="tavern-card p-4 md:col-span-3">
+      <div className="flex flex-wrap justify-between items-baseline gap-2 mb-2">
+        <h3 className="display text-lg text-primary">✨ כישופים כמתקפות</h3>
+        <button onClick={() => setPicking(p => !p)} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">
+          {picking ? "סגור" : "+ הוסף כישוף כמתקפה"}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground mb-2">בחר כישופי התקפה מבין הכישופים שאתה יודע. יוצג טווח, קוביית נזק, סוג נזק ובונוס/DC.</p>
+
+      {picking && (
+        <div className="mb-3 p-2 rounded border border-border bg-background/40 max-h-[240px] overflow-y-auto space-y-1">
+          {attackable.length === 0 && <p className="text-xs text-muted-foreground">אין כישופי התקפה בין הכישופים הידועים שלך.</p>}
+          {attackable.map(s => (
+            <button key={s.id} onClick={() => add(s.id)} disabled={selectedIds.includes(s.id)}
+              className="w-full text-right p-2 rounded border border-border hover:bg-secondary/40 disabled:opacity-40 text-sm">
+              <div className="flex justify-between">
+                <b>{s.name}</b>
+                <span className="text-xs text-muted-foreground">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {s.range}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {selectedIds.length === 0 ? (
+        <p className="text-xs text-muted-foreground">לא נבחרו כישופי התקפה.</p>
+      ) : (
+        <table className="w-full text-sm">
+          <thead className="text-xs text-muted-foreground">
+            <tr>
+              <th className="text-right">כישוף</th>
+              <th>סוג</th>
+              <th>טווח</th>
+              <th>בונוס / DC</th>
+              <th>קוביה</th>
+              <th>נזק</th>
+              <th>Slot</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedIds.map((id: string) => {
+              const s = SPELLS.find(x => x.id === id);
+              if (!s) return null;
+              const meta = getSpellAttackMeta(s);
+              const bonusOrDc = meta?.attackType === "save"
+                ? `DC ${spellSaveDc ?? "-"}${meta.saveAbility ? ` (${meta.saveAbility.toUpperCase()})` : ""}`
+                : `${formatMod(spellAttackBonus ?? 0)}`;
+              return (
+                <tr key={id} className="border-t border-border/40">
+                  <td className="py-1 font-semibold">{s.name}<div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration}</div></td>
+                  <td className="text-center text-xs">{meta?.attackType === "save" ? "Save" : meta?.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
+                  <td className="text-center text-xs">{s.range}</td>
+                  <td className="text-center">{bonusOrDc}</td>
+                  <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
+                  <td className="text-center text-xs">{meta?.damageType ?? "—"}</td>
+                  <td className="text-center text-xs">{s.level === 0 ? "—" : `רמה ${s.level}+`}</td>
+                  <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+      {selectedIds.length > 0 && (
+        <div className="mt-2 text-[11px] text-muted-foreground">
+          💡 עלייה בסלוט: ראה את השדה "Scaling" של כל כישוף. לקאנטריפ הנזק עולה אוטומטית לפי רמת דמות (5/11/17).
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ManualAbilityEditor({ c, onSave, computed }: { c: any; onSave: (c: any) => void; computed: Record<Ability, number> }) {
+  const [open, setOpen] = useState(false);
+  const setOverride = (a: Ability, v: number | undefined) => {
+    onSave({
+      ...c,
+      manualOverrides: {
+        ...(c.manualOverrides ?? {}),
+        abilities: { ...(c.manualOverrides?.abilities ?? {}), [a]: v },
+      },
+      updatedAt: Date.now(),
+    });
+  };
+  return (
+    <div className="tavern-card p-4 md:col-span-3">
+      <button onClick={() => setOpen(o => !o)} className="text-sm text-primary hover:underline">
+        {open ? "▲ סגור עריכה ידנית של מאפיינים" : "▼ עריכה ידנית של מאפיינים (STR/DEX/…)"}
+      </button>
+      {open && (
+        <div className="mt-3 grid grid-cols-3 sm:grid-cols-6 gap-2">
+          {ABILITIES.map(a => (
+            <div key={a} className="p-2 rounded bg-background/40 border border-border text-center">
+              <div className="display text-xs text-primary">{ABILITY_LABELS[a]}</div>
+              <div className="text-[10px] text-muted-foreground">מחושב: {computed[a]}</div>
+              <input type="number" className="input w-full text-center mt-1 text-sm"
+                placeholder={String(computed[a])}
+                value={c.manualOverrides?.abilities?.[a] ?? ""}
+                onChange={e => setOverride(a, e.target.value === "" ? undefined : +e.target.value)}
+              />
+              {c.manualOverrides?.abilities?.[a] !== undefined && (
+                <button onClick={() => setOverride(a, undefined)} className="text-[10px] text-destructive mt-1">אפס דריסה</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
