@@ -5,7 +5,7 @@ import { emptyCharacter } from "@/lib/calculations";
 import { RACES } from "@/data/races";
 import { CLASSES } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
-import { FEATS } from "@/data/feats";
+import { FEATS, isFeatAvailable } from "@/data/feats";
 import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
