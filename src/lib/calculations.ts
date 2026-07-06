@@ -1,7 +1,7 @@
 import { ABILITIES, type Ability, type Character, type Skill, PROFICIENCY_BY_LEVEL, mod, SKILL_LIST } from "./dnd-types";
 import { getRace } from "../data/races";
 import { CLASSES, getClass, getSpellSlots, type SpellSlotsInfo } from "../data/classes";
-import { getFeat } from "../data/feats";
+import { getFeat, getAutoFeats, type AutoFeat } from "../data/feats";
 import { getItem, ARMOR_BASE } from "../data/items";
 import { getSpell } from "../data/spells";
 import { getBackground } from "../data/backgrounds";
