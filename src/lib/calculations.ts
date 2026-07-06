@@ -58,10 +58,14 @@ export function calculateCharacter(c: Character): DerivedStats {
     if (raceBonuses[a]) abilities[a] = (abilities[a] ?? 10) + (raceBonuses[a] ?? 0);
   }
 
-  // Feats
+  // Feats — user-picked + auto-granted by class/subclass.
+  const autoFeats = getAutoFeats(c.classId, c.subclassId, level, c.multiclass);
   c.featIds.forEach(id => {
     const f = getFeat(id);
     f?.bonuses?.ability?.forEach(b => { abilities[b.ability] += b.amount; });
+  });
+  autoFeats.forEach(af => {
+    af.bonuses?.ability?.forEach(b => { abilities[b.ability] += b.amount; });
   });
 
   // Items (equipped)
