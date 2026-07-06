@@ -31,6 +31,7 @@ export interface DerivedStats {
   classResources: { name: string; value: string; recharge: string; desc?: string; className?: string }[];
   actionEconomy: { actions: number; bonusActions: number; reactions: number; extras: string[] };
   asi: { total: number; used: number; remaining: number; levels: number[]; nextAt?: number };
+  autoFeats: AutoFeat[]; // granted by class/subclass
   raceBonuses: Partial<Record<Ability, number>>; // effective racial bonus per ability (post-override)
 }
 
