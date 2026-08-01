@@ -829,12 +829,69 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
   const attacks = c.attacks ?? [];
   const set = (next: typeof attacks) => update({ attacks: next });
   const add = () => set([...attacks, { name: "", bonus: "+0", damage: "1d6", notes: "" }]);
+  const d = calculateCharacter(c);
+  const [wq, setWq] = useState("");
+  const [group, setGroup] = useState<Weapon["group"] | "all">("all");
+  const [twoHanded, setTwoHanded] = useState(false);
+  const pactCha = !!c.pactBoonId && c.pactBoonId === "blade";
+
+  const weaponList = WEAPONS.filter(w => {
+    if (group !== "all" && w.group !== group) return false;
+    if (wq && !w.name.toLowerCase().includes(wq.toLowerCase()) && !w.nameHe.includes(wq)) return false;
+    return true;
+  });
+  const addWeapon = (w: Weapon) => {
+    const row = buildWeaponAttack(w, {
+      mods: d.abilityMods,
+      proficiencyBonus: d.proficiencyBonus,
+      twoHanded,
+      pactCha,
+    });
+    set([...attacks, row]);
+  };
+
   return (
     <div className="space-y-3">
       <h2 className="display text-2xl text-primary">⚔️ התקפות</h2>
       <p className="text-xs text-muted-foreground">רשום נשקים והתקפות (כולל unarmed, breath weapon, spell attack) — יופיע על הגיליון וב-PDF.</p>
-      <button onClick={add} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm">+ הוסף התקפה</button>
+
+      {/* Weapon picker — auto-computes to-hit and damage */}
+      <div className="p-3 rounded-md border border-accent/40 bg-background/30 space-y-2">
+        <div className="display text-sm text-accent">🗡️ הוסף נשק מהקטלוג — חישוב אוטומטי של בונוס פגיעה ונזק</div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input className="input flex-1 min-w-[160px]" placeholder="חפש נשק…" value={wq} onChange={e => setWq(e.target.value)} />
+          <select className="input" value={group} onChange={e => setGroup(e.target.value as any)}>
+            <option value="all">כל הסוגים</option>
+            {(Object.keys(WEAPON_GROUP_LABELS) as Weapon["group"][]).map(g => (
+              <option key={g} value={g}>{WEAPON_GROUP_LABELS[g]}</option>
+            ))}
+          </select>
+          <label className="text-xs flex items-center gap-1">
+            <input type="checkbox" checked={twoHanded} onChange={e => setTwoHanded(e.target.checked)} />
+            שתי ידיים (Versatile)
+          </label>
+        </div>
+        {pactCha && <p className="text-[11px] text-accent">Pact of the Blade — בחר "נשק ברית" כדי להשתמש ב-CHA להתקפה.</p>}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-1 max-h-[260px] overflow-y-auto">
+          {weaponList.map(w => {
+            const preview = buildWeaponAttack(w, { mods: d.abilityMods, proficiencyBonus: d.proficiencyBonus, twoHanded, pactCha });
+            return (
+              <button key={w.id} type="button" onClick={() => addWeapon(w)}
+                className="text-right p-2 rounded border border-border hover:bg-secondary/40 text-xs">
+                <div className="font-semibold">{w.nameHe} <span className="text-muted-foreground">({w.name})</span></div>
+                <div className="text-accent">{preview.bonus} להתקפה · {preview.damage}</div>
+                <div className="text-[10px] text-muted-foreground">{WEAPON_GROUP_LABELS[w.group]}{w.range ? ` · טווח ${w.range}` : ""}{w.properties.length ? ` · ${w.properties.join(", ")}` : ""}</div>
+                {w.notes && <div className="text-[10px] text-muted-foreground">{w.notes}</div>}
+              </button>
+            );
+          })}
+          {weaponList.length === 0 && <p className="text-xs text-muted-foreground">לא נמצא נשק.</p>}
+        </div>
+      </div>
+
+      <button onClick={add} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm">+ הוסף התקפה ידנית</button>
       <div className="space-y-2">
+
         {attacks.map((a, i) => (
           <div key={i} className="p-3 rounded border border-border bg-background/40 grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_2fr_auto] gap-2">
             <input className="input" placeholder="שם (Longsword)" value={a.name} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />
