@@ -169,6 +169,12 @@ export interface Background {
   skills: Skill[];
   languages: number;
   description: string;
+  tools?: string[];            // tool/instrument/gaming-set proficiencies granted
+  feature?: string;            // background feature name
+  featureDesc?: string;        // full feature text
+  equipment?: string[];        // starting gear text
+  spellIds?: string[];         // rare backgrounds granting a cantrip/spell
+  source?: string;
 }
 
 export interface Character {
@@ -191,6 +197,10 @@ export interface Character {
   languages: string[];
   featIds: string[];
   fightingStyleIds?: string[]; // Fighter/Ranger/Paladin/Bard-Swords
+  // Warlock: pact boon (Chain/Blade/Tome/Talisman) + eldritch invocations
+  pactBoonId?: string;
+  invocationIds?: string[];
+
 
   spellIds: string[];      // known/learned spells
   preparedSpellIds: string[];

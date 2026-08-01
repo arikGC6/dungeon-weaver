@@ -9,6 +9,8 @@ import { FEATS, isFeatAvailable } from "@/data/feats";
 import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
+import { PACT_BOONS, INVOCATIONS, invocationsKnown, isInvocationAvailable } from "@/data/warlock";
+import { WEAPONS, WEAPON_GROUP_LABELS, buildWeaponAttack, type Weapon } from "@/data/weapons";
 import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STANDARD_ARRAY_VALUES, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
 import { calculateCharacter, getClass } from "@/lib/calculations";
 
@@ -270,6 +272,10 @@ function Step2Class({ c, update }: { c: Character; update: (p: Partial<Character
         </>
       )}
 
+      <WarlockPactSection c={c} update={update} />
+
+
+
       {/* Multiclass */}
       <div className="p-3 rounded-md bg-background/30 border border-border space-y-2">
         <div className="flex items-center justify-between">
@@ -335,24 +341,110 @@ function Step2Class({ c, update }: { c: Character; update: (p: Partial<Character
   );
 }
 
+// ============ Warlock — Pact Boon + Eldritch Invocations ============
+function WarlockPactSection({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
+  const warlockLevel = c.classId === "warlock"
+    ? c.level
+    : (c.multiclass ?? []).find(m => m.classId === "warlock")?.level ?? 0;
+  if (!warlockLevel) return null;
+
+  const known = Array.from(new Set([...(c.spellIds ?? []), ...(c.preparedSpellIds ?? [])]));
+  const slots = invocationsKnown(warlockLevel);
+  const chosen = c.invocationIds ?? [];
+  const toggleInv = (id: string) => {
+    const has = chosen.includes(id);
+    if (!has && chosen.length >= slots) return;
+    update({ invocationIds: has ? chosen.filter(x => x !== id) : [...chosen, id] });
+  };
+  const pickPact = (id: string) => {
+    const boon = PACT_BOONS.find(p => p.id === id);
+    const extraSpells = boon?.grantsSpellIds ?? [];
+    update({
+      pactBoonId: id,
+      spellIds: Array.from(new Set([...(c.spellIds ?? []), ...extraSpells])),
+      // drop invocations that require another pact
+      invocationIds: (c.invocationIds ?? []).filter(iid => {
+        const inv = INVOCATIONS.find(x => x.id === iid);
+        return !inv?.requiresPact || inv.requiresPact === id;
+      }),
+    });
+  };
+
+  return (
+    <div className="p-3 rounded-md bg-background/30 border border-accent/40 space-y-3">
+      <h3 className="display text-primary">🕯️ וורלוק — Pact Boon ו-Eldritch Invocations</h3>
+      <p className="text-xs text-muted-foreground">רמת וורלוק {warlockLevel}. Pact Boon נבחר ברמה 3; Invocations מרמה 2 — יש לך <b className="text-accent">{slots}</b> invocations.</p>
+
+      <div>
+        <div className="display text-sm text-accent mb-1">Pact Boon {warlockLevel < 3 && <span className="text-xs text-muted-foreground">(זמין ברמה 3)</span>}</div>
+        <div className="grid sm:grid-cols-2 gap-2">
+          {PACT_BOONS.map(p => (
+            <button key={p.id} type="button" onClick={() => pickPact(p.id)} disabled={warlockLevel < 3}
+              className={`text-right p-2 rounded border text-sm disabled:opacity-40 ${c.pactBoonId === p.id ? "bg-primary/20 border-primary" : "border-border hover:bg-secondary/40"}`}>
+              <div className="font-semibold">{p.nameHe} <span className="text-xs text-muted-foreground">({p.name})</span></div>
+              <div className="text-xs text-muted-foreground">{p.desc}</div>
+              {p.grantsSpellIds && <div className="text-[11px] text-accent mt-1">+ מוסיף כישוף אוטומטית</div>}
+              {p.attackAbility && <div className="text-[11px] text-accent mt-1">התקפות נשק הברית לפי CHA</div>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {warlockLevel >= 2 && (
+        <div>
+          <div className="display text-sm text-accent mb-1">Eldritch Invocations — נבחרו {chosen.length}/{slots}</div>
+          <div className="grid sm:grid-cols-2 gap-1 max-h-[300px] overflow-y-auto">
+            {INVOCATIONS.map(inv => {
+              const available = isInvocationAvailable(inv, { level: warlockLevel, pactBoonId: c.pactBoonId, knownSpellIds: known });
+              const picked = chosen.includes(inv.id);
+              return (
+                <button key={inv.id} type="button" onClick={() => toggleInv(inv.id)} disabled={!available && !picked}
+                  className={`text-right p-2 rounded border text-xs disabled:opacity-30 ${picked ? "bg-accent/20 border-accent" : "border-border hover:bg-secondary/40"}`}>
+                  <div className="font-semibold">{inv.nameHe} <span className="text-muted-foreground">({inv.name})</span></div>
+                  <div className="text-muted-foreground">{inv.desc}</div>
+                  <div className="text-[10px] text-primary mt-1">
+                    {inv.minLevel ? `רמה ${inv.minLevel}+ ` : ""}
+                    {inv.requiresPact ? `· דורש ${PACT_BOONS.find(p => p.id === inv.requiresPact)?.nameHe} ` : ""}
+                    {inv.requiresSpell ? "· דורש Eldritch Blast" : ""}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
 // ============ Step 3 — Background ============
 function Step3Background({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const pickBg = (b: typeof BACKGROUNDS[number]) => {
-    // Auto-add background skill proficiencies (without duplicating existing ones).
+    // Auto-add background skill proficiencies + any granted spell (without duplicating).
     const merged = Array.from(new Set([...c.skillProficiencies, ...b.skills]));
-    update({ backgroundId: b.id, skillProficiencies: merged });
+    update({
+      backgroundId: b.id,
+      skillProficiencies: merged,
+      spellIds: b.spellIds?.length ? Array.from(new Set([...(c.spellIds ?? []), ...b.spellIds])) : c.spellIds,
+    });
   };
   return (
     <div className="space-y-3">
       <h2 className="display text-2xl text-primary">בחר רקע</h2>
-      <p className="text-xs text-muted-foreground">בחירת רקע מוסיפה אוטומטית את מיומנויות הבקיאות שלו למיומנויות שלך.</p>
+      <p className="text-xs text-muted-foreground">בחירת רקע מוסיפה אוטומטית את מיומנויות הבקיאות שלו (ואם יש — כישוף) למיומנויות שלך. כלי הבקיאות ותכונת הרקע מוצגים לגיליון.</p>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {BACKGROUNDS.map(b => (
           <button key={b.id} onClick={() => pickBg(b)}
             className={`text-right p-3 rounded-md border ${c.backgroundId === b.id ? "bg-primary/20 border-primary" : "border-border hover:bg-secondary/40"}`}>
-            <div className="font-semibold">{b.nameHe} <span className="text-xs text-muted-foreground">({b.name})</span></div>
+            <div className="font-semibold">{b.nameHe} <span className="text-xs text-muted-foreground">({b.name}{b.source ? ` · ${b.source}` : ""})</span></div>
             <div className="text-xs text-accent">✓ מיומנויות: {b.skills.map(s => SKILL_LIST.find(x => x.id === s)?.label).join(", ")}</div>
-            <div className="text-xs mt-1">{b.description}</div>
+            {b.tools && b.tools.length > 0 && <div className="text-xs text-accent">🛠️ כלים: {b.tools.join(", ")}</div>}
+            {b.languages > 0 && <div className="text-xs text-muted-foreground">🗣️ שפות נוספות: {b.languages}</div>}
+            {b.feature && <div className="text-xs mt-1"><b className="text-primary">{b.feature}</b> — {b.featureDesc}</div>}
+            {b.equipment && b.equipment.length > 0 && <div className="text-[11px] text-muted-foreground mt-1">🎒 {b.equipment.join(" · ")}</div>}
+            {b.spellIds && b.spellIds.length > 0 && <div className="text-[11px] text-accent mt-1">✨ כישוף אוטומטי</div>}
           </button>
         ))}
       </div>
@@ -737,12 +829,69 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
   const attacks = c.attacks ?? [];
   const set = (next: typeof attacks) => update({ attacks: next });
   const add = () => set([...attacks, { name: "", bonus: "+0", damage: "1d6", notes: "" }]);
+  const d = calculateCharacter(c);
+  const [wq, setWq] = useState("");
+  const [group, setGroup] = useState<Weapon["group"] | "all">("all");
+  const [twoHanded, setTwoHanded] = useState(false);
+  const pactCha = !!c.pactBoonId && c.pactBoonId === "blade";
+
+  const weaponList = WEAPONS.filter(w => {
+    if (group !== "all" && w.group !== group) return false;
+    if (wq && !w.name.toLowerCase().includes(wq.toLowerCase()) && !w.nameHe.includes(wq)) return false;
+    return true;
+  });
+  const addWeapon = (w: Weapon) => {
+    const row = buildWeaponAttack(w, {
+      mods: d.abilityMods,
+      proficiencyBonus: d.proficiencyBonus,
+      twoHanded,
+      pactCha,
+    });
+    set([...attacks, row]);
+  };
+
   return (
     <div className="space-y-3">
       <h2 className="display text-2xl text-primary">⚔️ התקפות</h2>
       <p className="text-xs text-muted-foreground">רשום נשקים והתקפות (כולל unarmed, breath weapon, spell attack) — יופיע על הגיליון וב-PDF.</p>
-      <button onClick={add} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm">+ הוסף התקפה</button>
+
+      {/* Weapon picker — auto-computes to-hit and damage */}
+      <div className="p-3 rounded-md border border-accent/40 bg-background/30 space-y-2">
+        <div className="display text-sm text-accent">🗡️ הוסף נשק מהקטלוג — חישוב אוטומטי של בונוס פגיעה ונזק</div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <input className="input flex-1 min-w-[160px]" placeholder="חפש נשק…" value={wq} onChange={e => setWq(e.target.value)} />
+          <select className="input" value={group} onChange={e => setGroup(e.target.value as any)}>
+            <option value="all">כל הסוגים</option>
+            {(Object.keys(WEAPON_GROUP_LABELS) as Weapon["group"][]).map(g => (
+              <option key={g} value={g}>{WEAPON_GROUP_LABELS[g]}</option>
+            ))}
+          </select>
+          <label className="text-xs flex items-center gap-1">
+            <input type="checkbox" checked={twoHanded} onChange={e => setTwoHanded(e.target.checked)} />
+            שתי ידיים (Versatile)
+          </label>
+        </div>
+        {pactCha && <p className="text-[11px] text-accent">Pact of the Blade — בחר "נשק ברית" כדי להשתמש ב-CHA להתקפה.</p>}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-1 max-h-[260px] overflow-y-auto">
+          {weaponList.map(w => {
+            const preview = buildWeaponAttack(w, { mods: d.abilityMods, proficiencyBonus: d.proficiencyBonus, twoHanded, pactCha });
+            return (
+              <button key={w.id} type="button" onClick={() => addWeapon(w)}
+                className="text-right p-2 rounded border border-border hover:bg-secondary/40 text-xs">
+                <div className="font-semibold">{w.nameHe} <span className="text-muted-foreground">({w.name})</span></div>
+                <div className="text-accent">{preview.bonus} להתקפה · {preview.damage}</div>
+                <div className="text-[10px] text-muted-foreground">{WEAPON_GROUP_LABELS[w.group]}{w.range ? ` · טווח ${w.range}` : ""}{w.properties.length ? ` · ${w.properties.join(", ")}` : ""}</div>
+                {w.notes && <div className="text-[10px] text-muted-foreground">{w.notes}</div>}
+              </button>
+            );
+          })}
+          {weaponList.length === 0 && <p className="text-xs text-muted-foreground">לא נמצא נשק.</p>}
+        </div>
+      </div>
+
+      <button onClick={add} className="px-3 py-1.5 rounded bg-primary text-primary-foreground text-sm">+ הוסף התקפה ידנית</button>
       <div className="space-y-2">
+
         {attacks.map((a, i) => (
           <div key={i} className="p-3 rounded border border-border bg-background/40 grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_2fr_auto] gap-2">
             <input className="input" placeholder="שם (Longsword)" value={a.name} onChange={e => set(attacks.map((x, j) => j === i ? { ...x, name: e.target.value } : x))} />

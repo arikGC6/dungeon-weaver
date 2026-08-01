@@ -8,7 +8,40 @@ export interface SpellAttackMeta {
   damageType: string;
   saveAbility?: Ability;
   higherLevel?: string;
+  area?: string;        // "כדור 20ft" / "קו 100×5ft" / "יעד יחיד"
+  saveEffect?: string;  // "חצי נזק" / "אין נזק" / "מוגבל"
 }
+
+// Area of effect + save outcome, merged into the metadata above.
+const AREA_INFO: Record<string, { area?: string; saveEffect?: string }> = {
+  fireball: { area: "כדור רדיוס 20ft", saveEffect: "חצי נזק בהצלחה" },
+  lightning_bolt: { area: "קו 100ft × 5ft", saveEffect: "חצי נזק בהצלחה" },
+  burning_hands: { area: "חרוט 15ft", saveEffect: "חצי נזק בהצלחה" },
+  thunderwave: { area: "קובייה 15ft", saveEffect: "חצי נזק, בלי הדיפה" },
+  shatter: { area: "כדור רדיוס 10ft", saveEffect: "חצי נזק בהצלחה" },
+  cone_of_cold: { area: "חרוט 60ft", saveEffect: "חצי נזק בהצלחה" },
+  ice_storm: { area: "גליל רדיוס 20ft, גובה 40ft", saveEffect: "חצי נזק בהצלחה" },
+  flame_strike: { area: "גליל רדיוס 10ft, גובה 40ft", saveEffect: "חצי נזק בהצלחה" },
+  wall_of_fire: { area: "קיר 60ft × 20ft", saveEffect: "חצי נזק בהצלחה" },
+  moonbeam: { area: "גליר רדיוס 5ft", saveEffect: "חצי נזק בהצלחה" },
+  call_lightning: { area: "עמוד 5ft ברדיוס 60ft", saveEffect: "חצי נזק בהצלחה" },
+  cloud_of_daggers: { area: "קובייה 5ft", saveEffect: "אין save — נזק אוטומטי" },
+  word_of_radiance: { area: "רדיוס 5ft סביבך", saveEffect: "אין נזק בהצלחה" },
+  acid_splash: { area: "עד 2 יעדים בטווח 5ft זה מזה", saveEffect: "אין נזק בהצלחה" },
+  poison_spray: { area: "יעד יחיד ב-10ft", saveEffect: "אין נזק בהצלחה" },
+  sacred_flame: { area: "יעד יחיד", saveEffect: "אין נזק בהצלחה" },
+  toll_the_dead: { area: "יעד יחיד", saveEffect: "אין נזק בהצלחה" },
+  vicious_mockery: { area: "יעד יחיד", saveEffect: "אין נזק/חיסרון בהצלחה" },
+  hellish_rebuke: { area: "יעד יחיד (reaction)", saveEffect: "חצי נזק בהצלחה" },
+  arms_of_hadar: { area: "רדיוס 10ft סביבך", saveEffect: "חצי נזק בהצלחה" },
+  dissonant_whispers: { area: "יעד יחיד", saveEffect: "חצי נזק, בלי בריחה" },
+  disintegrate: { area: "יעד יחיד", saveEffect: "אין נזק בהצלחה" },
+  finger_of_death: { area: "יעד יחיד", saveEffect: "חצי נזק בהצלחה" },
+  flaming_sphere: { area: "רדיוס 5ft סביב הכדור", saveEffect: "חצי נזק בהצלחה" },
+  magic_missile: { area: "יעדים לבחירתך", saveEffect: "פגיעה אוטומטית" },
+  scorching_ray: { area: "3 קרניים — התקפה לכל קרן", saveEffect: "—" },
+};
+
 
 export const SPELL_ATTACK_META: Record<string, SpellAttackMeta> = {
   // Cantrips
@@ -73,5 +106,8 @@ export function getSpellAttackMeta(s: Spell | { id: string } | undefined): Spell
     saveAbility: (s as Spell).saveAbility,
     higherLevel: (s as Spell).higherLevel,
   } as SpellAttackMeta : undefined;
-  return inline ?? SPELL_ATTACK_META[s.id];
+  const base = inline ?? SPELL_ATTACK_META[s.id];
+  if (!base) return undefined;
+  return { ...AREA_INFO[s.id], ...base, area: base.area ?? AREA_INFO[s.id]?.area, saveEffect: base.saveEffect ?? AREA_INFO[s.id]?.saveEffect };
 }
+

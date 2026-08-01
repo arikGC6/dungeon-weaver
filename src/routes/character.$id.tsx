@@ -6,6 +6,7 @@ import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
 import { SCHOOL_LABELS_HE, SPELL_SCHOOLS, SPELLS } from "@/data/spells";
 import { getSummonsForSpell } from "@/data/summons";
 import { getSpellAttackMeta } from "@/data/spell-attacks";
+import { getPactBoon, INVOCATIONS } from "@/data/warlock";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/character/$id")({
@@ -257,7 +258,32 @@ function CharacterPage() {
                 </ul>
               </div>
             )}
+            {(c.pactBoonId || (c.invocationIds ?? []).length > 0) && (
+              <div>
+                <div className="display text-accent mb-1">🕯️ ברית וורלוק</div>
+                <ul className="space-y-1">
+                  {getPactBoon(c.pactBoonId) && (
+                    <li><b>{getPactBoon(c.pactBoonId)!.nameHe} ({getPactBoon(c.pactBoonId)!.name}):</b> {getPactBoon(c.pactBoonId)!.desc}</li>
+                  )}
+                  {(c.invocationIds ?? []).map(id => {
+                    const inv = INVOCATIONS.find(x => x.id === id);
+                    return inv ? <li key={id}><b>{inv.nameHe} ({inv.name}):</b> {inv.desc}</li> : null;
+                  })}
+                </ul>
+              </div>
+            )}
+            {bg && (
+              <div>
+                <div className="display text-accent mb-1">רקע — {bg.nameHe}</div>
+                <ul className="space-y-1">
+                  {bg.feature && <li><b>{bg.feature}:</b> {bg.featureDesc}</li>}
+                  {bg.tools && bg.tools.length > 0 && <li><b>כלי בקיאות:</b> {bg.tools.join(", ")}</li>}
+                  {bg.equipment && bg.equipment.length > 0 && <li><b>ציוד פתיחה:</b> {bg.equipment.join(" · ")}</li>}
+                </ul>
+              </div>
+            )}
           </div>
+
         </div>
 
         {/* Custom Attacks */}
@@ -513,16 +539,20 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
       {selectedIds.length === 0 ? (
         <p className="text-xs text-muted-foreground">לא נבחרו כישופי התקפה.</p>
       ) : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[720px]">
           <thead className="text-xs text-muted-foreground">
             <tr>
               <th className="text-right">כישוף</th>
               <th>סוג</th>
-              <th>טווח</th>
+              <th>טווח הטלה</th>
+              <th>אזור פגיעה</th>
               <th>בונוס / DC</th>
-              <th>קוביה</th>
-              <th>נזק</th>
+              <th>קוביות נזק</th>
+              <th>סוג נזק</th>
+              <th>בהצלחה ב-Save</th>
               <th>Slot</th>
+              <th>שדרוג</th>
               <th></th>
             </tr>
           </thead>
@@ -536,20 +566,25 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                 : `${formatMod(spellAttackBonus ?? 0)}`;
               return (
                 <tr key={id} className="border-t border-border/40">
-                  <td className="py-1 font-semibold">{s.name}<div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration}</div></td>
+                  <td className="py-1 font-semibold">{s.name}<div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div></td>
                   <td className="text-center text-xs">{meta?.attackType === "save" ? "Save" : meta?.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
                   <td className="text-center text-xs">{s.range}</td>
+                  <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
                   <td className="text-center">{bonusOrDc}</td>
                   <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
                   <td className="text-center text-xs">{meta?.damageType ?? "—"}</td>
-                  <td className="text-center text-xs">{s.level === 0 ? "—" : `רמה ${s.level}+`}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{meta?.attackType === "save" ? (meta?.saveEffect ?? "—") : "—"}</td>
+                  <td className="text-center text-xs">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}+`}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{meta?.higherLevel ?? "—"}</td>
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        </div>
       )}
+
       {selectedIds.length > 0 && (
         <div className="mt-2 text-[11px] text-muted-foreground">
           💡 עלייה בסלוט: ראה את השדה "Scaling" של כל כישוף. לקאנטריפ הנזק עולה אוטומטית לפי רמת דמות (5/11/17).
