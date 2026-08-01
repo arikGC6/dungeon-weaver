@@ -257,7 +257,32 @@ function CharacterPage() {
                 </ul>
               </div>
             )}
+            {(c.pactBoonId || (c.invocationIds ?? []).length > 0) && (
+              <div>
+                <div className="display text-accent mb-1">🕯️ ברית וורלוק</div>
+                <ul className="space-y-1">
+                  {getPactBoon(c.pactBoonId) && (
+                    <li><b>{getPactBoon(c.pactBoonId)!.nameHe} ({getPactBoon(c.pactBoonId)!.name}):</b> {getPactBoon(c.pactBoonId)!.desc}</li>
+                  )}
+                  {(c.invocationIds ?? []).map(id => {
+                    const inv = INVOCATIONS.find(x => x.id === id);
+                    return inv ? <li key={id}><b>{inv.nameHe} ({inv.name}):</b> {inv.desc}</li> : null;
+                  })}
+                </ul>
+              </div>
+            )}
+            {bg && (
+              <div>
+                <div className="display text-accent mb-1">רקע — {bg.nameHe}</div>
+                <ul className="space-y-1">
+                  {bg.feature && <li><b>{bg.feature}:</b> {bg.featureDesc}</li>}
+                  {bg.tools && bg.tools.length > 0 && <li><b>כלי בקיאות:</b> {bg.tools.join(", ")}</li>}
+                  {bg.equipment && bg.equipment.length > 0 && <li><b>ציוד פתיחה:</b> {bg.equipment.join(" · ")}</li>}
+                </ul>
+              </div>
+            )}
           </div>
+
         </div>
 
         {/* Custom Attacks */}
