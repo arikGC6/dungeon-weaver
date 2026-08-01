@@ -6,6 +6,7 @@ import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
 import { SCHOOL_LABELS_HE, SPELL_SCHOOLS, SPELLS } from "@/data/spells";
 import { getSummonsForSpell } from "@/data/summons";
 import { getSpellAttackMeta } from "@/data/spell-attacks";
+import { getPactBoon, INVOCATIONS } from "@/data/warlock";
 import { useMemo, useState } from "react";
 
 export const Route = createFileRoute("/character/$id")({
