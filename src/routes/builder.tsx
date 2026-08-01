@@ -452,10 +452,6 @@ function Step3Background({ c, update }: { c: Character; update: (p: Partial<Char
   );
 }
 
-    </div>
-  );
-}
-
 // ============ Step 4 — Abilities ============
 const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
 function Step4Abilities({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
