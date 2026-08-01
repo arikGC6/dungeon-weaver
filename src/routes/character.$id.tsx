@@ -513,16 +513,20 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
       {selectedIds.length === 0 ? (
         <p className="text-xs text-muted-foreground">לא נבחרו כישופי התקפה.</p>
       ) : (
-        <table className="w-full text-sm">
+        <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[720px]">
           <thead className="text-xs text-muted-foreground">
             <tr>
               <th className="text-right">כישוף</th>
               <th>סוג</th>
-              <th>טווח</th>
+              <th>טווח הטלה</th>
+              <th>אזור פגיעה</th>
               <th>בונוס / DC</th>
-              <th>קוביה</th>
-              <th>נזק</th>
+              <th>קוביות נזק</th>
+              <th>סוג נזק</th>
+              <th>בהצלחה ב-Save</th>
               <th>Slot</th>
+              <th>שדרוג</th>
               <th></th>
             </tr>
           </thead>
@@ -536,20 +540,25 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                 : `${formatMod(spellAttackBonus ?? 0)}`;
               return (
                 <tr key={id} className="border-t border-border/40">
-                  <td className="py-1 font-semibold">{s.name}<div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration}</div></td>
+                  <td className="py-1 font-semibold">{s.name}<div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div></td>
                   <td className="text-center text-xs">{meta?.attackType === "save" ? "Save" : meta?.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
                   <td className="text-center text-xs">{s.range}</td>
+                  <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
                   <td className="text-center">{bonusOrDc}</td>
                   <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
                   <td className="text-center text-xs">{meta?.damageType ?? "—"}</td>
-                  <td className="text-center text-xs">{s.level === 0 ? "—" : `רמה ${s.level}+`}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{meta?.attackType === "save" ? (meta?.saveEffect ?? "—") : "—"}</td>
+                  <td className="text-center text-xs">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}+`}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{meta?.higherLevel ?? "—"}</td>
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
             })}
           </tbody>
         </table>
+        </div>
       )}
+
       {selectedIds.length > 0 && (
         <div className="mt-2 text-[11px] text-muted-foreground">
           💡 עלייה בסלוט: ראה את השדה "Scaling" של כל כישוף. לקאנטריפ הנזק עולה אוטומטית לפי רמת דמות (5/11/17).
