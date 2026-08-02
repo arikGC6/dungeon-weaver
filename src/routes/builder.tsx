@@ -835,11 +835,28 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
   const [twoHanded, setTwoHanded] = useState(false);
   const pactCha = !!c.pactBoonId && c.pactBoonId === "blade";
 
+  // Only weapons the character actually owns (item catalog + free-text equipment).
+  const ownedNames = useMemo(() => {
+    const names: string[] = [];
+    for (const { id } of c.itemIds ?? []) {
+      const item = ITEMS.find(x => x.id === id);
+      if (item && item.category === "weapon") names.push(item.name.toLowerCase(), (item.nameHe ?? "").toLowerCase());
+    }
+    for (const eq of c.equipment ?? []) names.push(eq.name.toLowerCase());
+    return names.filter(Boolean);
+  }, [c.itemIds, c.equipment]);
+
+  const isOwned = (w: Weapon) =>
+    w.id === "w_unarmed" ||
+    ownedNames.some(n => n.includes(w.name.toLowerCase()) || w.name.toLowerCase().includes(n) || n.includes(w.nameHe));
+
   const weaponList = WEAPONS.filter(w => {
+    if (!isOwned(w)) return false;
     if (group !== "all" && w.group !== group) return false;
     if (wq && !w.name.toLowerCase().includes(wq.toLowerCase()) && !w.nameHe.includes(wq)) return false;
     return true;
   });
+
   const addWeapon = (w: Weapon) => {
     const row = buildWeaponAttack(w, {
       mods: d.abilityMods,
