@@ -582,12 +582,15 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                 ? `DC ${spellSaveDc ?? "-"}${meta.saveAbility ? ` (${meta.saveAbility.toUpperCase()})` : ""}`
                 : `${formatMod(spellAttackBonus ?? 0)}`;
               return (
-                <tr key={id} className="border-t border-border/40">
-                  <td className="py-1 font-semibold">{s.name}<div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div></td>
-                  <td className="text-center text-xs">{meta?.attackType === "save" ? "Save" : meta?.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
+                <tr key={id} className="border-t border-border/40 align-top">
+                  <td className="py-1 font-semibold">{s.name}
+                    <div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div>
+                    {!meta && <div className="text-[11px] text-muted-foreground max-w-[240px] whitespace-normal">{s.description}</div>}
+                  </td>
+                  <td className="text-center text-xs">{!meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
                   <td className="text-center text-xs">{s.range}</td>
                   <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
-                  <td className="text-center">{bonusOrDc}</td>
+                  <td className="text-center">{meta ? bonusOrDc : "—"}</td>
                   <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
                   <td className="text-center text-xs">{meta?.damageType ?? "—"}</td>
                   <td className="text-center text-[11px] text-muted-foreground">{meta?.attackType === "save" ? (meta?.saveEffect ?? "—") : "—"}</td>
@@ -596,6 +599,7 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
+
             })}
           </tbody>
         </table>
