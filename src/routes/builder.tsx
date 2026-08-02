@@ -874,7 +874,7 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
 
       {/* Weapon picker — auto-computes to-hit and damage */}
       <div className="p-3 rounded-md border border-accent/40 bg-background/30 space-y-2">
-        <div className="display text-sm text-accent">🗡️ הוסף נשק מהקטלוג — חישוב אוטומטי של בונוס פגיעה ונזק</div>
+        <div className="display text-sm text-accent">🗡️ הנשקים שברשותך (מתוך שלב הפריטים) — חישוב אוטומטי של בונוס פגיעה ונזק</div>
         <div className="flex flex-wrap gap-2 items-center">
           <input className="input flex-1 min-w-[160px]" placeholder="חפש נשק…" value={wq} onChange={e => setWq(e.target.value)} />
           <select className="input" value={group} onChange={e => setGroup(e.target.value as any)}>
