@@ -902,7 +902,7 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
               </button>
             );
           })}
-          {weaponList.length === 0 && <p className="text-xs text-muted-foreground">לא נמצא נשק.</p>}
+          {weaponList.length === 0 && <p className="text-xs text-muted-foreground">אין נשקים ברשותך — הוסף נשק בשלב "פריטים" (או בציוד בכתב יד) והוא יופיע כאן.</p>}
         </div>
       </div>
 
