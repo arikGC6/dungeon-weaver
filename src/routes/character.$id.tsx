@@ -505,38 +505,53 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
   const knownSpells = (known.map(id => SPELLS.find(s => s.id === id)).filter(Boolean) as any[])
     .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
 
-  const attackable = knownSpells.filter(s => !!getSpellAttackMeta(s));
+  const [pickQ, setPickQ] = useState("");
+  // All known spells are selectable as attacks (not only ones with damage metadata).
+  const pickable = knownSpells.filter(s =>
+    !pickQ || `${s.name} ${s.description}`.toLowerCase().includes(pickQ.toLowerCase()));
 
   const add = (id: string) => {
     if (selectedIds.includes(id)) return;
     onSave({ ...c, spellAttacks: [...selectedIds, id], updatedAt: Date.now() });
   };
   const remove = (id: string) => onSave({ ...c, spellAttacks: selectedIds.filter((x: string) => x !== id), updatedAt: Date.now() });
+  const addAll = () => onSave({
+    ...c,
+    spellAttacks: Array.from(new Set([...selectedIds, ...knownSpells.map(s => s.id)])),
+    updatedAt: Date.now(),
+  });
 
   return (
     <div className="tavern-card p-4 md:col-span-3">
       <div className="flex flex-wrap justify-between items-baseline gap-2 mb-2">
         <h3 className="display text-lg text-primary">✨ כישופים כמתקפות</h3>
-        <button onClick={() => setPicking(p => !p)} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">
-          {picking ? "סגור" : "+ הוסף כישוף כמתקפה"}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={addAll} className="text-xs px-2 py-1 rounded border border-primary text-primary">הוסף את כל הכישופים</button>
+          <button onClick={() => setPicking(p => !p)} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">
+            {picking ? "סגור" : "+ הוסף כישוף כמתקפה"}
+          </button>
+        </div>
       </div>
-      <p className="text-xs text-muted-foreground mb-2">בחר כישופי התקפה מבין הכישופים שאתה יודע. יוצג טווח, קוביית נזק, סוג נזק ובונוס/DC.</p>
+      <p className="text-xs text-muted-foreground mb-2">כל הכישופים שאתה יודע/מכין זמינים כאן. יוצג טווח, אזור פגיעה, קוביית נזק, סוג נזק ובונוס/DC — ולכישופי תמיכה יוצג מה הכישוף עושה.</p>
 
       {picking && (
-        <div className="mb-3 p-2 rounded border border-border bg-background/40 max-h-[240px] overflow-y-auto space-y-1">
-          {attackable.length === 0 && <p className="text-xs text-muted-foreground">אין כישופי התקפה בין הכישופים הידועים שלך.</p>}
-          {attackable.map(s => (
+        <div className="mb-3 p-2 rounded border border-border bg-background/40 max-h-[280px] overflow-y-auto space-y-1">
+          <input className="input w-full mb-1" placeholder="🔍 חפש כישוף..." value={pickQ} onChange={e => setPickQ(e.target.value)} />
+          {pickable.length === 0 && <p className="text-xs text-muted-foreground">לא נמצאו כישופים.</p>}
+          {pickable.map(s => (
             <button key={s.id} onClick={() => add(s.id)} disabled={selectedIds.includes(s.id)}
               className="w-full text-right p-2 rounded border border-border hover:bg-secondary/40 disabled:opacity-40 text-sm">
-              <div className="flex justify-between">
-                <b>{s.name}</b>
+              <div className="flex justify-between gap-2">
+                <b>{s.name}{getSpellAttackMeta(s) ? " ⚔️" : ""}</b>
                 <span className="text-xs text-muted-foreground">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {s.range}</span>
               </div>
+              <div className="text-[11px] text-muted-foreground">{s.description}</div>
             </button>
           ))}
         </div>
       )}
+
+
 
       {selectedIds.length === 0 ? (
         <p className="text-xs text-muted-foreground">לא נבחרו כישופי התקפה.</p>
