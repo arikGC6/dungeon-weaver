@@ -276,9 +276,9 @@ function CharacterPage() {
               <div>
                 <div className="display text-accent mb-1">רקע — {bg.nameHe}</div>
                 <ul className="space-y-1">
-                  {bg.feature && <li><b>{bg.feature}:</b> {bg.featureDesc}</li>}
+                  {bg.feature && <li><b>{bg.feature}</b></li>}
                   {bg.tools && bg.tools.length > 0 && <li><b>כלי בקיאות:</b> {bg.tools.join(", ")}</li>}
-                  {bg.equipment && bg.equipment.length > 0 && <li><b>ציוד פתיחה:</b> {bg.equipment.join(" · ")}</li>}
+
                 </ul>
               </div>
             )}
