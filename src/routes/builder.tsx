@@ -442,8 +442,8 @@ function Step3Background({ c, update }: { c: Character; update: (p: Partial<Char
             <div className="text-xs text-accent">✓ מיומנויות: {b.skills.map(s => SKILL_LIST.find(x => x.id === s)?.label).join(", ")}</div>
             {b.tools && b.tools.length > 0 && <div className="text-xs text-accent">🛠️ כלים: {b.tools.join(", ")}</div>}
             {b.languages > 0 && <div className="text-xs text-muted-foreground">🗣️ שפות נוספות: {b.languages}</div>}
-            {b.feature && <div className="text-xs mt-1"><b className="text-primary">{b.feature}</b> — {b.featureDesc}</div>}
-            {b.equipment && b.equipment.length > 0 && <div className="text-[11px] text-muted-foreground mt-1">🎒 {b.equipment.join(" · ")}</div>}
+            {b.feature && <div className="text-xs mt-1"><b className="text-primary">{b.feature}</b></div>}
+
             {b.spellIds && b.spellIds.length > 0 && <div className="text-[11px] text-accent mt-1">✨ כישוף אוטומטי</div>}
           </button>
         ))}
@@ -835,11 +835,28 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
   const [twoHanded, setTwoHanded] = useState(false);
   const pactCha = !!c.pactBoonId && c.pactBoonId === "blade";
 
+  // Only weapons the character actually owns (item catalog + free-text equipment).
+  const ownedNames = useMemo(() => {
+    const names: string[] = [];
+    for (const { id } of c.itemIds ?? []) {
+      const item = ITEMS.find(x => x.id === id);
+      if (item && item.category === "weapon") names.push(item.name.toLowerCase(), (item.nameHe ?? "").toLowerCase());
+    }
+    for (const eq of c.equipment ?? []) names.push(eq.name.toLowerCase());
+    return names.filter(Boolean);
+  }, [c.itemIds, c.equipment]);
+
+  const isOwned = (w: Weapon) =>
+    w.id === "w_unarmed" ||
+    ownedNames.some(n => n.includes(w.name.toLowerCase()) || w.name.toLowerCase().includes(n) || n.includes(w.nameHe));
+
   const weaponList = WEAPONS.filter(w => {
+    if (!isOwned(w)) return false;
     if (group !== "all" && w.group !== group) return false;
     if (wq && !w.name.toLowerCase().includes(wq.toLowerCase()) && !w.nameHe.includes(wq)) return false;
     return true;
   });
+
   const addWeapon = (w: Weapon) => {
     const row = buildWeaponAttack(w, {
       mods: d.abilityMods,
@@ -857,7 +874,7 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
 
       {/* Weapon picker — auto-computes to-hit and damage */}
       <div className="p-3 rounded-md border border-accent/40 bg-background/30 space-y-2">
-        <div className="display text-sm text-accent">🗡️ הוסף נשק מהקטלוג — חישוב אוטומטי של בונוס פגיעה ונזק</div>
+        <div className="display text-sm text-accent">🗡️ הנשקים שברשותך (מתוך שלב הפריטים) — חישוב אוטומטי של בונוס פגיעה ונזק</div>
         <div className="flex flex-wrap gap-2 items-center">
           <input className="input flex-1 min-w-[160px]" placeholder="חפש נשק…" value={wq} onChange={e => setWq(e.target.value)} />
           <select className="input" value={group} onChange={e => setGroup(e.target.value as any)}>
@@ -885,7 +902,7 @@ function Step9Attacks({ c, update }: { c: Character; update: (p: Partial<Charact
               </button>
             );
           })}
-          {weaponList.length === 0 && <p className="text-xs text-muted-foreground">לא נמצא נשק.</p>}
+          {weaponList.length === 0 && <p className="text-xs text-muted-foreground">אין נשקים ברשותך — הוסף נשק בשלב "פריטים" (או בציוד בכתב יד) והוא יופיע כאן.</p>}
         </div>
       </div>
 

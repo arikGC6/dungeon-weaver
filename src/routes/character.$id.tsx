@@ -276,9 +276,9 @@ function CharacterPage() {
               <div>
                 <div className="display text-accent mb-1">רקע — {bg.nameHe}</div>
                 <ul className="space-y-1">
-                  {bg.feature && <li><b>{bg.feature}:</b> {bg.featureDesc}</li>}
+                  {bg.feature && <li><b>{bg.feature}</b></li>}
                   {bg.tools && bg.tools.length > 0 && <li><b>כלי בקיאות:</b> {bg.tools.join(", ")}</li>}
-                  {bg.equipment && bg.equipment.length > 0 && <li><b>ציוד פתיחה:</b> {bg.equipment.join(" · ")}</li>}
+
                 </ul>
               </div>
             )}
@@ -440,7 +440,29 @@ function SpellBook({ spells, preparedIds, grantedIds }: {
           {preparedIds.includes(s.id) && " · מוכן"}
         </span>
       </div>
-      <div className="text-xs text-muted-foreground">{s.castingTime} · {s.range} · {s.components} · {s.duration}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 mt-1 text-[11px]">
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">זמן הטלה:</span> {s.castingTime}</div>
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">טווח:</span> {s.range}</div>
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">רכיבים:</span> {s.components}</div>
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">משך:</span> {s.duration}</div>
+      </div>
+      {(() => {
+        const meta = getSpellAttackMeta(s);
+        if (!meta) return null;
+        return (
+          <div className="mt-1 text-[11px] flex flex-wrap gap-1">
+            <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">
+              {meta.attackType === "save" ? `Save ${meta.saveAbility ? meta.saveAbility.toUpperCase() : ""}` : meta.attackType === "melee_spell" ? "התקפת מגע" : "התקפה מרחוק"}
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">נזק: {meta.damageDice} {meta.damageType}</span>
+            {meta.area && <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">אזור: {meta.area}</span>}
+            {meta.saveEffect && <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">{meta.saveEffect}</span>}
+            {meta.higherLevel && <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">שדרוג: {meta.higherLevel}</span>}
+          </div>
+        );
+      })()}
+      <div className="display text-xs text-accent mt-2">מה הכישוף עושה</div>
+
       <div className="text-sm mt-1">{s.description}</div>
       {(() => {
         const sums = getSummonsForSpell(s.id);
@@ -502,39 +524,56 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
   const [picking, setPicking] = useState(false);
   const selectedIds = c.spellAttacks ?? [];
   const known = Array.from(new Set([...(c.spellIds ?? []), ...(c.preparedSpellIds ?? [])]));
-  const knownSpells = known.map(id => SPELLS.find(s => s.id === id)).filter(Boolean) as any[];
-  const attackable = knownSpells.filter(s => !!getSpellAttackMeta(s));
+  const knownSpells = (known.map(id => SPELLS.find(s => s.id === id)).filter(Boolean) as any[])
+    .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+
+  const [pickQ, setPickQ] = useState("");
+  // All known spells are selectable as attacks (not only ones with damage metadata).
+  const pickable = knownSpells.filter(s =>
+    !pickQ || `${s.name} ${s.description}`.toLowerCase().includes(pickQ.toLowerCase()));
 
   const add = (id: string) => {
     if (selectedIds.includes(id)) return;
     onSave({ ...c, spellAttacks: [...selectedIds, id], updatedAt: Date.now() });
   };
   const remove = (id: string) => onSave({ ...c, spellAttacks: selectedIds.filter((x: string) => x !== id), updatedAt: Date.now() });
+  const addAll = () => onSave({
+    ...c,
+    spellAttacks: Array.from(new Set([...selectedIds, ...knownSpells.map(s => s.id)])),
+    updatedAt: Date.now(),
+  });
 
   return (
     <div className="tavern-card p-4 md:col-span-3">
       <div className="flex flex-wrap justify-between items-baseline gap-2 mb-2">
         <h3 className="display text-lg text-primary">✨ כישופים כמתקפות</h3>
-        <button onClick={() => setPicking(p => !p)} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">
-          {picking ? "סגור" : "+ הוסף כישוף כמתקפה"}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={addAll} className="text-xs px-2 py-1 rounded border border-primary text-primary">הוסף את כל הכישופים</button>
+          <button onClick={() => setPicking(p => !p)} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">
+            {picking ? "סגור" : "+ הוסף כישוף כמתקפה"}
+          </button>
+        </div>
       </div>
-      <p className="text-xs text-muted-foreground mb-2">בחר כישופי התקפה מבין הכישופים שאתה יודע. יוצג טווח, קוביית נזק, סוג נזק ובונוס/DC.</p>
+      <p className="text-xs text-muted-foreground mb-2">כל הכישופים שאתה יודע/מכין זמינים כאן. יוצג טווח, אזור פגיעה, קוביית נזק, סוג נזק ובונוס/DC — ולכישופי תמיכה יוצג מה הכישוף עושה.</p>
 
       {picking && (
-        <div className="mb-3 p-2 rounded border border-border bg-background/40 max-h-[240px] overflow-y-auto space-y-1">
-          {attackable.length === 0 && <p className="text-xs text-muted-foreground">אין כישופי התקפה בין הכישופים הידועים שלך.</p>}
-          {attackable.map(s => (
+        <div className="mb-3 p-2 rounded border border-border bg-background/40 max-h-[280px] overflow-y-auto space-y-1">
+          <input className="input w-full mb-1" placeholder="🔍 חפש כישוף..." value={pickQ} onChange={e => setPickQ(e.target.value)} />
+          {pickable.length === 0 && <p className="text-xs text-muted-foreground">לא נמצאו כישופים.</p>}
+          {pickable.map(s => (
             <button key={s.id} onClick={() => add(s.id)} disabled={selectedIds.includes(s.id)}
               className="w-full text-right p-2 rounded border border-border hover:bg-secondary/40 disabled:opacity-40 text-sm">
-              <div className="flex justify-between">
-                <b>{s.name}</b>
+              <div className="flex justify-between gap-2">
+                <b>{s.name}{getSpellAttackMeta(s) ? " ⚔️" : ""}</b>
                 <span className="text-xs text-muted-foreground">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}`} · {s.range}</span>
               </div>
+              <div className="text-[11px] text-muted-foreground">{s.description}</div>
             </button>
           ))}
         </div>
       )}
+
+
 
       {selectedIds.length === 0 ? (
         <p className="text-xs text-muted-foreground">לא נבחרו כישופי התקפה.</p>
@@ -565,12 +604,15 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                 ? `DC ${spellSaveDc ?? "-"}${meta.saveAbility ? ` (${meta.saveAbility.toUpperCase()})` : ""}`
                 : `${formatMod(spellAttackBonus ?? 0)}`;
               return (
-                <tr key={id} className="border-t border-border/40">
-                  <td className="py-1 font-semibold">{s.name}<div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div></td>
-                  <td className="text-center text-xs">{meta?.attackType === "save" ? "Save" : meta?.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
+                <tr key={id} className="border-t border-border/40 align-top">
+                  <td className="py-1 font-semibold">{s.name}
+                    <div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div>
+                    {!meta && <div className="text-[11px] text-muted-foreground max-w-[240px] whitespace-normal">{s.description}</div>}
+                  </td>
+                  <td className="text-center text-xs">{!meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
                   <td className="text-center text-xs">{s.range}</td>
                   <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
-                  <td className="text-center">{bonusOrDc}</td>
+                  <td className="text-center">{meta ? bonusOrDc : "—"}</td>
                   <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
                   <td className="text-center text-xs">{meta?.damageType ?? "—"}</td>
                   <td className="text-center text-[11px] text-muted-foreground">{meta?.attackType === "save" ? (meta?.saveEffect ?? "—") : "—"}</td>
@@ -579,6 +621,7 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
+
             })}
           </tbody>
         </table>
