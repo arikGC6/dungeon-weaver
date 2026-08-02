@@ -440,7 +440,29 @@ function SpellBook({ spells, preparedIds, grantedIds }: {
           {preparedIds.includes(s.id) && " · מוכן"}
         </span>
       </div>
-      <div className="text-xs text-muted-foreground">{s.castingTime} · {s.range} · {s.components} · {s.duration}</div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 mt-1 text-[11px]">
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">זמן הטלה:</span> {s.castingTime}</div>
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">טווח:</span> {s.range}</div>
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">רכיבים:</span> {s.components}</div>
+        <div className="p-1 rounded bg-background/50 border border-border/60"><span className="text-accent">משך:</span> {s.duration}</div>
+      </div>
+      {(() => {
+        const meta = getSpellAttackMeta(s);
+        if (!meta) return null;
+        return (
+          <div className="mt-1 text-[11px] flex flex-wrap gap-1">
+            <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">
+              {meta.attackType === "save" ? `Save ${meta.saveAbility ? meta.saveAbility.toUpperCase() : ""}` : meta.attackType === "melee_spell" ? "התקפת מגע" : "התקפה מרחוק"}
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">נזק: {meta.damageDice} {meta.damageType}</span>
+            {meta.area && <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">אזור: {meta.area}</span>}
+            {meta.saveEffect && <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">{meta.saveEffect}</span>}
+            {meta.higherLevel && <span className="px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">שדרוג: {meta.higherLevel}</span>}
+          </div>
+        );
+      })()}
+      <div className="display text-xs text-accent mt-2">מה הכישוף עושה</div>
+
       <div className="text-sm mt-1">{s.description}</div>
       {(() => {
         const sums = getSummonsForSpell(s.id);
