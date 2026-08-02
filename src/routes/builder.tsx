@@ -442,8 +442,8 @@ function Step3Background({ c, update }: { c: Character; update: (p: Partial<Char
             <div className="text-xs text-accent">✓ מיומנויות: {b.skills.map(s => SKILL_LIST.find(x => x.id === s)?.label).join(", ")}</div>
             {b.tools && b.tools.length > 0 && <div className="text-xs text-accent">🛠️ כלים: {b.tools.join(", ")}</div>}
             {b.languages > 0 && <div className="text-xs text-muted-foreground">🗣️ שפות נוספות: {b.languages}</div>}
-            {b.feature && <div className="text-xs mt-1"><b className="text-primary">{b.feature}</b> — {b.featureDesc}</div>}
-            {b.equipment && b.equipment.length > 0 && <div className="text-[11px] text-muted-foreground mt-1">🎒 {b.equipment.join(" · ")}</div>}
+            {b.feature && <div className="text-xs mt-1"><b className="text-primary">{b.feature}</b></div>}
+
             {b.spellIds && b.spellIds.length > 0 && <div className="text-[11px] text-accent mt-1">✨ כישוף אוטומטי</div>}
           </button>
         ))}
