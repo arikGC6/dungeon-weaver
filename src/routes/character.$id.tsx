@@ -502,7 +502,9 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
   const [picking, setPicking] = useState(false);
   const selectedIds = c.spellAttacks ?? [];
   const known = Array.from(new Set([...(c.spellIds ?? []), ...(c.preparedSpellIds ?? [])]));
-  const knownSpells = known.map(id => SPELLS.find(s => s.id === id)).filter(Boolean) as any[];
+  const knownSpells = (known.map(id => SPELLS.find(s => s.id === id)).filter(Boolean) as any[])
+    .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+
   const attackable = knownSpells.filter(s => !!getSpellAttackMeta(s));
 
   const add = (id: string) => {
