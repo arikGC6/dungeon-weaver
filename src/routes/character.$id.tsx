@@ -741,3 +741,82 @@ function ManualAbilityEditor({ c, onSave, computed }: { c: any; onSave: (c: any)
   );
 }
 
+
+// ---- Weapon / physical attacks: tagging + sorting ----
+const DAMAGE_WORDS: Record<string, string> = {
+  slashing: "חיתוך", piercing: "דקירה", bludgeoning: "מוחץ", fire: "אש", cold: "קור",
+  lightning: "ברק", thunder: "רעם", acid: "חומצה", poison: "רעל", necrotic: "נקרוטי",
+  radiant: "קדוש", psychic: "נפשי", force: "כוח",
+  "חיתוך": "חיתוך", "דקירה": "דקירה", "מוחץ": "מוחץ", "אש": "אש", "קור": "קור",
+  "ברק": "ברק", "רעם": "רעם", "חומצה": "חומצה", "רעל": "רעל",
+};
+
+function attackDamageType(a: { damage?: string; notes?: string }): string {
+  const text = `${a.damage ?? ""} ${a.notes ?? ""}`.toLowerCase();
+  for (const key of Object.keys(DAMAGE_WORDS)) {
+    if (text.includes(key.toLowerCase())) return DAMAGE_WORDS[key];
+  }
+  return "—";
+}
+
+function attackReach(a: { name?: string; notes?: string }): "melee" | "ranged" | "unknown" {
+  const text = `${a.name ?? ""} ${a.notes ?? ""}`.toLowerCase();
+  if (/ranged|thrown|ammunition|range|טווח|מרחוק|קשת|קלע|זריקה|ft\.?\s*\//.test(text)) return "ranged";
+  if (/melee|reach|מגע|קרב פנים|5ft|5 ft/.test(text)) return "melee";
+  return "unknown";
+}
+const REACH_LABELS: Record<string, string> = { melee: "מגע", ranged: "טווח", unknown: "לא מסומן" };
+
+function WeaponAttacks({ attacks }: { attacks: any[] }) {
+  const [sort, setSort] = useState<"name" | "bonus" | "reach" | "damageType">("name");
+  const rows = useMemo(() => {
+    const enriched = attacks.map((a, i) => ({
+      ...a, _i: i, reach: attackReach(a), dmgType: attackDamageType(a),
+      bonusNum: parseInt(String(a.bonus ?? "").replace(/[^\-0-9]/g, ""), 10) || 0,
+    }));
+    const sorted = [...enriched];
+    if (sort === "name") sorted.sort((x, y) => String(x.name).localeCompare(String(y.name)));
+    if (sort === "bonus") sorted.sort((x, y) => y.bonusNum - x.bonusNum);
+    if (sort === "reach") sorted.sort((x, y) => x.reach.localeCompare(y.reach) || String(x.name).localeCompare(String(y.name)));
+    if (sort === "damageType") sorted.sort((x, y) => x.dmgType.localeCompare(y.dmgType) || String(x.name).localeCompare(String(y.name)));
+    return sorted;
+  }, [attacks, sort]);
+
+  return (
+    <div className="tavern-card p-4 md:col-span-3">
+      <div className="flex flex-wrap justify-between items-baseline gap-2 mb-1">
+        <h3 className="display text-lg text-primary">⚔️ מתקפות נשק (פיזיות)</h3>
+        <select className="input text-xs" value={sort} onChange={e => setSort(e.target.value as any)}>
+          <option value="name">מיון: שם</option>
+          <option value="bonus">מיון: בונוס פגיעה</option>
+          <option value="reach">מיון: מגע / טווח</option>
+          <option value="damageType">מיון: סוג נזק</option>
+        </select>
+      </div>
+      <p className="text-xs text-muted-foreground mb-2">כאן רק מתקפות נשק וגוף. מתקפות כישוף מופיעות בטבלה הנפרדת "✨ כישופים כמתקפות".</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[560px]">
+          <thead className="text-xs text-muted-foreground">
+            <tr><th className="text-right">שם</th><th>תיוג</th><th>סוג נזק</th><th>בונוס</th><th>נזק</th><th className="text-right">הערות</th></tr>
+          </thead>
+          <tbody>
+            {rows.map(a => (
+              <tr key={a._i} className="border-t border-border/40 align-top">
+                <td className="py-1 font-semibold">{a.name}</td>
+                <td className="text-center">
+                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">
+                    🗡 נשק · {REACH_LABELS[a.reach]}
+                  </span>
+                </td>
+                <td className="text-center text-xs">{a.dmgType}</td>
+                <td className="text-center">{a.bonus}</td>
+                <td className="text-center font-mono">{a.damage}</td>
+                <td className="text-muted-foreground text-xs">{a.notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
