@@ -411,19 +411,68 @@ function QuickEdit({ c, onSave }: { c: any; onSave: (c: any) => void }) {
   );
 }
 
+function rangeCategory(range: string): "self" | "touch" | "short" | "medium" | "long" {
+  const r = (range ?? "").toLowerCase();
+  if (r.includes("self") || r.includes("עצמי")) return "self";
+  if (r.includes("touch") || r.includes("מגע")) return "touch";
+  const ft = parseInt(r.replace(/[^0-9]/g, ""), 10);
+  if (!isNaN(ft)) {
+    if (ft <= 30) return "short";
+    if (ft <= 120) return "medium";
+    return "long";
+  }
+  return "medium";
+}
+const RANGE_LABELS: Record<string, string> = {
+  self: "עצמי", touch: "מגע", short: "קרוב (≤30ft)", medium: "בינוני (≤120ft)", long: "רחוק (120ft+)",
+};
+
+function castCategory(ct: string): "action" | "bonus" | "reaction" | "long" {
+  const t = (ct ?? "").toLowerCase();
+  if (t.includes("bonus") || t.includes("בונוס")) return "bonus";
+  if (t.includes("reaction") || t.includes("תגובה")) return "reaction";
+  if (t.includes("minute") || t.includes("hour") || t.includes("דקה") || t.includes("שעה")) return "long";
+  return "action";
+}
+const CAST_LABELS: Record<string, string> = {
+  action: "אקשן", bonus: "בונוס אקשן", reaction: "תגובה", long: "הטלה ארוכה",
+};
+
 function SpellBook({ spells, preparedIds, grantedIds }: {
   spells: any[]; preparedIds: string[]; grantedIds: string[];
 }) {
   const [q, setQ] = useState("");
   const [level, setLevel] = useState<string>("all");
   const [school, setSchool] = useState<string>("all");
+  const [dmgType, setDmgType] = useState<string>("all");
+  const [rangeF, setRangeF] = useState<string>("all");
+  const [castF, setCastF] = useState<string>("all");
+  const [conc, setConc] = useState<string>("all");
+  const [saveF, setSaveF] = useState<string>("all");
+
+  const damageTypes = useMemo(() => {
+    const set = new Set<string>();
+    spells.forEach(s => { const m = s && getSpellAttackMeta(s); if (m?.damageType) set.add(m.damageType); });
+    return Array.from(set).sort();
+  }, [spells]);
+
   const filtered = spells.filter(s => {
     if (!s) return false;
+    const meta = getSpellAttackMeta(s);
     if (level !== "all" && String(s.level) !== level) return false;
     if (school !== "all" && s.school !== school) return false;
-    if (q && !(`${s.name} ${s.description}`.toLowerCase().includes(q.toLowerCase()))) return false;
+    if (dmgType !== "all" && meta?.damageType !== dmgType) return false;
+    if (rangeF !== "all" && rangeCategory(s.range) !== rangeF) return false;
+    if (castF !== "all" && castCategory(s.castingTime) !== castF) return false;
+    if (conc === "yes" && !s.concentration) return false;
+    if (conc === "no" && s.concentration) return false;
+    if (saveF === "save" && meta?.attackType !== "save") return false;
+    if (saveF === "attack" && !(meta && meta.attackType !== "save")) return false;
+    if (saveF === "none" && meta) return false;
+    if (q && !(`${s.name} ${s.description} ${getSpellFlavor(s.id) ?? ""}`.toLowerCase().includes(q.toLowerCase()))) return false;
     return true;
   });
+
   const granted = filtered.filter(s => grantedIds.includes(s.id));
   const known = filtered.filter(s => !grantedIds.includes(s.id));
   const renderSpell = (s: any) => (
