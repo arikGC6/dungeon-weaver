@@ -608,18 +608,46 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
     updatedAt: Date.now(),
   });
 
+  const [sort, setSort] = useState<"level" | "name" | "type" | "damageType" | "range">("level");
+  const sortedSelected = useMemo(() => {
+    const rows = (selectedIds as string[])
+      .map(id => SPELLS.find(x => x.id === id))
+      .filter(Boolean) as any[];
+    const kindOf = (s: any) => {
+      const m = getSpellAttackMeta(s);
+      if (!m) return "אפקט";
+      return m.attackType === "save" ? "Save" : m.attackType === "melee_spell" ? "מגע" : "טווח";
+    };
+    const dt = (s: any) => getSpellAttackMeta(s)?.damageType ?? "—";
+    const out = [...rows];
+    if (sort === "level") out.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+    if (sort === "name") out.sort((a, b) => a.name.localeCompare(b.name));
+    if (sort === "type") out.sort((a, b) => kindOf(a).localeCompare(kindOf(b)) || a.name.localeCompare(b.name));
+    if (sort === "damageType") out.sort((a, b) => dt(a).localeCompare(dt(b)) || a.name.localeCompare(b.name));
+    if (sort === "range") out.sort((a, b) => rangeCategory(a.range).localeCompare(rangeCategory(b.range)) || a.name.localeCompare(b.name));
+    return out;
+  }, [selectedIds, sort]);
+
   return (
     <div className="tavern-card p-4 md:col-span-3">
       <div className="flex flex-wrap justify-between items-baseline gap-2 mb-2">
         <h3 className="display text-lg text-primary">✨ כישופים כמתקפות</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <select className="input text-xs" value={sort} onChange={e => setSort(e.target.value as any)}>
+            <option value="level">מיון: רמה</option>
+            <option value="name">מיון: שם</option>
+            <option value="type">מיון: מגע/טווח/Save</option>
+            <option value="damageType">מיון: סוג נזק</option>
+            <option value="range">מיון: טווח הטלה</option>
+          </select>
           <button onClick={addAll} className="text-xs px-2 py-1 rounded border border-primary text-primary">הוסף את כל הכישופים</button>
           <button onClick={() => setPicking(p => !p)} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">
             {picking ? "סגור" : "+ הוסף כישוף כמתקפה"}
           </button>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground mb-2">כל הכישופים שאתה יודע/מכין זמינים כאן. יוצג טווח, אזור פגיעה, קוביית נזק, סוג נזק ובונוס/DC — ולכישופי תמיכה יוצג מה הכישוף עושה.</p>
+      <p className="text-xs text-muted-foreground mb-2">מתקפות כישוף בלבד (מתקפות נשק בטבלה שמעל). יוצג תיוג, טווח, אזור פגיעה, קוביית נזק, סוג נזק, בונוס/DC והסבר מה הכישוף עושה.</p>
+
 
       {picking && (
         <div className="mb-3 p-2 rounded border border-border bg-background/40 max-h-[280px] overflow-y-auto space-y-1">
