@@ -512,7 +512,9 @@ function SpellBook({ spells, preparedIds, grantedIds }: {
         );
       })()}
       <div className="display text-xs text-accent mt-2">מה הכישוף עושה</div>
-
+      {getSpellFlavor(s.id) && (
+        <div className="text-sm mt-1 p-1.5 rounded bg-accent/10 border border-accent/30">🪄 {getSpellFlavor(s.id)}</div>
+      )}
       <div className="text-sm mt-1">{s.description}</div>
       {(() => {
         const sums = getSummonsForSpell(s.id);
