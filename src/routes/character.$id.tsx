@@ -553,7 +553,36 @@ function SpellBook({ spells, preparedIds, grantedIds }: {
           <option value="all">כל האסכולות</option>
           {SPELL_SCHOOLS.map(s => <option key={s} value={s}>{SCHOOL_LABELS_HE[s]}</option>)}
         </select>
+        <select className="input" value={dmgType} onChange={e => setDmgType(e.target.value)}>
+          <option value="all">כל סוגי הנזק</option>
+          {damageTypes.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <select className="input" value={rangeF} onChange={e => setRangeF(e.target.value)}>
+          <option value="all">כל הטווחים</option>
+          {Object.entries(RANGE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select className="input" value={castF} onChange={e => setCastF(e.target.value)}>
+          <option value="all">כל זמני ההטלה</option>
+          {Object.entries(CAST_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select className="input" value={conc} onChange={e => setConc(e.target.value)}>
+          <option value="all">ריכוז: הכול</option>
+          <option value="yes">דורש ריכוז</option>
+          <option value="no">בלי ריכוז</option>
+        </select>
+        <select className="input" value={saveF} onChange={e => setSaveF(e.target.value)}>
+          <option value="all">Save/התקפה: הכול</option>
+          <option value="save">דורש Save</option>
+          <option value="attack">גלגול התקפה</option>
+          <option value="none">בלי נזק (אפקט)</option>
+        </select>
       </div>
+      {(dmgType !== "all" || rangeF !== "all" || castF !== "all" || conc !== "all" || saveF !== "all" || level !== "all" || school !== "all" || q) && (
+        <button
+          onClick={() => { setQ(""); setLevel("all"); setSchool("all"); setDmgType("all"); setRangeF("all"); setCastF("all"); setConc("all"); setSaveF("all"); }}
+          className="mb-3 text-xs px-2 py-1 rounded border border-border text-muted-foreground">נקה סינון</button>
+      )}
+
       {granted.length > 0 && (
         <div className="mb-3">
           <div className="display text-sm text-accent mb-1">✨ כישופי תת-קלאס (תמיד מוכנים)</div>
