@@ -28,6 +28,13 @@ export function exportCharacterPdf(c: Character) {
     .map(id => getSpell(id)).filter(Boolean) as ReturnType<typeof getSpell>[];
   knownSpells.sort((a, b) => (a!.level - b!.level) || a!.name.localeCompare(b!.name));
 
+  // Every spell the user marked as an attack goes into the PDF.
+  const spellAttacks = ((c as any).spellAttacks ?? [])
+    .map((id: string) => getSpell(id))
+    .filter(Boolean)
+    .sort((a: any, b: any) => (a.level - b.level) || a.name.localeCompare(b.name)) as NonNullable<ReturnType<typeof getSpell>>[];
+
+
   const items = c.itemIds.map(({ id, equipped }) => ({ item: getItem(id), equipped })).filter(x => x.item);
   const feats = c.featIds.map(id => getFeat(id)).filter(Boolean);
 
