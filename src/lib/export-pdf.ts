@@ -2,6 +2,17 @@ import type { Character } from "./dnd-types";
 import { ABILITY_SHORT, ABILITY_LABELS, SKILL_LIST, formatMod } from "./dnd-types";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground } from "./calculations";
 import { SCHOOL_LABELS_HE } from "../data/spells";
+import { getSpellAttackMeta } from "../data/spell-attacks";
+import { getSpellFlavor } from "../data/spell-flavor";
+
+// Rough melee/ranged tag for a manually entered weapon attack.
+function pdfReach(a: { name?: string; notes?: string }): string {
+  const text = `${a.name ?? ""} ${a.notes ?? ""}`.toLowerCase();
+  if (/ranged|thrown|ammunition|range|טווח|מרחוק|קשת|קלע|זריקה/.test(text)) return "טווח";
+  if (/melee|reach|מגע|5ft|5 ft/.test(text)) return "מגע";
+  return "לא מסומן";
+}
+
 
 // Render an HTML-based character sheet in a new window and trigger print → user saves as PDF.
 // Perfect Hebrew + RTL support, fancy fantasy styling, and matches the on-screen sheet.
@@ -16,6 +27,13 @@ export function exportCharacterPdf(c: Character) {
   const knownSpells = Array.from(new Set([...c.spellIds, ...d.alwaysPreparedSpellIds]))
     .map(id => getSpell(id)).filter(Boolean) as ReturnType<typeof getSpell>[];
   knownSpells.sort((a, b) => (a!.level - b!.level) || a!.name.localeCompare(b!.name));
+
+  // Every spell the user marked as an attack goes into the PDF.
+  const spellAttacks = ((c as any).spellAttacks ?? [])
+    .map((id: string) => getSpell(id))
+    .filter(Boolean)
+    .sort((a: any, b: any) => (a.level - b.level) || a.name.localeCompare(b.name)) as NonNullable<ReturnType<typeof getSpell>>[];
+
 
   const items = c.itemIds.map(({ id, equipped }) => ({ item: getItem(id), equipped })).filter(x => x.item);
   const feats = c.featIds.map(id => getFeat(id)).filter(Boolean);
@@ -186,18 +204,45 @@ export function exportCharacterPdf(c: Character) {
 
   ${c.equipment && c.equipment.length ? `<h2>📦 ציוד נוסף</h2>${c.equipment.map(eq => `<div class="item-row"><span><b>${eq.name}</b>${eq.quantity > 1 ? ` <span style="color:#7b5a3a">×${eq.quantity}</span>` : ""}</span><span style="color:#5b3010;font-size:11px">${eq.notes ?? ""}</span></div>`).join("")}` : ""}
 
-  ${c.attacks && c.attacks.length ? `<h2>⚔️ התקפות</h2><table style="width:100%;font-size:13px;border-collapse:collapse">
-    <thead><tr style="background:#e9d5a5"><th style="text-align:right;padding:4px 8px">שם</th><th style="padding:4px 8px">בונוס</th><th style="padding:4px 8px">נזק</th><th style="text-align:right;padding:4px 8px">הערות</th></tr></thead>
-    <tbody>${c.attacks.map(a => `<tr style="border-bottom:1px dashed #b88a3a"><td style="padding:4px 8px"><b>${a.name}</b></td><td style="text-align:center">${a.bonus}</td><td style="text-align:center">${a.damage}</td><td style="color:#5b3010">${a.notes ?? ""}</td></tr>`).join("")}</tbody>
+  ${c.attacks && c.attacks.length ? `<h2>⚔️ מתקפות נשק</h2><table style="width:100%;font-size:13px;border-collapse:collapse">
+    <thead><tr style="background:#e9d5a5"><th style="text-align:right;padding:4px 8px">שם</th><th style="padding:4px 8px">תיוג</th><th style="padding:4px 8px">בונוס</th><th style="padding:4px 8px">נזק</th><th style="text-align:right;padding:4px 8px">הערות</th></tr></thead>
+    <tbody>${c.attacks.map(a => `<tr style="border-bottom:1px dashed #b88a3a"><td style="padding:4px 8px"><b>${a.name}</b></td><td style="text-align:center;font-size:11px">🗡 נשק · ${pdfReach(a)}</td><td style="text-align:center">${a.bonus}</td><td style="text-align:center">${a.damage}</td><td style="color:#5b3010">${a.notes ?? ""}</td></tr>`).join("")}</tbody>
+  </table>` : ""}
+
+  ${spellAttacks.length ? `<h2>✨ כישופים כמתקפות</h2><table style="width:100%;font-size:12px;border-collapse:collapse">
+    <thead><tr style="background:#e9d5a5">
+      <th style="text-align:right;padding:4px 6px">כישוף</th><th style="padding:4px 6px">תיוג</th><th style="padding:4px 6px">טווח</th><th style="padding:4px 6px">אזור</th><th style="padding:4px 6px">בונוס/DC</th><th style="padding:4px 6px">נזק</th><th style="padding:4px 6px">סוג נזק</th><th style="padding:4px 6px">Save</th><th style="padding:4px 6px">שדרוג</th>
+    </tr></thead>
+    <tbody>${spellAttacks.map(s => {
+      const meta = getSpellAttackMeta(s!);
+      const kind = !meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "מגע" : "טווח";
+      const bonusOrDc = meta?.attackType === "save"
+        ? `DC ${d.spellSaveDc ?? "-"}${meta.saveAbility ? ` (${String(meta.saveAbility).toUpperCase()})` : ""}`
+        : (meta ? formatMod(d.spellAttackBonus ?? 0) : "—");
+      return `<tr style="border-bottom:1px dashed #b88a3a">
+        <td style="padding:4px 6px"><b>${s!.name}</b><div style="font-size:10px;color:#5b3010">${s!.castingTime} · ${s!.duration} · ${s!.components}</div><div style="font-size:11px">${getSpellFlavor(s!.id) ?? s!.description}</div></td>
+        <td style="text-align:center;font-size:11px">✨ כישוף · ${kind}</td>
+        <td style="text-align:center">${s!.range}</td>
+        <td style="text-align:center">${meta?.area ?? "יעד יחיד"}</td>
+        <td style="text-align:center">${bonusOrDc}</td>
+        <td style="text-align:center">${meta?.damageDice ?? "—"}</td>
+        <td style="text-align:center">${meta?.damageType ?? "—"}</td>
+        <td style="text-align:center;font-size:11px">${meta?.attackType === "save" ? (meta.saveEffect ?? "—") : "—"}</td>
+        <td style="text-align:center;font-size:11px">${meta?.higherLevel ?? "—"}</td>
+      </tr>`;
+    }).join("")}</tbody>
   </table>` : ""}
 
   ${knownSpells.length ? `<h2>כישופים</h2>${knownSpells.map(s => {
     const isPrep = c.preparedSpellIds.includes(s!.id) || d.alwaysPreparedSpellIds.includes(s!.id);
+    const flavor = getSpellFlavor(s!.id);
     return `<div class="spell">
       <div class="name">${isPrep ? "✦ " : "○ "}${s!.name} <span class="meta">— רמה ${s!.level === 0 ? "קנטריפ" : s!.level} · ${SCHOOL_LABELS_HE[s!.school]} · ${s!.castingTime} · ${s!.range} · ${s!.components} · ${s!.duration}${s!.concentration ? " · ריכוז" : ""}${s!.ritual ? " · טקס" : ""}${isPrep ? " · <b>מוכן</b>" : ""}</span></div>
+      ${flavor ? `<div class="desc" style="font-style:italic;color:#5b2a13">🪄 ${flavor}</div>` : ""}
       <div class="desc">${s!.description}</div>
     </div>`;
   }).join("")}` : ""}
+
 
   ${c.notes ? `<h2>הערות</h2><div style="white-space: pre-wrap; font-size:13px;">${c.notes}</div>` : ""}
 </div>

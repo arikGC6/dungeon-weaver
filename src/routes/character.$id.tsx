@@ -6,6 +6,7 @@ import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
 import { SCHOOL_LABELS_HE, SPELL_SCHOOLS, SPELLS } from "@/data/spells";
 import { getSummonsForSpell } from "@/data/summons";
 import { getSpellAttackMeta } from "@/data/spell-attacks";
+import { getSpellFlavor } from "@/data/spell-flavor";
 import { getPactBoon, INVOCATIONS } from "@/data/warlock";
 import { useMemo, useState } from "react";
 
@@ -286,27 +287,11 @@ function CharacterPage() {
 
         </div>
 
-        {/* Custom Attacks */}
+        {/* Weapon / physical attacks */}
         {c.attacks && c.attacks.length > 0 && (
-          <div className="tavern-card p-4 md:col-span-3">
-            <h3 className="display text-lg text-primary mb-2">⚔️ התקפות</h3>
-            <table className="w-full text-sm">
-              <thead className="text-xs text-muted-foreground">
-                <tr><th className="text-right">שם</th><th>בונוס</th><th>נזק</th><th className="text-right">הערות</th></tr>
-              </thead>
-              <tbody>
-                {c.attacks.map((a, i) => (
-                  <tr key={i} className="border-t border-border/40">
-                    <td className="py-1 font-semibold">{a.name}</td>
-                    <td className="text-center">{a.bonus}</td>
-                    <td className="text-center">{a.damage}</td>
-                    <td className="text-muted-foreground">{a.notes}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <WeaponAttacks attacks={c.attacks} />
         )}
+
 
         {/* Spells as Attacks */}
         <SpellAttacks
@@ -411,19 +396,68 @@ function QuickEdit({ c, onSave }: { c: any; onSave: (c: any) => void }) {
   );
 }
 
+function rangeCategory(range: string): "self" | "touch" | "short" | "medium" | "long" {
+  const r = (range ?? "").toLowerCase();
+  if (r.includes("self") || r.includes("עצמי")) return "self";
+  if (r.includes("touch") || r.includes("מגע")) return "touch";
+  const ft = parseInt(r.replace(/[^0-9]/g, ""), 10);
+  if (!isNaN(ft)) {
+    if (ft <= 30) return "short";
+    if (ft <= 120) return "medium";
+    return "long";
+  }
+  return "medium";
+}
+const RANGE_LABELS: Record<string, string> = {
+  self: "עצמי", touch: "מגע", short: "קרוב (≤30ft)", medium: "בינוני (≤120ft)", long: "רחוק (120ft+)",
+};
+
+function castCategory(ct: string): "action" | "bonus" | "reaction" | "long" {
+  const t = (ct ?? "").toLowerCase();
+  if (t.includes("bonus") || t.includes("בונוס")) return "bonus";
+  if (t.includes("reaction") || t.includes("תגובה")) return "reaction";
+  if (t.includes("minute") || t.includes("hour") || t.includes("דקה") || t.includes("שעה")) return "long";
+  return "action";
+}
+const CAST_LABELS: Record<string, string> = {
+  action: "אקשן", bonus: "בונוס אקשן", reaction: "תגובה", long: "הטלה ארוכה",
+};
+
 function SpellBook({ spells, preparedIds, grantedIds }: {
   spells: any[]; preparedIds: string[]; grantedIds: string[];
 }) {
   const [q, setQ] = useState("");
   const [level, setLevel] = useState<string>("all");
   const [school, setSchool] = useState<string>("all");
+  const [dmgType, setDmgType] = useState<string>("all");
+  const [rangeF, setRangeF] = useState<string>("all");
+  const [castF, setCastF] = useState<string>("all");
+  const [conc, setConc] = useState<string>("all");
+  const [saveF, setSaveF] = useState<string>("all");
+
+  const damageTypes = useMemo(() => {
+    const set = new Set<string>();
+    spells.forEach(s => { const m = s && getSpellAttackMeta(s); if (m?.damageType) set.add(m.damageType); });
+    return Array.from(set).sort();
+  }, [spells]);
+
   const filtered = spells.filter(s => {
     if (!s) return false;
+    const meta = getSpellAttackMeta(s);
     if (level !== "all" && String(s.level) !== level) return false;
     if (school !== "all" && s.school !== school) return false;
-    if (q && !(`${s.name} ${s.description}`.toLowerCase().includes(q.toLowerCase()))) return false;
+    if (dmgType !== "all" && meta?.damageType !== dmgType) return false;
+    if (rangeF !== "all" && rangeCategory(s.range) !== rangeF) return false;
+    if (castF !== "all" && castCategory(s.castingTime) !== castF) return false;
+    if (conc === "yes" && !s.concentration) return false;
+    if (conc === "no" && s.concentration) return false;
+    if (saveF === "save" && meta?.attackType !== "save") return false;
+    if (saveF === "attack" && !(meta && meta.attackType !== "save")) return false;
+    if (saveF === "none" && meta) return false;
+    if (q && !(`${s.name} ${s.description} ${getSpellFlavor(s.id) ?? ""}`.toLowerCase().includes(q.toLowerCase()))) return false;
     return true;
   });
+
   const granted = filtered.filter(s => grantedIds.includes(s.id));
   const known = filtered.filter(s => !grantedIds.includes(s.id));
   const renderSpell = (s: any) => (
@@ -462,7 +496,9 @@ function SpellBook({ spells, preparedIds, grantedIds }: {
         );
       })()}
       <div className="display text-xs text-accent mt-2">מה הכישוף עושה</div>
-
+      {getSpellFlavor(s.id) && (
+        <div className="text-sm mt-1 p-1.5 rounded bg-accent/10 border border-accent/30">🪄 {getSpellFlavor(s.id)}</div>
+      )}
       <div className="text-sm mt-1">{s.description}</div>
       {(() => {
         const sums = getSummonsForSpell(s.id);
@@ -501,7 +537,36 @@ function SpellBook({ spells, preparedIds, grantedIds }: {
           <option value="all">כל האסכולות</option>
           {SPELL_SCHOOLS.map(s => <option key={s} value={s}>{SCHOOL_LABELS_HE[s]}</option>)}
         </select>
+        <select className="input" value={dmgType} onChange={e => setDmgType(e.target.value)}>
+          <option value="all">כל סוגי הנזק</option>
+          {damageTypes.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+        <select className="input" value={rangeF} onChange={e => setRangeF(e.target.value)}>
+          <option value="all">כל הטווחים</option>
+          {Object.entries(RANGE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select className="input" value={castF} onChange={e => setCastF(e.target.value)}>
+          <option value="all">כל זמני ההטלה</option>
+          {Object.entries(CAST_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select className="input" value={conc} onChange={e => setConc(e.target.value)}>
+          <option value="all">ריכוז: הכול</option>
+          <option value="yes">דורש ריכוז</option>
+          <option value="no">בלי ריכוז</option>
+        </select>
+        <select className="input" value={saveF} onChange={e => setSaveF(e.target.value)}>
+          <option value="all">Save/התקפה: הכול</option>
+          <option value="save">דורש Save</option>
+          <option value="attack">גלגול התקפה</option>
+          <option value="none">בלי נזק (אפקט)</option>
+        </select>
       </div>
+      {(dmgType !== "all" || rangeF !== "all" || castF !== "all" || conc !== "all" || saveF !== "all" || level !== "all" || school !== "all" || q) && (
+        <button
+          onClick={() => { setQ(""); setLevel("all"); setSchool("all"); setDmgType("all"); setRangeF("all"); setCastF("all"); setConc("all"); setSaveF("all"); }}
+          className="mb-3 text-xs px-2 py-1 rounded border border-border text-muted-foreground">נקה סינון</button>
+      )}
+
       {granted.length > 0 && (
         <div className="mb-3">
           <div className="display text-sm text-accent mb-1">✨ כישופי תת-קלאס (תמיד מוכנים)</div>
@@ -543,18 +608,46 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
     updatedAt: Date.now(),
   });
 
+  const [sort, setSort] = useState<"level" | "name" | "type" | "damageType" | "range">("level");
+  const sortedSelected = useMemo(() => {
+    const rows = (selectedIds as string[])
+      .map(id => SPELLS.find(x => x.id === id))
+      .filter(Boolean) as any[];
+    const kindOf = (s: any) => {
+      const m = getSpellAttackMeta(s);
+      if (!m) return "אפקט";
+      return m.attackType === "save" ? "Save" : m.attackType === "melee_spell" ? "מגע" : "טווח";
+    };
+    const dt = (s: any) => getSpellAttackMeta(s)?.damageType ?? "—";
+    const out = [...rows];
+    if (sort === "level") out.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+    if (sort === "name") out.sort((a, b) => a.name.localeCompare(b.name));
+    if (sort === "type") out.sort((a, b) => kindOf(a).localeCompare(kindOf(b)) || a.name.localeCompare(b.name));
+    if (sort === "damageType") out.sort((a, b) => dt(a).localeCompare(dt(b)) || a.name.localeCompare(b.name));
+    if (sort === "range") out.sort((a, b) => rangeCategory(a.range).localeCompare(rangeCategory(b.range)) || a.name.localeCompare(b.name));
+    return out;
+  }, [selectedIds, sort]);
+
   return (
     <div className="tavern-card p-4 md:col-span-3">
       <div className="flex flex-wrap justify-between items-baseline gap-2 mb-2">
         <h3 className="display text-lg text-primary">✨ כישופים כמתקפות</h3>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          <select className="input text-xs" value={sort} onChange={e => setSort(e.target.value as any)}>
+            <option value="level">מיון: רמה</option>
+            <option value="name">מיון: שם</option>
+            <option value="type">מיון: מגע/טווח/Save</option>
+            <option value="damageType">מיון: סוג נזק</option>
+            <option value="range">מיון: טווח הטלה</option>
+          </select>
           <button onClick={addAll} className="text-xs px-2 py-1 rounded border border-primary text-primary">הוסף את כל הכישופים</button>
           <button onClick={() => setPicking(p => !p)} className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">
             {picking ? "סגור" : "+ הוסף כישוף כמתקפה"}
           </button>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground mb-2">כל הכישופים שאתה יודע/מכין זמינים כאן. יוצג טווח, אזור פגיעה, קוביית נזק, סוג נזק ובונוס/DC — ולכישופי תמיכה יוצג מה הכישוף עושה.</p>
+      <p className="text-xs text-muted-foreground mb-2">מתקפות כישוף בלבד (מתקפות נשק בטבלה שמעל). יוצג תיוג, טווח, אזור פגיעה, קוביית נזק, סוג נזק, בונוס/DC והסבר מה הכישוף עושה.</p>
+
 
       {picking && (
         <div className="mb-3 p-2 rounded border border-border bg-background/40 max-h-[280px] overflow-y-auto space-y-1">
@@ -596,21 +689,25 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
             </tr>
           </thead>
           <tbody>
-            {selectedIds.map((id: string) => {
-              const s = SPELLS.find(x => x.id === id);
-              if (!s) return null;
+            {sortedSelected.map((s: any) => {
+              const id = s.id;
               const meta = getSpellAttackMeta(s);
               const bonusOrDc = meta?.attackType === "save"
                 ? `DC ${spellSaveDc ?? "-"}${meta.saveAbility ? ` (${meta.saveAbility.toUpperCase()})` : ""}`
                 : `${formatMod(spellAttackBonus ?? 0)}`;
+              const kind = !meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "מגע" : "טווח";
               return (
                 <tr key={id} className="border-t border-border/40 align-top">
                   <td className="py-1 font-semibold">{s.name}
                     <div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div>
-                    {!meta && <div className="text-[11px] text-muted-foreground max-w-[240px] whitespace-normal">{s.description}</div>}
+                    <div className="text-[11px] max-w-[260px] whitespace-normal">
+                      {getSpellFlavor(id) ? <span className="text-accent">🪄 {getSpellFlavor(id)}</span> : <span className="text-muted-foreground">{s.description}</span>}
+                    </div>
                   </td>
-                  <td className="text-center text-xs">{!meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
-                  <td className="text-center text-xs">{s.range}</td>
+                  <td className="text-center text-xs">
+                    <span className="px-1.5 py-0.5 rounded bg-accent/15 border border-accent/40 whitespace-nowrap">✨ כישוף · {kind}</span>
+                  </td>
+                  <td className="text-center text-xs">{s.range} <span className="text-[10px] text-muted-foreground">({RANGE_LABELS[rangeCategory(s.range)]})</span></td>
                   <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
                   <td className="text-center">{meta ? bonusOrDc : "—"}</td>
                   <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
@@ -621,9 +718,9 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
-
             })}
           </tbody>
+
         </table>
         </div>
       )}
@@ -676,3 +773,82 @@ function ManualAbilityEditor({ c, onSave, computed }: { c: any; onSave: (c: any)
   );
 }
 
+
+// ---- Weapon / physical attacks: tagging + sorting ----
+const DAMAGE_WORDS: Record<string, string> = {
+  slashing: "חיתוך", piercing: "דקירה", bludgeoning: "מוחץ", fire: "אש", cold: "קור",
+  lightning: "ברק", thunder: "רעם", acid: "חומצה", poison: "רעל", necrotic: "נקרוטי",
+  radiant: "קדוש", psychic: "נפשי", force: "כוח",
+  "חיתוך": "חיתוך", "דקירה": "דקירה", "מוחץ": "מוחץ", "אש": "אש", "קור": "קור",
+  "ברק": "ברק", "רעם": "רעם", "חומצה": "חומצה", "רעל": "רעל",
+};
+
+function attackDamageType(a: { damage?: string; notes?: string }): string {
+  const text = `${a.damage ?? ""} ${a.notes ?? ""}`.toLowerCase();
+  for (const key of Object.keys(DAMAGE_WORDS)) {
+    if (text.includes(key.toLowerCase())) return DAMAGE_WORDS[key];
+  }
+  return "—";
+}
+
+function attackReach(a: { name?: string; notes?: string }): "melee" | "ranged" | "unknown" {
+  const text = `${a.name ?? ""} ${a.notes ?? ""}`.toLowerCase();
+  if (/ranged|thrown|ammunition|range|טווח|מרחוק|קשת|קלע|זריקה|ft\.?\s*\//.test(text)) return "ranged";
+  if (/melee|reach|מגע|קרב פנים|5ft|5 ft/.test(text)) return "melee";
+  return "unknown";
+}
+const REACH_LABELS: Record<string, string> = { melee: "מגע", ranged: "טווח", unknown: "לא מסומן" };
+
+function WeaponAttacks({ attacks }: { attacks: any[] }) {
+  const [sort, setSort] = useState<"name" | "bonus" | "reach" | "damageType">("name");
+  const rows = useMemo(() => {
+    const enriched = attacks.map((a, i) => ({
+      ...a, _i: i, reach: attackReach(a), dmgType: attackDamageType(a),
+      bonusNum: parseInt(String(a.bonus ?? "").replace(/[^\-0-9]/g, ""), 10) || 0,
+    }));
+    const sorted = [...enriched];
+    if (sort === "name") sorted.sort((x, y) => String(x.name).localeCompare(String(y.name)));
+    if (sort === "bonus") sorted.sort((x, y) => y.bonusNum - x.bonusNum);
+    if (sort === "reach") sorted.sort((x, y) => x.reach.localeCompare(y.reach) || String(x.name).localeCompare(String(y.name)));
+    if (sort === "damageType") sorted.sort((x, y) => x.dmgType.localeCompare(y.dmgType) || String(x.name).localeCompare(String(y.name)));
+    return sorted;
+  }, [attacks, sort]);
+
+  return (
+    <div className="tavern-card p-4 md:col-span-3">
+      <div className="flex flex-wrap justify-between items-baseline gap-2 mb-1">
+        <h3 className="display text-lg text-primary">⚔️ מתקפות נשק (פיזיות)</h3>
+        <select className="input text-xs" value={sort} onChange={e => setSort(e.target.value as any)}>
+          <option value="name">מיון: שם</option>
+          <option value="bonus">מיון: בונוס פגיעה</option>
+          <option value="reach">מיון: מגע / טווח</option>
+          <option value="damageType">מיון: סוג נזק</option>
+        </select>
+      </div>
+      <p className="text-xs text-muted-foreground mb-2">כאן רק מתקפות נשק וגוף. מתקפות כישוף מופיעות בטבלה הנפרדת "✨ כישופים כמתקפות".</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm min-w-[560px]">
+          <thead className="text-xs text-muted-foreground">
+            <tr><th className="text-right">שם</th><th>תיוג</th><th>סוג נזק</th><th>בונוס</th><th>נזק</th><th className="text-right">הערות</th></tr>
+          </thead>
+          <tbody>
+            {rows.map(a => (
+              <tr key={a._i} className="border-t border-border/40 align-top">
+                <td className="py-1 font-semibold">{a.name}</td>
+                <td className="text-center">
+                  <span className="text-[11px] px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">
+                    🗡 נשק · {REACH_LABELS[a.reach]}
+                  </span>
+                </td>
+                <td className="text-center text-xs">{a.dmgType}</td>
+                <td className="text-center">{a.bonus}</td>
+                <td className="text-center font-mono">{a.damage}</td>
+                <td className="text-muted-foreground text-xs">{a.notes}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
