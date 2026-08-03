@@ -689,21 +689,25 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
             </tr>
           </thead>
           <tbody>
-            {selectedIds.map((id: string) => {
-              const s = SPELLS.find(x => x.id === id);
-              if (!s) return null;
+            {sortedSelected.map((s: any) => {
+              const id = s.id;
               const meta = getSpellAttackMeta(s);
               const bonusOrDc = meta?.attackType === "save"
                 ? `DC ${spellSaveDc ?? "-"}${meta.saveAbility ? ` (${meta.saveAbility.toUpperCase()})` : ""}`
                 : `${formatMod(spellAttackBonus ?? 0)}`;
+              const kind = !meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "מגע" : "טווח";
               return (
                 <tr key={id} className="border-t border-border/40 align-top">
                   <td className="py-1 font-semibold">{s.name}
                     <div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div>
-                    {!meta && <div className="text-[11px] text-muted-foreground max-w-[240px] whitespace-normal">{s.description}</div>}
+                    <div className="text-[11px] max-w-[260px] whitespace-normal">
+                      {getSpellFlavor(id) ? <span className="text-accent">🪄 {getSpellFlavor(id)}</span> : <span className="text-muted-foreground">{s.description}</span>}
+                    </div>
                   </td>
-                  <td className="text-center text-xs">{!meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "Melee" : "Ranged"}</td>
-                  <td className="text-center text-xs">{s.range}</td>
+                  <td className="text-center text-xs">
+                    <span className="px-1.5 py-0.5 rounded bg-accent/15 border border-accent/40 whitespace-nowrap">✨ כישוף · {kind}</span>
+                  </td>
+                  <td className="text-center text-xs">{s.range} <span className="text-[10px] text-muted-foreground">({RANGE_LABELS[rangeCategory(s.range)]})</span></td>
                   <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
                   <td className="text-center">{meta ? bonusOrDc : "—"}</td>
                   <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
@@ -714,9 +718,9 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
-
             })}
           </tbody>
+
         </table>
         </div>
       )}
