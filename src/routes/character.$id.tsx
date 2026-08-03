@@ -287,27 +287,11 @@ function CharacterPage() {
 
         </div>
 
-        {/* Custom Attacks */}
+        {/* Weapon / physical attacks */}
         {c.attacks && c.attacks.length > 0 && (
-          <div className="tavern-card p-4 md:col-span-3">
-            <h3 className="display text-lg text-primary mb-2">⚔️ התקפות</h3>
-            <table className="w-full text-sm">
-              <thead className="text-xs text-muted-foreground">
-                <tr><th className="text-right">שם</th><th>בונוס</th><th>נזק</th><th className="text-right">הערות</th></tr>
-              </thead>
-              <tbody>
-                {c.attacks.map((a, i) => (
-                  <tr key={i} className="border-t border-border/40">
-                    <td className="py-1 font-semibold">{a.name}</td>
-                    <td className="text-center">{a.bonus}</td>
-                    <td className="text-center">{a.damage}</td>
-                    <td className="text-muted-foreground">{a.notes}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <WeaponAttacks attacks={c.attacks} />
         )}
+
 
         {/* Spells as Attacks */}
         <SpellAttacks
