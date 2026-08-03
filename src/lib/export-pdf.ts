@@ -2,6 +2,17 @@ import type { Character } from "./dnd-types";
 import { ABILITY_SHORT, ABILITY_LABELS, SKILL_LIST, formatMod } from "./dnd-types";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground } from "./calculations";
 import { SCHOOL_LABELS_HE } from "../data/spells";
+import { getSpellAttackMeta } from "../data/spell-attacks";
+import { getSpellFlavor } from "../data/spell-flavor";
+
+// Rough melee/ranged tag for a manually entered weapon attack.
+function pdfReach(a: { name?: string; notes?: string }): string {
+  const text = `${a.name ?? ""} ${a.notes ?? ""}`.toLowerCase();
+  if (/ranged|thrown|ammunition|range|טווח|מרחוק|קשת|קלע|זריקה/.test(text)) return "טווח";
+  if (/melee|reach|מגע|5ft|5 ft/.test(text)) return "מגע";
+  return "לא מסומן";
+}
+
 
 // Render an HTML-based character sheet in a new window and trigger print → user saves as PDF.
 // Perfect Hebrew + RTL support, fancy fantasy styling, and matches the on-screen sheet.
