@@ -9,6 +9,7 @@ import { getSpellAttackMeta } from "@/data/spell-attacks";
 import { getSpellFlavor } from "@/data/spell-flavor";
 import { getPactBoon, INVOCATIONS } from "@/data/warlock";
 import { useMemo, useState } from "react";
+import { usePersistedState } from "@/lib/persisted-state";
 
 export const Route = createFileRoute("/character/$id")({
   component: CharacterPage,
@@ -609,7 +610,7 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
     updatedAt: Date.now(),
   });
 
-  const [sort, setSort] = useState<"level" | "name" | "type" | "damageType" | "range">("level");
+  const [sort, setSort] = usePersistedState<"level" | "name" | "type" | "damageType" | "range">("mt-spellattacks-sort", "level");
   const sortedSelected = useMemo(() => {
     const rows = (selectedIds as string[])
       .map(id => SPELLS.find(x => x.id === id))
@@ -801,7 +802,7 @@ function attackReach(a: { name?: string; notes?: string }): "melee" | "ranged" |
 const REACH_LABELS: Record<string, string> = { melee: "מגע", ranged: "טווח", unknown: "לא מסומן" };
 
 function WeaponAttacks({ attacks }: { attacks: any[] }) {
-  const [sort, setSort] = useState<"name" | "bonus" | "reach" | "damageType">("name");
+  const [sort, setSort] = usePersistedState<"name" | "bonus" | "reach" | "damageType">("mt-weaponattacks-sort", "name");
   const rows = useMemo(() => {
     const enriched = attacks.map((a, i) => ({
       ...a, _i: i, reach: attackReach(a), dmgType: attackDamageType(a),
