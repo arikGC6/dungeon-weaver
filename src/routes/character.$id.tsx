@@ -426,14 +426,15 @@ const CAST_LABELS: Record<string, string> = {
 function SpellBook({ spells, preparedIds, grantedIds }: {
   spells: any[]; preparedIds: string[]; grantedIds: string[];
 }) {
-  const [q, setQ] = useState("");
-  const [level, setLevel] = useState<string>("all");
-  const [school, setSchool] = useState<string>("all");
-  const [dmgType, setDmgType] = useState<string>("all");
-  const [rangeF, setRangeF] = useState<string>("all");
-  const [castF, setCastF] = useState<string>("all");
-  const [conc, setConc] = useState<string>("all");
-  const [saveF, setSaveF] = useState<string>("all");
+  const [q, setQ] = usePersistedState<string>("mt-spellbook-q", "");
+  const [level, setLevel] = usePersistedState<string>("mt-spellbook-level", "all");
+  const [school, setSchool] = usePersistedState<string>("mt-spellbook-school", "all");
+  const [dmgType, setDmgType] = usePersistedState<string>("mt-spellbook-dmg", "all");
+  const [rangeF, setRangeF] = usePersistedState<string>("mt-spellbook-range", "all");
+  const [castF, setCastF] = usePersistedState<string>("mt-spellbook-cast", "all");
+  const [conc, setConc] = usePersistedState<string>("mt-spellbook-conc", "all");
+  const [saveF, setSaveF] = usePersistedState<string>("mt-spellbook-save", "all");
+
 
   const damageTypes = useMemo(() => {
     const set = new Set<string>();
