@@ -9,6 +9,7 @@ import { getSpellAttackMeta } from "@/data/spell-attacks";
 import { getSpellFlavor } from "@/data/spell-flavor";
 import { getPactBoon, INVOCATIONS } from "@/data/warlock";
 import { useMemo, useState } from "react";
+import { usePersistedState } from "@/lib/persisted-state";
 
 export const Route = createFileRoute("/character/$id")({
   component: CharacterPage,
@@ -426,14 +427,15 @@ const CAST_LABELS: Record<string, string> = {
 function SpellBook({ spells, preparedIds, grantedIds }: {
   spells: any[]; preparedIds: string[]; grantedIds: string[];
 }) {
-  const [q, setQ] = useState("");
-  const [level, setLevel] = useState<string>("all");
-  const [school, setSchool] = useState<string>("all");
-  const [dmgType, setDmgType] = useState<string>("all");
-  const [rangeF, setRangeF] = useState<string>("all");
-  const [castF, setCastF] = useState<string>("all");
-  const [conc, setConc] = useState<string>("all");
-  const [saveF, setSaveF] = useState<string>("all");
+  const [q, setQ] = usePersistedState<string>("mt-spellbook-q", "");
+  const [level, setLevel] = usePersistedState<string>("mt-spellbook-level", "all");
+  const [school, setSchool] = usePersistedState<string>("mt-spellbook-school", "all");
+  const [dmgType, setDmgType] = usePersistedState<string>("mt-spellbook-dmg", "all");
+  const [rangeF, setRangeF] = usePersistedState<string>("mt-spellbook-range", "all");
+  const [castF, setCastF] = usePersistedState<string>("mt-spellbook-cast", "all");
+  const [conc, setConc] = usePersistedState<string>("mt-spellbook-conc", "all");
+  const [saveF, setSaveF] = usePersistedState<string>("mt-spellbook-save", "all");
+
 
   const damageTypes = useMemo(() => {
     const set = new Set<string>();
@@ -608,7 +610,7 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
     updatedAt: Date.now(),
   });
 
-  const [sort, setSort] = useState<"level" | "name" | "type" | "damageType" | "range">("level");
+  const [sort, setSort] = usePersistedState<"level" | "name" | "type" | "damageType" | "range">("mt-spellattacks-sort", "level");
   const sortedSelected = useMemo(() => {
     const rows = (selectedIds as string[])
       .map(id => SPELLS.find(x => x.id === id))
@@ -800,7 +802,7 @@ function attackReach(a: { name?: string; notes?: string }): "melee" | "ranged" |
 const REACH_LABELS: Record<string, string> = { melee: "מגע", ranged: "טווח", unknown: "לא מסומן" };
 
 function WeaponAttacks({ attacks }: { attacks: any[] }) {
-  const [sort, setSort] = useState<"name" | "bonus" | "reach" | "damageType">("name");
+  const [sort, setSort] = usePersistedState<"name" | "bonus" | "reach" | "damageType">("mt-weaponattacks-sort", "name");
   const rows = useMemo(() => {
     const enriched = attacks.map((a, i) => ({
       ...a, _i: i, reach: attackReach(a), dmgType: attackDamageType(a),
