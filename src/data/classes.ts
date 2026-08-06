@@ -274,6 +274,17 @@ export const CLASSES: DnDClass[] = [
         { level: 3, name: "Whispers of the Dead", desc: "Proficiency במיומנות לבחירה בכל short rest." },
         { level: 3, name: "Wails from the Grave", desc: "התקפת Sneak Attack — נזק necrotic נוסף ליצור סמוך." },
       ] },
+      { id: "the_creed", name: "The Creed", nameHe: "הכת (The Creed)", features: [
+        { level: 3, name: "Hidden Blade / להב נסתר", desc: "אתה מקבל צמד להבים נסתרים (1d6 piercing, Finesse/Light) המוסתרים בשרוול — DC 20 בחקירה לגלותם. התקפה עם להב נסתר נגד יעד מופתע או שאינו רואה אותך גורמת נזק Sneak Attack מקסימלי." },
+        { level: 3, name: "Eagle Vision / ראיית הנשר", desc: "Bonus action: אתה מזהה עד 3 יצורים בטווח 60ft גם דרך קירות (מסומנים עד סוף התור הבא) ומקבל Advantage בהתקפה הראשונה נגדם. שימושים = מודיפייר WIS, מתחדש ב-short rest." },
+        { level: 3, name: "Leap of Faith / קפיצת האמונה", desc: "אתה לא סופר נפילה של עד 30ft כנזק אם אתה נוחת בערמת חומר רך או במים, ואתה מטפס במהירות ההליכה המלאה שלך." },
+        { level: 9, name: "Social Stealth / התגנבות חברתית", desc: "בקהל או בקרב יצורים תמי-לב אתה יכול להסתתר גם ללא Cover; יעדים לא מזהים אותך כאיום עד שאתה תוקף. Advantage בבדיקות התחזות והטעיה במצב זה." },
+        { level: 9, name: "Blend In / התמזגות", desc: "Bonus action: אתה מתערבב בסביבה — היעד הקרוב מאבד אותך (מצב Hidden) גם אם ראה אותך, פעם ל-short rest." },
+        { level: 13, name: "Air Assassination / התנקשות מהאוויר", desc: "כשאתה יורד לפחות 10ft על יעד שאינו רואה אותך, ההתקפה היא קריטית אוטומטית ומוסיפה 2d6 נזק נוסף; היעד חייב CON save (DC 8 + PB + DEX) או נופל Prone." },
+        { level: 13, name: "Smoke and Shadow / עשן וצל", desc: "Reaction בעת ספיגת נזק: אתה מפיל פצצת עשן (רדיוס 10ft, Heavily Obscured) ומשתמש ב-Cunning Action בחינם כדי להיעלם." },
+        { level: 17, name: "Master Assassin / מתנקש-אמן", desc: "הריגה בהתקפה חשאית מחזירה לך שימוש ב-Eagle Vision והתקפת Bonus Action נוספת נגד יעד אחר בטווח 5ft. פעם בכל תור." },
+        { level: 17, name: "Nothing is True / דבר אינו אמת", desc: "Advantage על saves נגד אשליות וקריאת מחשבות; יצורים לא יכולים לקבוע את מיקומך בקסם (כמו Nondetection קבוע)." },
+      ] },
     ],
     features: [
       { level: 1, name: "Expertise", desc: "" },
