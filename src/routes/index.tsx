@@ -46,7 +46,7 @@ function Home() {
       </header>
 
       <div className="grid md:grid-cols-3 gap-4 mb-10">
-        <Link to="/builder" className="tavern-card p-6 text-center hover:ember-glow transition-all">
+        <Link to="/builder" search={{ edit: undefined }} className="tavern-card p-6 text-center hover:ember-glow transition-all">
           <div className="text-4xl mb-2">⚔️</div>
           <h2 className="display text-xl text-primary mb-1">דמות חדשה</h2>
           <p className="text-sm text-muted-foreground">פתח אשף יצירת דמות</p>
