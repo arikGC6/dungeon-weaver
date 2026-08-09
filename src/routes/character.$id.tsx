@@ -97,7 +97,12 @@ function CharacterPage() {
             <Stat label="חקירה פסיבית" v={d.passiveInvestigation} />
           </div>
           <div className="mt-3 p-2 rounded bg-background/40 border border-border text-sm">
-            🚶 <b>הליכה:</b> {d.walking.ftPerTurn}ft/תור · {d.walking.ftPerMin}ft/דקה · ~{d.walking.kmPerHour} ק״מ/שעה
+            🚶 <b>הליכה:</b> {d.walking.ftPerTurn}ft/תור · {d.walking.ftPerMin}ft/דקה · ~{d.walking.kmPerHour} ק״מ/שעה · 🧗 <b>טיפוס:</b> {d.climbSpeed}ft
+            {d.movementNotes.length > 0 && (
+              <ul className="mt-1 text-xs text-accent space-y-0.5">
+                {d.movementNotes.map((n, i) => <li key={i}>• {n}</li>)}
+              </ul>
+            )}
           </div>
         </div>
 
