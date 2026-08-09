@@ -465,6 +465,12 @@ function computeClassResources(
       if (subclassId === "phantom") {
         out.push({ name: "Wails from the Grave", value: `${Math.floor(prof / 2)}/long`, recharge: "Long Rest", desc: "מהרמה ה-9" });
       }
+      if (subclassId === "the_creed") {
+        out.push({ name: "Eagle Vision", value: `${Math.max(1, mods.wis)}/short`, recharge: "Short Rest", desc: "Bonus action — סימון 3 יצורים ב-60ft דרך קירות, Advantage בהתקפה הראשונה" });
+        if (level >= 9) out.push({ name: "Blend In", value: "1/short", recharge: "Short Rest", desc: "Bonus action — Hidden גם מול מי שרואה אותך" });
+        if (level >= 13) out.push({ name: "Smoke and Shadow", value: "1/short", recharge: "Short Rest", desc: `Reaction — עשן 10ft + Cunning Action חינם (DC ${8 + prof + mods.dex})` });
+        if (level >= 17) out.push({ name: "Master Assassin", value: "1/תור", recharge: "בכל תור", desc: "החזרת Eagle Vision + התקפת בונוס נוספת אחרי הריגה חשאית" });
+      }
       if (subclassId === "arcane_trickster") {
         out.push({ name: "Mage Hand Legerdemain", value: "—", recharge: "—", desc: "כשפים ידועים מתוך רשימת Wizard (INT)" });
       }
