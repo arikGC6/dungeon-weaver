@@ -705,7 +705,7 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
               <th>קוביות נזק</th>
               <th>סוג נזק</th>
               <th>בהצלחה ב-Save</th>
-              <th>Slot</th>
+              <th>משאב</th>
               <th>שדרוג</th>
               <th></th>
             </tr>
@@ -713,30 +713,27 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
           <tbody>
             {sortedSelected.map((s: any) => {
               const id = s.id;
-              const meta = getSpellAttackMeta(s);
-              const bonusOrDc = meta?.attackType === "save"
-                ? `DC ${spellSaveDc ?? "-"}${meta.saveAbility ? ` (${meta.saveAbility.toUpperCase()})` : ""}`
-                : `${formatMod(spellAttackBonus ?? 0)}`;
-              const kind = !meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "מגע" : "טווח";
+              const row = resolveSpellAttackRow(c, s, { spellAttackBonus, spellSaveDc });
               return (
                 <tr key={id} className="border-t border-border/40 align-top">
-                  <td className="py-1 font-semibold">{s.name}
+                  <td className="py-1 font-semibold">{s.name}{row.overridden && <span className="text-[10px] text-accent"> ✎ נערך</span>}
                     <div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div>
                     <div className="text-[11px] max-w-[260px] whitespace-normal">
                       {getSpellFlavor(id) ? <span className="text-accent">🪄 {getSpellFlavor(id)}</span> : <span className="text-muted-foreground">{s.description}</span>}
                     </div>
+                    {row.notes && <div className="text-[11px] text-primary whitespace-normal max-w-[260px]">📝 {row.notes}</div>}
                   </td>
                   <td className="text-center text-xs">
-                    <span className="px-1.5 py-0.5 rounded bg-accent/15 border border-accent/40 whitespace-nowrap">✨ כישוף · {kind}</span>
+                    <span className="px-1.5 py-0.5 rounded bg-accent/15 border border-accent/40 whitespace-nowrap">✨ כישוף · {row.kind}</span>
                   </td>
-                  <td className="text-center text-xs">{s.range} <span className="text-[10px] text-muted-foreground">({RANGE_LABELS[rangeCategory(s.range)]})</span></td>
-                  <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
-                  <td className="text-center">{meta ? bonusOrDc : "—"}</td>
-                  <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
-                  <td className="text-center text-xs">{meta?.damageType ?? "—"}</td>
-                  <td className="text-center text-[11px] text-muted-foreground">{meta?.attackType === "save" ? (meta?.saveEffect ?? "—") : "—"}</td>
-                  <td className="text-center text-xs">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}+`}</td>
-                  <td className="text-center text-[11px] text-muted-foreground">{meta?.higherLevel ?? "—"}</td>
+                  <td className="text-center text-xs">{row.range} <span className="text-[10px] text-muted-foreground">({RANGE_LABELS[rangeCategory(row.range)]})</span></td>
+                  <td className="text-center text-xs">{row.area}</td>
+                  <td className="text-center">{row.bonusOrDc}</td>
+                  <td className="text-center font-mono">{row.damageDice}</td>
+                  <td className="text-center text-xs">{row.damageType}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{row.saveEffect}</td>
+                  <td className="text-center text-xs">{row.resource}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{row.higherLevel}</td>
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
