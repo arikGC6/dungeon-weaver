@@ -278,6 +278,86 @@ export function calculateCharacter(c: Character): DerivedStats {
   if (c.featIds.includes("crossbow_expert")) extras.push("Crossbow Expert — bonus hand-crossbow shot");
   if (c.featIds.includes("great_weapon_master")) extras.push("GWM — bonus attack on crit / kill");
   (c.extraActionNotes ?? []).forEach(n => extras.push(n));
+  // ===== Subclass mechanical effects (The Creed & co.) =====
+  const grantedAttacks: DerivedStats["grantedAttacks"] = [];
+  const subclassEffects: { name: string; effect: string }[] = [];
+  const movementNotes: string[] = [];
+  let climbSpeed = Math.floor(speed / 2);
+
+  const rogueEntry = (c.multiclass ?? []).find(m => m.classId === "rogue");
+  const rogueLevel = c.classId === "rogue" ? level : (rogueEntry ? Math.max(1, Math.min(20, rogueEntry.level)) : 0);
+  const isCreed = (c.classId === "rogue" && c.subclassId === "the_creed")
+    || rogueEntry?.subclassId === "the_creed";
+  const creedLevel = isCreed ? rogueLevel : 0;
+
+  if (creedLevel >= 3) {
+    const dex = abilityMods.dex;
+    const sneakDice = Math.ceil(rogueLevel / 2);
+    const hitBonus = dex + proficiencyBonus;
+    // Hidden Blade — a real attack row, not just text.
+    grantedAttacks.push({
+      name: "להב נסתר (Hidden Blade)",
+      bonus: formatMod(hitBonus),
+      damage: `1d6${dex ? formatMod(dex) : ""} דקירה`,
+      damageType: "דקירה (piercing)",
+      range: "מגע 5ft",
+      resource: "ללא — Action",
+      notes: `Finesse/Light · מוסתר בשרוול (DC 20 חקירה) · נגד יעד מופתע/שאינו רואה אותך — Sneak Attack מקסימלי = ${sneakDice * 6} נזק`,
+      source: "The Creed 3",
+    });
+    grantedAttacks.push({
+      name: "להב נסתר — יד שנייה (Bonus Action)",
+      bonus: formatMod(hitBonus),
+      damage: `1d6${dex ? formatMod(dex) : ""} דקירה`,
+      damageType: "דקירה (piercing)",
+      range: "מגע 5ft",
+      resource: "Bonus Action (Two-Weapon Fighting)",
+      notes: "צמד להבים נסתרים — התקפה שנייה בבונוס אקשן",
+      source: "The Creed 3",
+    });
+    climbSpeed = speed; // Leap of Faith — climb at full walking speed
+    movementNotes.push(`טיפוס במהירות הליכה מלאה (${speed}ft) — Leap of Faith`);
+    movementNotes.push("נפילה של עד 30ft אינה גורמת נזק בנחיתה רכה/במים");
+    subclassEffects.push(
+      { name: "Hidden Blade / להב נסתר", effect: `התקפה ${formatMod(hitBonus)} · 1d6${dex ? formatMod(dex) : ""} דקירה · Sneak Attack מקסימלי (${sneakDice * 6}) נגד יעד מופתע` },
+      { name: "Eagle Vision / ראיית הנשר", effect: `${Math.max(1, abilityMods.wis)} שימושים ל-Short Rest · Bonus Action · סימון עד 3 יצורים ב-60ft דרך קירות · Advantage בהתקפה הראשונה נגדם` },
+      { name: "Leap of Faith / קפיצת האמונה", effect: `מהירות טיפוס ${speed}ft · ביטול נזק נפילה עד 30ft` },
+    );
+  }
+  if (creedLevel >= 9) {
+    subclassEffects.push(
+      { name: "Social Stealth / התגנבות חברתית", effect: `הסתרה בקהל בלי Cover · Advantage בהטעיה (${formatMod(skills.deception)}) ובמופע/התחזות (${formatMod(skills.performance)})` },
+      { name: "Blend In / התמזגות", effect: "Bonus Action · פעם ל-Short Rest · מצב Hidden גם מול יעד שרואה אותך" },
+    );
+    extras.push("Blend In — Bonus action להיעלם (1/Short Rest)");
+  }
+  if (creedLevel >= 13) {
+    const airDc = 8 + proficiencyBonus + abilityMods.dex;
+    subclassEffects.push(
+      { name: "Air Assassination / התנקשות מהאוויר", effect: `צלילה של 10ft+ = קריט אוטומטי, +2d6 נזק · היעד CON save DC ${airDc} או Prone` },
+      { name: "Smoke and Shadow / עשן וצל", effect: "Reaction בעת ספיגת נזק · עשן ברדיוס 10ft (Heavily Obscured) + Cunning Action חינם" },
+    );
+    grantedAttacks.push({
+      name: "התנקשות מהאוויר (Air Assassination)",
+      bonus: formatMod(abilityMods.dex + proficiencyBonus),
+      damage: `קריט אוטומטי + 2d6`,
+      damageType: "לפי הנשק",
+      range: "צלילה 10ft+",
+      resource: "Action בצלילה",
+      notes: `היעד: CON save DC ${airDc} או Prone`,
+      source: "The Creed 13",
+    });
+    extras.push("Smoke and Shadow — Reaction: פצצת עשן + Cunning Action חינם");
+  }
+  if (creedLevel >= 17) {
+    subclassEffects.push(
+      { name: "Master Assassin / מתנקש-אמן", effect: "הריגה ב-Sneak Attack מחזירה שימוש ב-Eagle Vision + התקפת Bonus Action נוספת ביעד ב-5ft (1/תור)" },
+      { name: "Nothing is True / דבר אינו אמת", effect: "Advantage על saves נגד אשליות וקריאת מחשבות · Nondetection קבוע" },
+    );
+    extras.push("Master Assassin — התקפת בונוס נוספת אחרי הריגה בהתקפה חשאית");
+  }
+  if (creedLevel >= 3) extras.push(`Eagle Vision — Bonus action (${Math.max(1, abilityMods.wis)}/Short Rest)`);
+
   const actionEconomy = { actions, bonusActions, reactions, extras };
 
   // ===== ASI / Feat availability =====
