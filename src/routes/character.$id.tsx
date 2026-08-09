@@ -10,6 +10,7 @@ import { getSpellFlavor } from "@/data/spell-flavor";
 import { getPactBoon, INVOCATIONS } from "@/data/warlock";
 import { useMemo, useState } from "react";
 import { usePersistedState } from "@/lib/persisted-state";
+import { resolveSpellAttackRow, defaultSpellResource } from "@/lib/attack-rows";
 
 export const Route = createFileRoute("/character/$id")({
   component: CharacterPage,
@@ -97,7 +98,12 @@ function CharacterPage() {
             <Stat label="חקירה פסיבית" v={d.passiveInvestigation} />
           </div>
           <div className="mt-3 p-2 rounded bg-background/40 border border-border text-sm">
-            🚶 <b>הליכה:</b> {d.walking.ftPerTurn}ft/תור · {d.walking.ftPerMin}ft/דקה · ~{d.walking.kmPerHour} ק״מ/שעה
+            🚶 <b>הליכה:</b> {d.walking.ftPerTurn}ft/תור · {d.walking.ftPerMin}ft/דקה · ~{d.walking.kmPerHour} ק״מ/שעה · 🧗 <b>טיפוס:</b> {d.climbSpeed}ft
+            {d.movementNotes.length > 0 && (
+              <ul className="mt-1 text-xs text-accent space-y-0.5">
+                {d.movementNotes.map((n, i) => <li key={i}>• {n}</li>)}
+              </ul>
+            )}
           </div>
         </div>
 
@@ -288,9 +294,24 @@ function CharacterPage() {
 
         </div>
 
+        {/* Subclass mechanical effects (applied to stats/attacks) */}
+        {d.subclassEffects.length > 0 && (
+          <div className="tavern-card p-4 md:col-span-3">
+            <h3 className="display text-lg text-primary mb-2">🗡 השפעות תת-קלאס בפועל</h3>
+            <ul className="grid sm:grid-cols-2 gap-2 text-sm">
+              {d.subclassEffects.map((e, i) => (
+                <li key={i} className="p-2 rounded bg-background/40 border border-border">
+                  <b className="text-primary">{e.name}</b>
+                  <div className="text-xs mt-1">{e.effect}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Weapon / physical attacks */}
-        {c.attacks && c.attacks.length > 0 && (
-          <WeaponAttacks attacks={c.attacks} />
+        {((c.attacks && c.attacks.length > 0) || d.grantedAttacks.length > 0) && (
+          <WeaponAttacks attacks={c.attacks ?? []} granted={d.grantedAttacks} />
         )}
 
 
@@ -392,6 +413,82 @@ function QuickEdit({ c, onSave }: { c: any; onSave: (c: any) => void }) {
         <label className="text-sm">מהירות (דריסה)<input type="number" className="input w-full" value={local.speedOverride ?? ""} onChange={e => setLocal({ ...local, speedOverride: e.target.value === "" ? undefined : +e.target.value })} /></label>
       </div>
       <textarea className="input w-full min-h-[80px]" value={local.notes ?? ""} onChange={e => setLocal({ ...local, notes: e.target.value })} placeholder="הערות..." />
+
+      {/* ---- Weapon attack editor ---- */}
+      <div className="pt-2 border-t border-border/60">
+        <div className="flex justify-between items-baseline mb-2">
+          <h4 className="display text-primary">⚔️ עריכת מתקפות נשק</h4>
+          <button
+            onClick={() => setLocal({ ...local, attacks: [...(local.attacks ?? []), { name: "מתקפה חדשה", bonus: "+0", damage: "1d6", damageType: "", range: "מגע 5ft", resource: "Action", notes: "" }] })}
+            className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">+ הוסף מתקפה</button>
+        </div>
+        {(local.attacks ?? []).length === 0 && <p className="text-xs text-muted-foreground">אין מתקפות ידניות.</p>}
+        <div className="space-y-2">
+          {(local.attacks ?? []).map((a: any, i: number) => {
+            const patch = (p: any) => setLocal({
+              ...local,
+              attacks: (local.attacks ?? []).map((x: any, j: number) => j === i ? { ...x, ...p } : x),
+            });
+            return (
+              <div key={i} className="p-2 rounded border border-border bg-background/40 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <label>שם<input className="input w-full" value={a.name ?? ""} onChange={e => patch({ name: e.target.value })} /></label>
+                <label>בונוס פגיעה<input className="input w-full" value={a.bonus ?? ""} onChange={e => patch({ bonus: e.target.value })} /></label>
+                <label>נזק / קוביות<input className="input w-full" value={a.damage ?? ""} onChange={e => patch({ damage: e.target.value })} placeholder="1d8+3" /></label>
+                <label>סוג נזק<input className="input w-full" value={a.damageType ?? ""} onChange={e => patch({ damageType: e.target.value })} placeholder="חיתוך" /></label>
+                <label>טווח<input className="input w-full" value={a.range ?? ""} onChange={e => patch({ range: e.target.value })} placeholder="מגע 5ft / 150ft" /></label>
+                <label>משאב נדרש<input className="input w-full" value={a.resource ?? ""} onChange={e => patch({ resource: e.target.value })} placeholder="Action / Bonus / 1 Ki" /></label>
+                <label className="sm:col-span-2">הערות<input className="input w-full" value={a.notes ?? ""} onChange={e => patch({ notes: e.target.value })} /></label>
+                <button onClick={() => setLocal({ ...local, attacks: (local.attacks ?? []).filter((_: any, j: number) => j !== i) })}
+                  className="text-destructive text-xs justify-self-start">✕ מחק מתקפה</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ---- Spell attack editor ---- */}
+      <div className="pt-2 border-t border-border/60">
+        <h4 className="display text-primary mb-1">✨ עריכת מתקפות כישוף</h4>
+        <p className="text-xs text-muted-foreground mb-2">השאר ריק כדי להשתמש בערך המחושב אוטומטית. השינויים מופיעים בגיליון וב-PDF.</p>
+        {(local.spellAttacks ?? []).length === 0 && <p className="text-xs text-muted-foreground">לא סימנת כישופים כמתקפות.</p>}
+        <div className="space-y-2">
+          {(local.spellAttacks ?? []).map((id: string) => {
+            const spell = SPELLS.find(s => s.id === id);
+            if (!spell) return null;
+            const meta = getSpellAttackMeta(spell);
+            const ov = local.spellAttackOverrides?.[id] ?? {};
+            const patch = (p: any) => setLocal({
+              ...local,
+              spellAttackOverrides: { ...(local.spellAttackOverrides ?? {}), [id]: { ...ov, ...p } },
+            });
+            const clear = () => {
+              const next = { ...(local.spellAttackOverrides ?? {}) };
+              delete next[id];
+              setLocal({ ...local, spellAttackOverrides: next });
+            };
+            return (
+              <div key={id} className="p-2 rounded border border-border bg-background/40 text-xs">
+                <div className="flex justify-between items-baseline mb-1">
+                  <b className="text-primary">{spell.name} <span className="text-muted-foreground">({spell.level === 0 ? "קנטריפ" : `רמה ${spell.level}`})</span></b>
+                  <button onClick={clear} className="text-destructive text-[11px]">אפס דריסות</button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <label>קוביות נזק<input className="input w-full" value={ov.damageDice ?? ""} placeholder={meta?.damageDice ?? "—"} onChange={e => patch({ damageDice: e.target.value })} /></label>
+                  <label>סוג נזק<input className="input w-full" value={ov.damageType ?? ""} placeholder={meta?.damageType ?? "—"} onChange={e => patch({ damageType: e.target.value })} /></label>
+                  <label>טווח<input className="input w-full" value={ov.range ?? ""} placeholder={spell.range} onChange={e => patch({ range: e.target.value })} /></label>
+                  <label>אזור פגיעה<input className="input w-full" value={ov.area ?? ""} placeholder={meta?.area ?? "יעד יחיד"} onChange={e => patch({ area: e.target.value })} /></label>
+                  <label>בונוס / DC<input className="input w-full" value={ov.bonus ?? ""} placeholder="אוטומטי" onChange={e => patch({ bonus: e.target.value })} /></label>
+                  <label>משאב נדרש<input className="input w-full" value={ov.resource ?? ""} placeholder={defaultSpellResource(local, spell as any)} onChange={e => patch({ resource: e.target.value })} /></label>
+                  <label>שדרוג<input className="input w-full" value={ov.higherLevel ?? ""} placeholder={meta?.higherLevel ?? "—"} onChange={e => patch({ higherLevel: e.target.value })} /></label>
+                  <label>בהצלחה ב-Save<input className="input w-full" value={ov.saveEffect ?? ""} placeholder={meta?.saveEffect ?? "—"} onChange={e => patch({ saveEffect: e.target.value })} /></label>
+                  <label className="sm:col-span-4">הערות<input className="input w-full" value={ov.notes ?? ""} onChange={e => patch({ notes: e.target.value })} /></label>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <button onClick={() => onSave(local)} className="px-4 py-2 rounded bg-primary text-primary-foreground hover:opacity-90">שמור</button>
     </div>
   );
@@ -685,7 +782,7 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
               <th>קוביות נזק</th>
               <th>סוג נזק</th>
               <th>בהצלחה ב-Save</th>
-              <th>Slot</th>
+              <th>משאב</th>
               <th>שדרוג</th>
               <th></th>
             </tr>
@@ -693,30 +790,27 @@ function SpellAttacks({ c, onSave, spellAttackBonus, spellSaveDc }: {
           <tbody>
             {sortedSelected.map((s: any) => {
               const id = s.id;
-              const meta = getSpellAttackMeta(s);
-              const bonusOrDc = meta?.attackType === "save"
-                ? `DC ${spellSaveDc ?? "-"}${meta.saveAbility ? ` (${meta.saveAbility.toUpperCase()})` : ""}`
-                : `${formatMod(spellAttackBonus ?? 0)}`;
-              const kind = !meta ? "אפקט" : meta.attackType === "save" ? "Save" : meta.attackType === "melee_spell" ? "מגע" : "טווח";
+              const row = resolveSpellAttackRow(c, s, { spellAttackBonus, spellSaveDc });
               return (
                 <tr key={id} className="border-t border-border/40 align-top">
-                  <td className="py-1 font-semibold">{s.name}
+                  <td className="py-1 font-semibold">{s.name}{row.overridden && <span className="text-[10px] text-accent"> ✎ נערך</span>}
                     <div className="text-[10px] text-muted-foreground">{s.castingTime} · {s.duration} · {s.components}</div>
                     <div className="text-[11px] max-w-[260px] whitespace-normal">
                       {getSpellFlavor(id) ? <span className="text-accent">🪄 {getSpellFlavor(id)}</span> : <span className="text-muted-foreground">{s.description}</span>}
                     </div>
+                    {row.notes && <div className="text-[11px] text-primary whitespace-normal max-w-[260px]">📝 {row.notes}</div>}
                   </td>
                   <td className="text-center text-xs">
-                    <span className="px-1.5 py-0.5 rounded bg-accent/15 border border-accent/40 whitespace-nowrap">✨ כישוף · {kind}</span>
+                    <span className="px-1.5 py-0.5 rounded bg-accent/15 border border-accent/40 whitespace-nowrap">✨ כישוף · {row.kind}</span>
                   </td>
-                  <td className="text-center text-xs">{s.range} <span className="text-[10px] text-muted-foreground">({RANGE_LABELS[rangeCategory(s.range)]})</span></td>
-                  <td className="text-center text-xs">{meta?.area ?? "יעד יחיד"}</td>
-                  <td className="text-center">{meta ? bonusOrDc : "—"}</td>
-                  <td className="text-center font-mono">{meta?.damageDice ?? "—"}</td>
-                  <td className="text-center text-xs">{meta?.damageType ?? "—"}</td>
-                  <td className="text-center text-[11px] text-muted-foreground">{meta?.attackType === "save" ? (meta?.saveEffect ?? "—") : "—"}</td>
-                  <td className="text-center text-xs">{s.level === 0 ? "קנטריפ" : `רמה ${s.level}+`}</td>
-                  <td className="text-center text-[11px] text-muted-foreground">{meta?.higherLevel ?? "—"}</td>
+                  <td className="text-center text-xs">{row.range} <span className="text-[10px] text-muted-foreground">({RANGE_LABELS[rangeCategory(row.range)]})</span></td>
+                  <td className="text-center text-xs">{row.area}</td>
+                  <td className="text-center">{row.bonusOrDc}</td>
+                  <td className="text-center font-mono">{row.damageDice}</td>
+                  <td className="text-center text-xs">{row.damageType}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{row.saveEffect}</td>
+                  <td className="text-center text-xs">{row.resource}</td>
+                  <td className="text-center text-[11px] text-muted-foreground">{row.higherLevel}</td>
                   <td className="text-center"><button onClick={() => remove(id)} className="text-destructive">✕</button></td>
                 </tr>
               );
@@ -801,11 +895,17 @@ function attackReach(a: { name?: string; notes?: string }): "melee" | "ranged" |
 }
 const REACH_LABELS: Record<string, string> = { melee: "מגע", ranged: "טווח", unknown: "לא מסומן" };
 
-function WeaponAttacks({ attacks }: { attacks: any[] }) {
+function WeaponAttacks({ attacks, granted = [] }: { attacks: any[]; granted?: any[] }) {
   const [sort, setSort] = usePersistedState<"name" | "bonus" | "reach" | "damageType">("mt-weaponattacks-sort", "name");
   const rows = useMemo(() => {
-    const enriched = attacks.map((a, i) => ({
-      ...a, _i: i, reach: attackReach(a), dmgType: attackDamageType(a),
+    const all = [
+      ...attacks.map(a => ({ ...a, _src: "" })),
+      ...granted.map(a => ({ ...a, _src: a.source ?? "אוטומטי" })),
+    ];
+    const enriched = all.map((a, i) => ({
+      ...a, _i: i,
+      reach: a.range ? (attackReach({ name: a.name, notes: a.range }) === "unknown" ? "melee" : attackReach({ name: a.name, notes: a.range })) : attackReach(a),
+      dmgType: a.damageType ?? attackDamageType(a),
       bonusNum: parseInt(String(a.bonus ?? "").replace(/[^\-0-9]/g, ""), 10) || 0,
     }));
     const sorted = [...enriched];
@@ -814,7 +914,7 @@ function WeaponAttacks({ attacks }: { attacks: any[] }) {
     if (sort === "reach") sorted.sort((x, y) => x.reach.localeCompare(y.reach) || String(x.name).localeCompare(String(y.name)));
     if (sort === "damageType") sorted.sort((x, y) => x.dmgType.localeCompare(y.dmgType) || String(x.name).localeCompare(String(y.name)));
     return sorted;
-  }, [attacks, sort]);
+  }, [attacks, granted, sort]);
 
   return (
     <div className="tavern-card p-4 md:col-span-3">
@@ -827,25 +927,29 @@ function WeaponAttacks({ attacks }: { attacks: any[] }) {
           <option value="damageType">מיון: סוג נזק</option>
         </select>
       </div>
-      <p className="text-xs text-muted-foreground mb-2">כאן רק מתקפות נשק וגוף. מתקפות כישוף מופיעות בטבלה הנפרדת "✨ כישופים כמתקפות".</p>
+      <p className="text-xs text-muted-foreground mb-2">כאן רק מתקפות נשק וגוף (כולל מתקפות שמוענקות אוטומטית מתת-הקלאס). מתקפות כישוף בטבלה "✨ כישופים כמתקפות".</p>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[560px]">
+        <table className="w-full text-sm min-w-[720px]">
           <thead className="text-xs text-muted-foreground">
-            <tr><th className="text-right">שם</th><th>תיוג</th><th>סוג נזק</th><th>בונוס</th><th>נזק</th><th className="text-right">הערות</th></tr>
+            <tr><th className="text-right">שם</th><th>תיוג</th><th>טווח</th><th>סוג נזק</th><th>בונוס</th><th>נזק / קוביות</th><th>משאב</th><th className="text-right">הערות</th></tr>
           </thead>
           <tbody>
             {rows.map(a => (
               <tr key={a._i} className="border-t border-border/40 align-top">
-                <td className="py-1 font-semibold">{a.name}</td>
+                <td className="py-1 font-semibold">{a.name}
+                  {a._src && <div className="text-[10px] text-accent">🎁 {a._src}</div>}
+                </td>
                 <td className="text-center">
                   <span className="text-[11px] px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">
                     🗡 נשק · {REACH_LABELS[a.reach]}
                   </span>
                 </td>
+                <td className="text-center text-xs">{a.range ?? "—"}</td>
                 <td className="text-center text-xs">{a.dmgType}</td>
                 <td className="text-center">{a.bonus}</td>
                 <td className="text-center font-mono">{a.damage}</td>
-                <td className="text-muted-foreground text-xs">{a.notes}</td>
+                <td className="text-center text-xs">{a.resource ?? "Action"}</td>
+                <td className="text-muted-foreground text-xs whitespace-normal max-w-[240px]">{a.notes}</td>
               </tr>
             ))}
           </tbody>
