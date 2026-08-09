@@ -821,11 +821,17 @@ function attackReach(a: { name?: string; notes?: string }): "melee" | "ranged" |
 }
 const REACH_LABELS: Record<string, string> = { melee: "מגע", ranged: "טווח", unknown: "לא מסומן" };
 
-function WeaponAttacks({ attacks }: { attacks: any[] }) {
+function WeaponAttacks({ attacks, granted = [] }: { attacks: any[]; granted?: any[] }) {
   const [sort, setSort] = usePersistedState<"name" | "bonus" | "reach" | "damageType">("mt-weaponattacks-sort", "name");
   const rows = useMemo(() => {
-    const enriched = attacks.map((a, i) => ({
-      ...a, _i: i, reach: attackReach(a), dmgType: attackDamageType(a),
+    const all = [
+      ...attacks.map(a => ({ ...a, _src: "" })),
+      ...granted.map(a => ({ ...a, _src: a.source ?? "אוטומטי" })),
+    ];
+    const enriched = all.map((a, i) => ({
+      ...a, _i: i,
+      reach: a.range ? (attackReach({ name: a.name, notes: a.range }) === "unknown" ? "melee" : attackReach({ name: a.name, notes: a.range })) : attackReach(a),
+      dmgType: a.damageType ?? attackDamageType(a),
       bonusNum: parseInt(String(a.bonus ?? "").replace(/[^\-0-9]/g, ""), 10) || 0,
     }));
     const sorted = [...enriched];
@@ -834,7 +840,7 @@ function WeaponAttacks({ attacks }: { attacks: any[] }) {
     if (sort === "reach") sorted.sort((x, y) => x.reach.localeCompare(y.reach) || String(x.name).localeCompare(String(y.name)));
     if (sort === "damageType") sorted.sort((x, y) => x.dmgType.localeCompare(y.dmgType) || String(x.name).localeCompare(String(y.name)));
     return sorted;
-  }, [attacks, sort]);
+  }, [attacks, granted, sort]);
 
   return (
     <div className="tavern-card p-4 md:col-span-3">
@@ -847,25 +853,29 @@ function WeaponAttacks({ attacks }: { attacks: any[] }) {
           <option value="damageType">מיון: סוג נזק</option>
         </select>
       </div>
-      <p className="text-xs text-muted-foreground mb-2">כאן רק מתקפות נשק וגוף. מתקפות כישוף מופיעות בטבלה הנפרדת "✨ כישופים כמתקפות".</p>
+      <p className="text-xs text-muted-foreground mb-2">כאן רק מתקפות נשק וגוף (כולל מתקפות שמוענקות אוטומטית מתת-הקלאס). מתקפות כישוף בטבלה "✨ כישופים כמתקפות".</p>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm min-w-[560px]">
+        <table className="w-full text-sm min-w-[720px]">
           <thead className="text-xs text-muted-foreground">
-            <tr><th className="text-right">שם</th><th>תיוג</th><th>סוג נזק</th><th>בונוס</th><th>נזק</th><th className="text-right">הערות</th></tr>
+            <tr><th className="text-right">שם</th><th>תיוג</th><th>טווח</th><th>סוג נזק</th><th>בונוס</th><th>נזק / קוביות</th><th>משאב</th><th className="text-right">הערות</th></tr>
           </thead>
           <tbody>
             {rows.map(a => (
               <tr key={a._i} className="border-t border-border/40 align-top">
-                <td className="py-1 font-semibold">{a.name}</td>
+                <td className="py-1 font-semibold">{a.name}
+                  {a._src && <div className="text-[10px] text-accent">🎁 {a._src}</div>}
+                </td>
                 <td className="text-center">
                   <span className="text-[11px] px-1.5 py-0.5 rounded bg-primary/15 border border-primary/40">
                     🗡 נשק · {REACH_LABELS[a.reach]}
                   </span>
                 </td>
+                <td className="text-center text-xs">{a.range ?? "—"}</td>
                 <td className="text-center text-xs">{a.dmgType}</td>
                 <td className="text-center">{a.bonus}</td>
                 <td className="text-center font-mono">{a.damage}</td>
-                <td className="text-muted-foreground text-xs">{a.notes}</td>
+                <td className="text-center text-xs">{a.resource ?? "Action"}</td>
+                <td className="text-muted-foreground text-xs whitespace-normal max-w-[240px]">{a.notes}</td>
               </tr>
             ))}
           </tbody>
