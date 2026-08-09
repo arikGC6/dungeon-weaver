@@ -413,6 +413,82 @@ function QuickEdit({ c, onSave }: { c: any; onSave: (c: any) => void }) {
         <label className="text-sm">מהירות (דריסה)<input type="number" className="input w-full" value={local.speedOverride ?? ""} onChange={e => setLocal({ ...local, speedOverride: e.target.value === "" ? undefined : +e.target.value })} /></label>
       </div>
       <textarea className="input w-full min-h-[80px]" value={local.notes ?? ""} onChange={e => setLocal({ ...local, notes: e.target.value })} placeholder="הערות..." />
+
+      {/* ---- Weapon attack editor ---- */}
+      <div className="pt-2 border-t border-border/60">
+        <div className="flex justify-between items-baseline mb-2">
+          <h4 className="display text-primary">⚔️ עריכת מתקפות נשק</h4>
+          <button
+            onClick={() => setLocal({ ...local, attacks: [...(local.attacks ?? []), { name: "מתקפה חדשה", bonus: "+0", damage: "1d6", damageType: "", range: "מגע 5ft", resource: "Action", notes: "" }] })}
+            className="text-xs px-2 py-1 rounded bg-primary text-primary-foreground">+ הוסף מתקפה</button>
+        </div>
+        {(local.attacks ?? []).length === 0 && <p className="text-xs text-muted-foreground">אין מתקפות ידניות.</p>}
+        <div className="space-y-2">
+          {(local.attacks ?? []).map((a: any, i: number) => {
+            const patch = (p: any) => setLocal({
+              ...local,
+              attacks: (local.attacks ?? []).map((x: any, j: number) => j === i ? { ...x, ...p } : x),
+            });
+            return (
+              <div key={i} className="p-2 rounded border border-border bg-background/40 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <label>שם<input className="input w-full" value={a.name ?? ""} onChange={e => patch({ name: e.target.value })} /></label>
+                <label>בונוס פגיעה<input className="input w-full" value={a.bonus ?? ""} onChange={e => patch({ bonus: e.target.value })} /></label>
+                <label>נזק / קוביות<input className="input w-full" value={a.damage ?? ""} onChange={e => patch({ damage: e.target.value })} placeholder="1d8+3" /></label>
+                <label>סוג נזק<input className="input w-full" value={a.damageType ?? ""} onChange={e => patch({ damageType: e.target.value })} placeholder="חיתוך" /></label>
+                <label>טווח<input className="input w-full" value={a.range ?? ""} onChange={e => patch({ range: e.target.value })} placeholder="מגע 5ft / 150ft" /></label>
+                <label>משאב נדרש<input className="input w-full" value={a.resource ?? ""} onChange={e => patch({ resource: e.target.value })} placeholder="Action / Bonus / 1 Ki" /></label>
+                <label className="sm:col-span-2">הערות<input className="input w-full" value={a.notes ?? ""} onChange={e => patch({ notes: e.target.value })} /></label>
+                <button onClick={() => setLocal({ ...local, attacks: (local.attacks ?? []).filter((_: any, j: number) => j !== i) })}
+                  className="text-destructive text-xs justify-self-start">✕ מחק מתקפה</button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ---- Spell attack editor ---- */}
+      <div className="pt-2 border-t border-border/60">
+        <h4 className="display text-primary mb-1">✨ עריכת מתקפות כישוף</h4>
+        <p className="text-xs text-muted-foreground mb-2">השאר ריק כדי להשתמש בערך המחושב אוטומטית. השינויים מופיעים בגיליון וב-PDF.</p>
+        {(local.spellAttacks ?? []).length === 0 && <p className="text-xs text-muted-foreground">לא סימנת כישופים כמתקפות.</p>}
+        <div className="space-y-2">
+          {(local.spellAttacks ?? []).map((id: string) => {
+            const spell = SPELLS.find(s => s.id === id);
+            if (!spell) return null;
+            const meta = getSpellAttackMeta(spell);
+            const ov = local.spellAttackOverrides?.[id] ?? {};
+            const patch = (p: any) => setLocal({
+              ...local,
+              spellAttackOverrides: { ...(local.spellAttackOverrides ?? {}), [id]: { ...ov, ...p } },
+            });
+            const clear = () => {
+              const next = { ...(local.spellAttackOverrides ?? {}) };
+              delete next[id];
+              setLocal({ ...local, spellAttackOverrides: next });
+            };
+            return (
+              <div key={id} className="p-2 rounded border border-border bg-background/40 text-xs">
+                <div className="flex justify-between items-baseline mb-1">
+                  <b className="text-primary">{spell.name} <span className="text-muted-foreground">({spell.level === 0 ? "קנטריפ" : `רמה ${spell.level}`})</span></b>
+                  <button onClick={clear} className="text-destructive text-[11px]">אפס דריסות</button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <label>קוביות נזק<input className="input w-full" value={ov.damageDice ?? ""} placeholder={meta?.damageDice ?? "—"} onChange={e => patch({ damageDice: e.target.value })} /></label>
+                  <label>סוג נזק<input className="input w-full" value={ov.damageType ?? ""} placeholder={meta?.damageType ?? "—"} onChange={e => patch({ damageType: e.target.value })} /></label>
+                  <label>טווח<input className="input w-full" value={ov.range ?? ""} placeholder={spell.range} onChange={e => patch({ range: e.target.value })} /></label>
+                  <label>אזור פגיעה<input className="input w-full" value={ov.area ?? ""} placeholder={meta?.area ?? "יעד יחיד"} onChange={e => patch({ area: e.target.value })} /></label>
+                  <label>בונוס / DC<input className="input w-full" value={ov.bonus ?? ""} placeholder="אוטומטי" onChange={e => patch({ bonus: e.target.value })} /></label>
+                  <label>משאב נדרש<input className="input w-full" value={ov.resource ?? ""} placeholder={defaultSpellResource(local, spell as any)} onChange={e => patch({ resource: e.target.value })} /></label>
+                  <label>שדרוג<input className="input w-full" value={ov.higherLevel ?? ""} placeholder={meta?.higherLevel ?? "—"} onChange={e => patch({ higherLevel: e.target.value })} /></label>
+                  <label>בהצלחה ב-Save<input className="input w-full" value={ov.saveEffect ?? ""} placeholder={meta?.saveEffect ?? "—"} onChange={e => patch({ saveEffect: e.target.value })} /></label>
+                  <label className="sm:col-span-4">הערות<input className="input w-full" value={ov.notes ?? ""} onChange={e => patch({ notes: e.target.value })} /></label>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       <button onClick={() => onSave(local)} className="px-4 py-2 rounded bg-primary text-primary-foreground hover:opacity-90">שמור</button>
     </div>
   );
