@@ -4,6 +4,7 @@ import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getB
 import { SCHOOL_LABELS_HE } from "../data/spells";
 import { getSpellAttackMeta } from "../data/spell-attacks";
 import { getSpellFlavor } from "../data/spell-flavor";
+import { resolveSpellAttackRow } from "./attack-rows";
 
 // Rough melee/ranged tag for a manually entered weapon attack.
 function pdfReach(a: { name?: string; notes?: string }): string {
@@ -155,7 +156,8 @@ export function exportCharacterPdf(c: Character) {
 
   <h2>הליכה ותנועה</h2>
   <div class="walk">
-    בכל תור: <b>${d.walking.ftPerTurn} ft</b> · בדקה: <b>${d.walking.ftPerMin} ft</b> · משוער שעת הליכה: <b>${d.walking.kmPerHour} ק״מ/שעה</b>
+    בכל תור: <b>${d.walking.ftPerTurn} ft</b> · בדקה: <b>${d.walking.ftPerMin} ft</b> · משוער שעת הליכה: <b>${d.walking.kmPerHour} ק״מ/שעה</b> · טיפוס: <b>${d.climbSpeed} ft</b>
+    ${d.movementNotes.length ? `<div style="font-size:11px;color:#5b3010">${d.movementNotes.map(n => `• ${n}`).join(" ")}</div>` : ""}
   </div>
 
   <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
