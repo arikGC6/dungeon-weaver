@@ -10,6 +10,7 @@ import { getSpellFlavor } from "@/data/spell-flavor";
 import { getPactBoon, INVOCATIONS } from "@/data/warlock";
 import { useMemo, useState } from "react";
 import { usePersistedState } from "@/lib/persisted-state";
+import { resolveSpellAttackRow, defaultSpellResource } from "@/lib/attack-rows";
 
 export const Route = createFileRoute("/character/$id")({
   component: CharacterPage,
