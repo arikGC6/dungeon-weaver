@@ -208,9 +208,24 @@ export interface Character {
   // Free-text equipment the player wrote in (לפיד, אוהל, חבל...)
   equipment?: { name: string; quantity: number; notes?: string }[];
   // Custom attacks (נשק קסום, התקפת unarmed וכו')
-  attacks?: { name: string; bonus: string; damage: string; notes?: string }[];
+  attacks?: {
+    name: string; bonus: string; damage: string; notes?: string;
+    damageType?: string; range?: string; resource?: string;
+  }[];
   // Spells the player marked to display as attack rows (e.g. Fire Bolt, Eldritch Blast).
   spellAttacks?: string[];
+  // Per-spell manual overrides for the attack table / PDF (damage dice, range, resource...).
+  spellAttackOverrides?: Record<string, {
+    damageDice?: string;
+    damageType?: string;
+    range?: string;
+    area?: string;
+    bonus?: string;       // free text: "+9" / "DC 16"
+    resource?: string;    // "Spell Slot רמה 3" / "Ki" / "ללא"
+    saveEffect?: string;
+    higherLevel?: string;
+    notes?: string;
+  }>;
   hpMax?: number; // override
   hpCurrent?: number;
   acOverride?: number;
