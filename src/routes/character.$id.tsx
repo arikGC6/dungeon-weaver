@@ -293,9 +293,24 @@ function CharacterPage() {
 
         </div>
 
+        {/* Subclass mechanical effects (applied to stats/attacks) */}
+        {d.subclassEffects.length > 0 && (
+          <div className="tavern-card p-4 md:col-span-3">
+            <h3 className="display text-lg text-primary mb-2">🗡 השפעות תת-קלאס בפועל</h3>
+            <ul className="grid sm:grid-cols-2 gap-2 text-sm">
+              {d.subclassEffects.map((e, i) => (
+                <li key={i} className="p-2 rounded bg-background/40 border border-border">
+                  <b className="text-primary">{e.name}</b>
+                  <div className="text-xs mt-1">{e.effect}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Weapon / physical attacks */}
-        {c.attacks && c.attacks.length > 0 && (
-          <WeaponAttacks attacks={c.attacks} />
+        {((c.attacks && c.attacks.length > 0) || d.grantedAttacks.length > 0) && (
+          <WeaponAttacks attacks={c.attacks ?? []} granted={d.grantedAttacks} />
         )}
 
 
