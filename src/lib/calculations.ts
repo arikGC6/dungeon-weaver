@@ -1,4 +1,4 @@
-import { ABILITIES, type Ability, type Character, type Skill, PROFICIENCY_BY_LEVEL, mod, SKILL_LIST } from "./dnd-types";
+import { ABILITIES, type Ability, type Character, type Skill, PROFICIENCY_BY_LEVEL, mod, formatMod, SKILL_LIST } from "./dnd-types";
 import { getRace } from "../data/races";
 import { CLASSES, getClass, getSpellSlots, type SpellSlotsInfo } from "../data/classes";
 import { getFeat, getAutoFeats, type AutoFeat } from "../data/feats";
@@ -379,6 +379,7 @@ export function calculateCharacter(c: Character): DerivedStats {
     passivePerception, passiveInvestigation, passiveInsight,
     spellSaveDc, spellAttackBonus, spellcastingAbility, spellSlots,
     walking: { ftPerTurn, ftPerMin, kmPerHour: Math.round(kmPerHour * 10) / 10 },
+    climbSpeed, movementNotes, grantedAttacks, subclassEffects,
     alwaysPreparedSpellIds,
     classResources,
     actionEconomy,
