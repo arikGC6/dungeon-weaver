@@ -3,6 +3,8 @@ import { useRef } from "react";
 import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { getRace, getClass } from "@/lib/calculations";
 import { importCharacterJson, exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
+import { ShareApp } from "@/components/ShareApp";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
