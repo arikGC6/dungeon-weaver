@@ -117,6 +117,9 @@ function Home() {
         )}
       </section>
 
+      <ShareApp />
+
+
       <footer className="mt-16 text-center text-xs text-muted-foreground">
         מקורות: dnd5e.wikidot.com · dndbeyond.com · נתונים בסגנון SRD לצורך נוחות המשתמש.
       </footer>
