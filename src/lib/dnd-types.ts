@@ -199,6 +199,21 @@ export interface Character {
   expertise: Skill[];
   languages: string[];
   featIds: string[];
+  // featId -> abilities the player chose for feats with a "choose one ability" bonus.
+  featAbilityChoices?: Record<string, Ability[]>;
+  // Fully custom background written by the player (used when backgroundId === "custom").
+  customBackground?: {
+    name: string;
+    skills: Skill[];
+    tools: string[];
+    languages: number;
+    languageNames?: string[];
+    feature: string;
+    featureDesc: string;
+    spellIds?: string[];
+    equipment?: string[];
+    story?: string;
+  };
   fightingStyleIds?: string[]; // Fighter/Ranger/Paladin/Bard-Swords
   // Warlock: pact boon (Chain/Blade/Tome/Talisman) + eldritch invocations
   pactBoonId?: string;
