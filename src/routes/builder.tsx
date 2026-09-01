@@ -161,10 +161,31 @@ function Step0Basics({ c, update }: { c: Character; update: (p: Partial<Characte
 }
 
 // ============ Step 1 — Race ============
+function RacePortrait({ raceId, nameHe }: { raceId: string; nameHe: string }) {
+  const { portraits } = useRacePortraits();
+  const url = portraits[raceId];
+  return (
+    <div className="h-12 w-12 shrink-0 rounded-md border border-border bg-background/60 overflow-hidden flex items-center justify-center">
+      {url
+        ? <img src={url} alt={`דמות הגזע ${nameHe}`} className="h-full w-full object-cover" loading="lazy" />
+        : <span className="text-lg opacity-60">🧝</span>}
+    </div>
+  );
+}
+
 function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const race = RACES.find(r => r.id === c.raceId);
   const [filter, setFilter] = useState("");
+  useHydrateRacePortraits();
+  const { portraits, setPortrait, clearPortrait } = useRacePortraits();
   const filtered = RACES.filter(r => !filter || r.nameHe.includes(filter) || r.name.toLowerCase().includes(filter.toLowerCase()));
+
+  const upload = async (raceId: string, file?: File | null) => {
+    if (!file) return;
+    try { setPortrait(raceId, await readImageAsDataUrl(file)); }
+    catch (e: any) { alert(e.message ?? "העלאת תמונה נכשלה"); }
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="display text-2xl text-primary">בחר גזע</h2>
@@ -173,12 +194,33 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
         {filtered.map(r => (
           <button key={r.id} onClick={() => update({ raceId: r.id, subraceId: undefined })}
             className={`text-right p-3 rounded-md border transition ${c.raceId === r.id ? "bg-primary/20 border-primary ember-glow" : "border-border hover:bg-secondary/40"}`}>
-            <div className="font-semibold">{r.nameHe} <span className="text-xs text-muted-foreground">({r.name})</span></div>
-            <div className="text-xs text-muted-foreground">מהירות {r.speed}ft · {r.size} {r.darkvision ? `· darkvision ${r.darkvision}` : ""}</div>
-            <div className="text-xs mt-1">{r.abilityBonuses.map(b => `${ABILITY_SHORT[b.ability]}${b.amount >= 0 ? "+" : ""}${b.amount}`).join(", ")}</div>
+            <div className="flex items-start gap-2">
+              <RacePortrait raceId={r.id} nameHe={r.nameHe} />
+              <div className="min-w-0">
+                <div className="font-semibold">{r.nameHe} <span className="text-xs text-muted-foreground">({r.name})</span></div>
+                <div className="text-xs text-muted-foreground">מהירות {r.speed}ft · {r.size} {r.darkvision ? `· darkvision ${r.darkvision}` : ""}</div>
+                <div className="text-xs mt-1">{r.abilityBonuses.map(b => `${ABILITY_SHORT[b.ability]}${b.amount >= 0 ? "+" : ""}${b.amount}`).join(", ")}</div>
+              </div>
+            </div>
           </button>
         ))}
       </div>
+      {race && (
+        <div className="p-3 rounded-md border border-accent/40 bg-accent/5 space-y-2">
+          <div className="display text-sm text-accent">🖼️ תמונת הגזע ({race.nameHe})</div>
+          <p className="text-xs text-muted-foreground">העלה תמונה קטנה של הגזע — היא תישמר במכשיר לתמיד ותופיע ליד שם הגזע בכל דמות.</p>
+          <div className="flex items-center gap-3">
+            <RacePortrait raceId={race.id} nameHe={race.nameHe} />
+            <label className="text-xs rounded-md border border-border px-3 py-2 cursor-pointer hover:bg-secondary/40">
+              העלה תמונה
+              <input type="file" accept="image/*" className="hidden" onChange={e => { void upload(race.id, e.target.files?.[0]); e.target.value = ""; }} />
+            </label>
+            {portraits[race.id] && (
+              <button onClick={() => clearPortrait(race.id)} className="text-xs rounded-md border border-border px-3 py-2 hover:bg-secondary/40">הסר</button>
+            )}
+          </div>
+        </div>
+      )}
       {race?.subraces && race.subraces.length > 0 && (
         <div>
           <h3 className="display text-lg text-primary mt-3 mb-2">תת-גזע</h3>

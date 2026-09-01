@@ -42,12 +42,35 @@ export interface DerivedStats {
 
 }
 
+
+// Resolve the character's background — either a catalog entry or a fully custom one.
+export function resolveBackground(c: Character) {
+  if (c.backgroundId === "custom" && c.customBackground) {
+    const cb = c.customBackground;
+    return {
+      id: "custom",
+      name: cb.name || "Custom Background",
+      nameHe: cb.name || "רקע קאסטום",
+      skills: cb.skills ?? [],
+      languages: cb.languages ?? 0,
+      tools: cb.tools ?? [],
+      feature: cb.feature || "רקע אישי",
+      featureDesc: cb.featureDesc || "",
+      equipment: cb.equipment ?? [],
+      spellIds: cb.spellIds ?? [],
+      source: "קאסטום",
+      description: `${cb.feature || "רקע אישי"} — ${cb.featureDesc || ""}`,
+    };
+  }
+  return getBackground(c.backgroundId);
+}
+
 export function calculateCharacter(c: Character): DerivedStats {
   const race = getRace(c.raceId);
   const subrace = race?.subraces?.find(s => s.id === c.subraceId);
   const cls = getClass(c.classId);
   const sub = cls?.subclasses.find(s => s.id === c.subclassId);
-  const bg = getBackground(c.backgroundId);
+  const bg = resolveBackground(c);
   const level = Math.max(1, Math.min(20, c.level || 1));
 
   // Base abilities
@@ -70,6 +93,11 @@ export function calculateCharacter(c: Character): DerivedStats {
   c.featIds.forEach(id => {
     const f = getFeat(id);
     f?.bonuses?.ability?.forEach(b => { abilities[b.ability] += b.amount; });
+    // "+1 to an ability of your choice" feats — apply the player's picks.
+    if (f?.abilityChoice) {
+      const amount = f.abilityChoice.amount ?? 1;
+      (c.featAbilityChoices?.[id] ?? []).forEach(a => { abilities[a] = (abilities[a] ?? 10) + amount; });
+    }
   });
   autoFeats.forEach(af => {
     af.bonuses?.ability?.forEach(b => { abilities[b.ability] += b.amount; });

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
-import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground } from "@/lib/calculations";
+import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground, resolveBackground } from "@/lib/calculations";
 import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, formatMod, type Ability } from "@/lib/dnd-types";
 import { exportCharacterJson, exportCharacterPdf } from "@/lib/export-pdf";
 import { SCHOOL_LABELS_HE, SPELL_SCHOOLS, SPELLS } from "@/data/spells";
@@ -41,7 +41,7 @@ function CharacterPage() {
   const subrace = race?.subraces?.find(s => s.id === c.subraceId);
   const cls = getClass(c.classId);
   const sub = cls?.subclasses.find(s => s.id === c.subclassId);
-  const bg = getBackground(c.backgroundId);
+  const bg = resolveBackground(c);
 
   const allSpellIds = Array.from(new Set([...c.spellIds, ...d.alwaysPreparedSpellIds]));
   const spells = allSpellIds.map(id => getSpell(id)).filter(Boolean) as ReturnType<typeof getSpell>[];
