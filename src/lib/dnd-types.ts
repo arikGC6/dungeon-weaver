@@ -109,6 +109,9 @@ export interface Feat {
   prerequisite?: string;
   description: string;
   auto?: boolean; // granted automatically by class/subclass — does not count against ASI budget
+  source?: string; // book / supplement
+  // Feats that let you pick which ability score(s) go up (e.g. "+1 STR or DEX").
+  abilityChoice?: { options: Ability[]; count?: number; amount?: number };
   requirements?: {
     race?: string[];        // raceId(s) — allowed if character.raceId in list
     subrace?: string[];
