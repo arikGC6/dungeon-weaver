@@ -42,6 +42,29 @@ export interface DerivedStats {
 
 }
 
+
+// Resolve the character's background — either a catalog entry or a fully custom one.
+export function resolveBackground(c: Character) {
+  if (c.backgroundId === "custom" && c.customBackground) {
+    const cb = c.customBackground;
+    return {
+      id: "custom",
+      name: cb.name || "Custom Background",
+      nameHe: cb.name || "רקע קאסטום",
+      skills: cb.skills ?? [],
+      languages: cb.languages ?? 0,
+      tools: cb.tools ?? [],
+      feature: cb.feature || "רקע אישי",
+      featureDesc: cb.featureDesc || "",
+      equipment: cb.equipment ?? [],
+      spellIds: cb.spellIds ?? [],
+      source: "קאסטום",
+      description: `${cb.feature || "רקע אישי"} — ${cb.featureDesc || ""}`,
+    };
+  }
+  return getBackground(c.backgroundId);
+}
+
 export function calculateCharacter(c: Character): DerivedStats {
   const race = getRace(c.raceId);
   const subrace = race?.subraces?.find(s => s.id === c.subraceId);
