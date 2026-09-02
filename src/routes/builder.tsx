@@ -162,14 +162,15 @@ function Step0Basics({ c, update }: { c: Character; update: (p: Partial<Characte
 }
 
 // ============ Step 1 — Race ============
-function RacePortrait({ raceId, nameHe }: { raceId: string; nameHe: string }) {
+function RacePortrait({ raceId, nameHe, size = "sm" }: { raceId: string; nameHe: string; size?: "sm" | "lg" }) {
   const { portraits } = useRacePortraits();
   const url = portraits[raceId];
+  const box = size === "lg" ? "h-40 w-40 sm:h-48 sm:w-48" : "h-20 w-20";
   return (
-    <div className="h-12 w-12 shrink-0 rounded-md border border-border bg-background/60 overflow-hidden flex items-center justify-center">
+    <div className={`${box} shrink-0 rounded-md border border-border bg-background/60 overflow-hidden flex items-center justify-center`}>
       {url
         ? <img src={url} alt={`דמות הגזע ${nameHe}`} className="h-full w-full object-cover" loading="lazy" />
-        : <span className="text-lg opacity-60">🧝</span>}
+        : <span className={size === "lg" ? "text-6xl opacity-60" : "text-2xl opacity-60"}>🧝</span>}
     </div>
   );
 }
