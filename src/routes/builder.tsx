@@ -647,13 +647,39 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
       <div className="grid sm:grid-cols-2 gap-2 max-h-[420px] overflow-y-auto">
         {list.map(f => {
           const avail = isFeatAvailable(f, { raceId: c.raceId, subraceId: c.subraceId, classId: c.classId, subclassId: c.subclassId, abilities: d.abilities });
+          const picked = c.featIds.includes(f.id);
+          const choiceCount = f.abilityChoice?.count ?? 1;
+          const chosenAbs = c.featAbilityChoices?.[f.id] ?? [];
+          const pickAbility = (a: Ability) => {
+            const has = chosenAbs.includes(a);
+            let next = has ? chosenAbs.filter(x => x !== a) : [...chosenAbs, a];
+            if (next.length > choiceCount) next = next.slice(-choiceCount);
+            update({ featAbilityChoices: { ...(c.featAbilityChoices ?? {}), [f.id]: next } });
+          };
           return (
-            <button key={f.id} onClick={() => toggle(f.id)}
-              className={`text-right p-3 rounded-md border text-sm ${c.featIds.includes(f.id) ? "bg-primary/20 border-primary" : avail ? "border-border hover:bg-secondary/40" : "border-dashed border-border/60 opacity-60"}`}>
-              <div className="font-semibold">{f.nameHe} <span className="text-xs text-muted-foreground">({f.name})</span>{!avail && <span className="text-[10px] text-destructive ms-1">⚠ תנאי חסום</span>}</div>
-              {f.prerequisite && <div className="text-[11px] text-accent">תנאי: {f.prerequisite}</div>}
-              <div className="text-xs mt-1">{f.description}</div>
-            </button>
+            <div key={f.id}
+              className={`text-right p-3 rounded-md border text-sm ${picked ? "bg-primary/20 border-primary" : avail ? "border-border hover:bg-secondary/40" : "border-dashed border-border/60 opacity-60"}`}>
+              <button type="button" onClick={() => toggle(f.id)} className="text-right w-full">
+                <div className="font-semibold">{f.nameHe} <span className="text-xs text-muted-foreground">({f.name})</span>{!avail && <span className="text-[10px] text-destructive ms-1">⚠ תנאי חסום</span>}</div>
+                {f.prerequisite && <div className="text-[11px] text-accent">תנאי: {f.prerequisite}</div>}
+                <div className="text-xs mt-1">{f.description}</div>
+              </button>
+              {picked && f.abilityChoice && (
+                <div className="mt-2 pt-2 border-t border-border/60">
+                  <div className="text-[11px] text-accent mb-1">
+                    בחר {choiceCount} יכולת לחיזוק (+{f.abilityChoice.amount ?? 1}) · נבחרו {chosenAbs.length}/{choiceCount}
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {f.abilityChoice.options.map(a => (
+                      <button key={a} type="button" onClick={() => pickAbility(a)}
+                        className={`px-2 py-1 rounded text-[11px] border ${chosenAbs.includes(a) ? "bg-accent text-accent-foreground border-accent" : "border-border hover:bg-secondary/40"}`}>
+                        {ABILITY_SHORT[a]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
