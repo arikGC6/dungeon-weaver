@@ -58,7 +58,7 @@ export function readImageAsDataUrl(file: File, max = 768): Promise<string> {
         const ctx = canvas.getContext("2d");
         if (!ctx) return resolve(String(reader.result));
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.8));
+        resolve(canvas.toDataURL("image/jpeg", 0.92));
       };
       img.src = String(reader.result);
     };
