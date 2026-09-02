@@ -53,7 +53,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#1a1108" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "בר הקסמים" },
       { title: "בר הקסמים — בונה דמויות D&D" },
       { name: "description", content: "אשף יצירת דמויות D&D 5e בעברית — גזעים, קלאסים, כישופים, פריטים, יצוא PDF" },
       { property: "og:title", content: "בר הקסמים — בונה דמויות D&D" },
