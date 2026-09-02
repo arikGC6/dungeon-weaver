@@ -210,9 +210,9 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
       {race && (
         <div className="p-3 rounded-md border border-accent/40 bg-accent/5 space-y-2">
           <div className="display text-sm text-accent">🖼️ תמונת הגזע ({race.nameHe})</div>
-          <p className="text-xs text-muted-foreground">העלה תמונה קטנה של הגזע — היא תישמר במכשיר לתמיד ותופיע ליד שם הגזע בכל דמות.</p>
+          <p className="text-xs text-muted-foreground">העלה תמונה של הגזע באיכות גבוהה — היא תישמר במכשיר לתמיד ותופיע ליד שם הגזע בכל דמות.</p>
           <div className="flex items-center gap-3">
-            <RacePortrait raceId={race.id} nameHe={race.nameHe} />
+            <RacePortrait raceId={race.id} nameHe={race.nameHe} size="lg" />
             <label className="text-xs rounded-md border border-border px-3 py-2 cursor-pointer hover:bg-secondary/40">
               העלה תמונה
               <input type="file" accept="image/*" className="hidden" onChange={e => { void upload(race.id, e.target.files?.[0]); e.target.value = ""; }} />

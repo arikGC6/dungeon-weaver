@@ -73,7 +73,7 @@ function Home() {
         <div className="flex items-center gap-3 mb-4">
           <h2 className="display text-2xl text-primary">המגילות שלך</h2>
           <div className="flex-1 gold-divider"></div>
-          <span className="text-sm text-muted-foreground">{characters.length} דמויות שמורות</span>
+          <span className="text-sm text-muted-foreground">{hydrated ? `${characters.length} דמויות שמורות` : "טוען…"}</span>
         </div>
 
         {!hydrated ? (
