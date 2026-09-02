@@ -490,7 +490,147 @@ function Step3Background({ c, update }: { c: Character; update: (p: Partial<Char
             {b.spellIds && b.spellIds.length > 0 && <div className="text-[11px] text-accent mt-1">✨ כישוף אוטומטי</div>}
           </button>
         ))}
+        <button onClick={() => update({ backgroundId: "custom", customBackground: c.customBackground ?? { name: "", skills: [], tools: [], languages: 0, languageNames: [], feature: "", featureDesc: "", spellIds: [], equipment: [], story: "" } })}
+          className={`text-right p-3 rounded-md border ${c.backgroundId === "custom" ? "bg-accent/20 border-accent" : "border-dashed border-accent/60 hover:bg-secondary/40"}`}>
+          <div className="font-semibold">✍️ רקע קאסטום <span className="text-xs text-muted-foreground">(Custom)</span></div>
+          <div className="text-xs text-muted-foreground mt-1">כתוב רקע משלך — מיומנויות, כלים, שפות, תכונה, כישופים וציוד. הכל נכנס לגיליון ול-PDF.</div>
+        </button>
       </div>
+      {c.backgroundId === "custom" && <CustomBackgroundEditor c={c} update={update} />}
+    </div>
+  );
+}
+
+// ---- Custom background editor: skills / tools / languages / feature / spells / gear ----
+function CustomBackgroundEditor({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
+  const cb = c.customBackground ?? { name: "", skills: [] as Skill[], tools: [] as string[], languages: 0, languageNames: [] as string[], feature: "", featureDesc: "", spellIds: [] as string[], equipment: [] as string[], story: "" };
+  const setCb = (patch: Partial<typeof cb>) => update({ customBackground: { ...cb, ...patch } });
+  const [toolInput, setToolInput] = useState("");
+  const [langInput, setLangInput] = useState("");
+  const [eqInput, setEqInput] = useState("");
+  const [spellQ, setSpellQ] = useState("");
+
+  const toggleSkill = (s: Skill) => {
+    const skills = cb.skills ?? [];
+    const next = skills.includes(s) ? skills.filter(x => x !== s) : [...skills, s];
+    setCb({ skills: next });
+    // Keep the character's proficiency list in sync with the custom background.
+    const others = c.skillProficiencies.filter(x => !skills.includes(x) || next.includes(x));
+    update({
+      customBackground: { ...cb, skills: next },
+      skillProficiencies: Array.from(new Set([...others, ...next])),
+    });
+  };
+
+  const spellResults = spellQ.trim()
+    ? SPELLS.filter(s => s.name.toLowerCase().includes(spellQ.toLowerCase())).slice(0, 12)
+    : [];
+  const toggleSpell = (id: string) => {
+    const cur = cb.spellIds ?? [];
+    const next = cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id];
+    setCb({ spellIds: next });
+    update({
+      customBackground: { ...cb, spellIds: next },
+      spellIds: Array.from(new Set([...(c.spellIds ?? []).filter(x => !cur.includes(x) || next.includes(x)), ...next])),
+    });
+  };
+
+  const Chips = ({ items, onRemove }: { items: string[]; onRemove: (v: string) => void }) => (
+    <div className="flex flex-wrap gap-1 mt-1">
+      {items.map(v => (
+        <span key={v} className="text-[11px] px-2 py-0.5 rounded bg-secondary border border-border">
+          {v} <button type="button" onClick={() => onRemove(v)} className="text-destructive ms-1">✕</button>
+        </span>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="p-4 rounded-md border border-accent/40 bg-accent/5 space-y-4">
+      <div className="display text-accent">✍️ עורך הרקע הקאסטום</div>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field label="שם הרקע"><input className="input" value={cb.name} onChange={e => setCb({ name: e.target.value })} placeholder="נווד הערבות" /></Field>
+        <Field label="מס' שפות נוספות"><input type="number" min={0} max={5} className="input" value={cb.languages ?? 0} onChange={e => setCb({ languages: Math.max(0, +e.target.value || 0) })} /></Field>
+      </div>
+
+      <div>
+        <div className="text-xs text-primary mb-1">מיומנויות בקיאות (נכנסות אוטומטית לגיליון)</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+          {SKILL_LIST.map(s => (
+            <button key={s.id} type="button" onClick={() => toggleSkill(s.id)}
+              className={`text-right px-2 py-1 rounded text-xs border ${(cb.skills ?? []).includes(s.id) ? "bg-primary/25 border-primary" : "border-border hover:bg-secondary/40"}`}>
+              {s.label} <span className="text-muted-foreground">({ABILITY_SHORT[s.ability]})</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div>
+          <div className="text-xs text-primary mb-1">כלים / כלי נגינה</div>
+          <div className="flex gap-2">
+            <input className="input flex-1" value={toolInput} onChange={e => setToolInput(e.target.value)} placeholder="ערכת גנבים" />
+            <button type="button" className="px-3 rounded bg-secondary border border-border text-sm"
+              onClick={() => { if (toolInput.trim()) { setCb({ tools: [...(cb.tools ?? []), toolInput.trim()] }); setToolInput(""); } }}>הוסף</button>
+          </div>
+          <Chips items={cb.tools ?? []} onRemove={v => setCb({ tools: (cb.tools ?? []).filter(x => x !== v) })} />
+        </div>
+        <div>
+          <div className="text-xs text-primary mb-1">שפות (שמות)</div>
+          <div className="flex gap-2">
+            <input className="input flex-1" value={langInput} onChange={e => setLangInput(e.target.value)} placeholder="Elvish" />
+            <button type="button" className="px-3 rounded bg-secondary border border-border text-sm"
+              onClick={() => {
+                const v = langInput.trim();
+                if (!v) return;
+                setCb({ languageNames: [...(cb.languageNames ?? []), v] });
+                update({ customBackground: { ...cb, languageNames: [...(cb.languageNames ?? []), v] }, languages: Array.from(new Set([...(c.languages ?? []), v])) });
+                setLangInput("");
+              }}>הוסף</button>
+          </div>
+          <Chips items={cb.languageNames ?? []} onRemove={v => setCb({ languageNames: (cb.languageNames ?? []).filter(x => x !== v) })} />
+        </div>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Field label="שם התכונה (Feature)"><input className="input" value={cb.feature} onChange={e => setCb({ feature: e.target.value })} placeholder="עיני הערבה" /></Field>
+        <Field label="תיאור התכונה"><textarea className="input min-h-[70px]" value={cb.featureDesc} onChange={e => setCb({ featureDesc: e.target.value })} /></Field>
+      </div>
+
+      <div>
+        <div className="text-xs text-primary mb-1">כישופים מהרקע</div>
+        <input className="input w-full" value={spellQ} onChange={e => setSpellQ(e.target.value)} placeholder="חפש כישוף להוספה..." />
+        {spellResults.length > 0 && (
+          <div className="grid sm:grid-cols-2 gap-1 mt-2 max-h-[160px] overflow-y-auto">
+            {spellResults.map(s => (
+              <button key={s.id} type="button" onClick={() => toggleSpell(s.id)}
+                className={`text-right px-2 py-1 rounded text-xs border ${(cb.spellIds ?? []).includes(s.id) ? "bg-accent/25 border-accent" : "border-border hover:bg-secondary/40"}`}>
+                {s.name} <span className="text-muted-foreground">· {s.level === 0 ? "קנטריפ" : `רמה ${s.level}`}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <Chips items={(cb.spellIds ?? []).map(id => SPELLS.find(s => s.id === id)?.name ?? id)}
+          onRemove={name => {
+            const id = SPELLS.find(s => s.name === name)?.id ?? name;
+            toggleSpell(id);
+          }} />
+      </div>
+
+      <div>
+        <div className="text-xs text-primary mb-1">ציוד פתיחה</div>
+        <div className="flex gap-2">
+          <input className="input flex-1" value={eqInput} onChange={e => setEqInput(e.target.value)} placeholder="אוהל, 10 מטר חבל, לפיד" />
+          <button type="button" className="px-3 rounded bg-secondary border border-border text-sm"
+            onClick={() => { if (eqInput.trim()) { setCb({ equipment: [...(cb.equipment ?? []), eqInput.trim()] }); setEqInput(""); } }}>הוסף</button>
+        </div>
+        <Chips items={cb.equipment ?? []} onRemove={v => setCb({ equipment: (cb.equipment ?? []).filter(x => x !== v) })} />
+      </div>
+
+      <Field label="סיפור רקע (חופשי)">
+        <textarea className="input min-h-[100px]" value={cb.story ?? ""} onChange={e => setCb({ story: e.target.value })} placeholder="מי הדמות שלך, מאיפה היא באה, ומה היא מחפשת בטברנה..." />
+      </Field>
     </div>
   );
 }
