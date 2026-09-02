@@ -42,8 +42,8 @@ export function useHydrateRacePortraits() {
   return ready;
 }
 
-/** Read an uploaded image file as a compressed data URL (max 256px). */
-export function readImageAsDataUrl(file: File, max = 256): Promise<string> {
+/** Read an uploaded image file as a compressed data URL (max 768px — high quality). */
+export function readImageAsDataUrl(file: File, max = 768): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("קריאת התמונה נכשלה"));
@@ -58,7 +58,7 @@ export function readImageAsDataUrl(file: File, max = 256): Promise<string> {
         const ctx = canvas.getContext("2d");
         if (!ctx) return resolve(String(reader.result));
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.8));
+        resolve(canvas.toDataURL("image/jpeg", 0.92));
       };
       img.src = String(reader.result);
     };

@@ -1,5 +1,66 @@
 import { useEffect, useState } from "react";
 
+/** Install-as-app (PWA) button + iOS instructions, shown next to the share options. */
+function InstallApp() {
+  const [prompt, setPrompt] = useState<any>(null);
+  const [installed, setInstalled] = useState(false);
+  const [isIos, setIsIos] = useState(false);
+  const [showIos, setShowIos] = useState(false);
+
+  useEffect(() => {
+    const onPrompt = (e: Event) => { e.preventDefault(); setPrompt(e); };
+    window.addEventListener("beforeinstallprompt", onPrompt as EventListener);
+    const standalone = window.matchMedia("(display-mode: standalone)").matches
+      || (navigator as any).standalone === true;
+    setInstalled(standalone);
+    setIsIos(/iphone|ipad|ipod/i.test(navigator.userAgent));
+    const onInstalled = () => setInstalled(true);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt as EventListener);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  if (installed) {
+    return <div className="text-xs text-accent mt-4">✓ האפליקציה מותקנת במכשיר — אפשר לפתוח אותה מהמסך הראשי.</div>;
+  }
+
+  return (
+    <div className="mt-4 pt-4 border-t border-border">
+      <div className="display text-sm text-primary mb-1">📲 הורד את האפליקציה לנייד</div>
+      <p className="text-xs text-muted-foreground mb-2">
+        התקן את בר הקסמים כאפליקציה — אייקון במסך הבית, מסך מלא, ועובד גם ללא חיבור.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {prompt && (
+          <button
+            onClick={async () => { await prompt.prompt(); setPrompt(null); }}
+            className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-sm hover:opacity-90"
+          >
+            ⬇️ התקן אפליקציה
+          </button>
+        )}
+        {(isIos || !prompt) && (
+          <button
+            onClick={() => setShowIos(v => !v)}
+            className="px-3 py-1.5 rounded-md bg-secondary border border-border text-sm hover:bg-accent"
+          >
+            📖 איך מתקינים?
+          </button>
+        )}
+      </div>
+      {showIos && (
+        <ul className="text-xs text-muted-foreground mt-2 space-y-1 list-disc pe-5">
+          <li><b>iPhone / iPad (Safari):</b> כפתור השיתוף ⬆️ → «הוסף למסך הבית».</li>
+          <li><b>Android (Chrome):</b> תפריט ⋮ → «התקן אפליקציה» / «הוסף למסך הבית».</li>
+          <li><b>מחשב (Chrome/Edge):</b> אייקון ההתקנה בשורת הכתובת.</li>
+        </ul>
+      )}
+    </div>
+  );
+}
+
 const SHARE_TEXT = "בר הקסמים — בונה דמויות D&D 5e בעברית. שב, הזמן משקה, וצור גיבור:";
 
 export function ShareApp() {
@@ -41,7 +102,7 @@ export function ShareApp() {
   return (
     <section className="mt-12">
       <div className="flex items-center gap-3 mb-4">
-        <h2 className="display text-2xl text-primary">שתף את הטברנה</h2>
+        <h2 className="display text-xl sm:text-2xl text-primary">שתף את הטברנה &amp; הורד לנייד</h2>
         <div className="flex-1 gold-divider"></div>
       </div>
 
@@ -102,6 +163,8 @@ export function ShareApp() {
             {copied === "text" ? "✓ הועתק" : "📋 העתק טקסט הזמנה"}
           </button>
         </div>
+
+        <InstallApp />
 
         <p className="text-xs text-muted-foreground mt-4">
           רוצה לשתף דמות ספציפית? ייצא אותה ל-JSON מכרטיס הדמות ושלח את הקובץ — החבר טוען אותו דרך "טען JSON".
