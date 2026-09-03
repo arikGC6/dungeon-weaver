@@ -164,7 +164,7 @@ function Step0Basics({ c, update }: { c: Character; update: (p: Partial<Characte
 // ============ Step 1 — Race ============
 function RacePortrait({ raceId, nameHe, size = "sm" }: { raceId: string; nameHe: string; size?: "sm" | "lg" }) {
   const { portraits } = useRacePortraits();
-  const url = portraits[raceId];
+  const url = portraits[raceId] ?? defaultRaceImage(raceId);
   const box = size === "lg" ? "h-40 w-40 sm:h-48 sm:w-48" : "h-20 w-20";
   return (
     <div className={`${box} shrink-0 rounded-md border border-border bg-background/60 overflow-hidden flex items-center justify-center`}>
@@ -174,6 +174,7 @@ function RacePortrait({ raceId, nameHe, size = "sm" }: { raceId: string; nameHe:
     </div>
   );
 }
+
 
 function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const race = RACES.find(r => r.id === c.raceId);
