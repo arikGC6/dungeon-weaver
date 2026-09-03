@@ -8,9 +8,27 @@ export const RACES: Race[] = [
     nameHe: "אדם",
     source: "PHB",
     speed: 30, size: "Medium",
-    abilityBonuses: [{ ability: "str", amount: 1 }, { ability: "dex", amount: 1 }, { ability: "con", amount: 1 }, { ability: "int", amount: 1 }, { ability: "wis", amount: 1 }, { ability: "cha", amount: 1 }],
+    abilityBonuses: [],
     languages: ["Common", "+1 choice"],
-    traits: [{ name: "Versatile", desc: "+1 לכל יכולת. ניתן לבחור variant: skill + feat במקום." }],
+    traits: [{ name: "Versatile", desc: "בני אדם מסתגלים לכל תפקיד. בחר תת-גזע: Standard (+1 לכל יכולת) או Variant (2 יכולות +1, מיומנות ופייט)." }],
+    subraces: [
+      {
+        id: "standard-human", name: "Standard Human", nameHe: "אדם רגיל",
+        desc: "הגרסה הפשוטה — +1 לכל שש היכולות.",
+        abilityBonuses: [{ ability: "str", amount: 1 }, { ability: "dex", amount: 1 }, { ability: "con", amount: 1 }, { ability: "int", amount: 1 }, { ability: "wis", amount: 1 }, { ability: "cha", amount: 1 }],
+        traits: [{ name: "Jack of All Trades", desc: "+1 לכל יכולת — בסיס מאוזן לכל מקצוע." }],
+      },
+      {
+        id: "variant-human", name: "Variant Human", nameHe: "אדם וריאנט",
+        desc: "+1 לשתי יכולות לבחירתך, Proficiency במיומנות אחת, ופייט (Feat) כבר ברמה 1.",
+        abilityBonuses: [],
+        traits: [
+          { name: "Ability Choice", desc: "+1 לשתי יכולות שונות לבחירתך — הזן אותן בעריכת בונוסי הגזע למטה." },
+          { name: "Skill Versatility", desc: "Proficiency במיומנות אחת לבחירתך." },
+          { name: "Bonus Feat", desc: "פייט אחד לבחירתך כבר ברמה 1 — הגימיק המרכזי של הווריאנט.", level: 1, special: true },
+        ],
+      },
+    ],
   },
   {
     id: "elf",
