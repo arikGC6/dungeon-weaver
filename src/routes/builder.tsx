@@ -14,6 +14,8 @@ import { WEAPONS, WEAPON_GROUP_LABELS, buildWeaponAttack, type Weapon } from "@/
 import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STANDARD_ARRAY_VALUES, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
 import { calculateCharacter, getClass } from "@/lib/calculations";
 import { useRacePortraits, useHydrateRacePortraits, readImageAsDataUrl } from "@/lib/race-portraits";
+import { defaultRaceImage } from "@/data/race-images";
+
 
 export const Route = createFileRoute("/builder")({
   validateSearch: (s: Record<string, unknown>) => ({ edit: typeof s.edit === "string" ? s.edit : undefined }),
@@ -164,7 +166,7 @@ function Step0Basics({ c, update }: { c: Character; update: (p: Partial<Characte
 // ============ Step 1 — Race ============
 function RacePortrait({ raceId, nameHe, size = "sm" }: { raceId: string; nameHe: string; size?: "sm" | "lg" }) {
   const { portraits } = useRacePortraits();
-  const url = portraits[raceId];
+  const url = portraits[raceId] ?? defaultRaceImage(raceId);
   const box = size === "lg" ? "h-40 w-40 sm:h-48 sm:w-48" : "h-20 w-20";
   return (
     <div className={`${box} shrink-0 rounded-md border border-border bg-background/60 overflow-hidden flex items-center justify-center`}>
@@ -174,6 +176,7 @@ function RacePortrait({ raceId, nameHe, size = "sm" }: { raceId: string; nameHe:
     </div>
   );
 }
+
 
 function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const race = RACES.find(r => r.id === c.raceId);
