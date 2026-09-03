@@ -38,7 +38,24 @@ export const SKILL_LIST: { id: Skill; label: string; ability: Ability }[] = [
 
 export interface AbilityBonus { ability: Ability; amount: number }
 
-export interface RaceTrait { name: string; desc: string }
+export interface RaceTrait {
+  name: string;
+  desc: string;
+  level?: number;    // character level at which the trait unlocks (default 1)
+  special?: boolean; // "gimmick" — signature/unique mechanic worth highlighting
+}
+
+export interface Subrace {
+  id: string;
+  name: string;
+  nameHe: string;
+  desc?: string;
+  abilityBonuses: AbilityBonus[];
+  traits: RaceTrait[];
+  speed?: number;      // overrides race speed
+  darkvision?: number; // overrides race darkvision
+  source?: string;
+}
 
 export interface Race {
   id: string;
@@ -51,7 +68,8 @@ export interface Race {
   darkvision?: number;
   languages: string[];
   traits: RaceTrait[];
-  subraces?: { id: string; name: string; nameHe: string; abilityBonuses: AbilityBonus[]; traits: RaceTrait[] }[];
+  subraceLabel?: string; // e.g. "אבות דרקוניים" for Dragonborn
+  subraces?: Subrace[];
 }
 
 export interface ClassFeature { level: number; name: string; desc: string }
