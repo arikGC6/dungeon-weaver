@@ -14,6 +14,8 @@ import { WEAPONS, WEAPON_GROUP_LABELS, buildWeaponAttack, type Weapon } from "@/
 import { ABILITIES, ABILITY_LABELS, ABILITY_SHORT, SKILL_LIST, ALIGNMENTS, STANDARD_ARRAY_VALUES, formatMod, mod, type Ability, type Skill, type Character } from "@/lib/dnd-types";
 import { calculateCharacter, getClass } from "@/lib/calculations";
 import { useRacePortraits, useHydrateRacePortraits, readImageAsDataUrl } from "@/lib/race-portraits";
+import { defaultRaceImage } from "@/data/race-images";
+
 
 export const Route = createFileRoute("/builder")({
   validateSearch: (s: Record<string, unknown>) => ({ edit: typeof s.edit === "string" ? s.edit : undefined }),
