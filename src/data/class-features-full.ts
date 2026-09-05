@@ -880,7 +880,7 @@ export const SUBCLASS_FEATURES_FULL: Record<string, ClassFeature[]> = {
   "wizard:order_of_scribes": [
     { level: 2, name: "Wizardly Quill / Awakened Spellbook", desc: "עט מגי; הספר מאפשר שינוי סוג נזק והטלת ritual מהירה." },
     { level: 6, name: "Manifest Mind", desc: "Bonus action — רוח הספר 300ft שמטילה כישופים מהמקום שלה." },
-    { level: 10, name: "Master Scrivener", desc": "יצירת מגילה מגית מכישוף רמה 1-2 בסיום long rest." },
+    { level: 10, name: "Master Scrivener", desc: "יצירת מגילה מגית מכישוף רמה 1-2 בסיום long rest." },
     { level: 14, name: "One with the Word", desc: "שריפת דפי הספר לביטול נזק; החייאה עצמית." },
   ],
 
