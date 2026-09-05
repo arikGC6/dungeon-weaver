@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { emptyCharacter } from "@/lib/calculations";
 import { RACES } from "@/data/races";
-import { CLASSES } from "@/data/classes";
+import { CLASSES, featuresUpToLevel } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS, isFeatAvailable } from "@/data/feats";
 import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
