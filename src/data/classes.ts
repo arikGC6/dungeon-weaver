@@ -1,9 +1,10 @@
 import type { DnDClass } from "../lib/dnd-types";
+import { BASE_FEATURES_20, SUBCLASS_FEATURES_FULL, mergeFeatures } from "./class-features-full";
 
 // Subclass spells (granted, always prepared) referenced by spell id (matches src/data/spells.ts ids).
 // Class features summarized.
 
-export const CLASSES: DnDClass[] = [
+const CLASSES_RAW: DnDClass[] = [
   {
     id: "barbarian", name: "Barbarian", nameHe: "ברברי", hitDie: 12,
     primaryAbility: ["str"], savingThrows: ["str", "con"],
@@ -384,6 +385,28 @@ export const CLASSES: DnDClass[] = [
     ],
   },
 ];
+
+// מיזוג מסד היכולות המלא (רמות 1–20) אל כל מקצוע ותת-מקצוע.
+export const CLASSES: DnDClass[] = CLASSES_RAW.map((cls) => ({
+  ...cls,
+  features: mergeFeatures(cls.features, BASE_FEATURES_20[cls.id]),
+  subclasses: cls.subclasses.map((sub) => ({
+    ...sub,
+    features: mergeFeatures(sub.features, SUBCLASS_FEATURES_FULL[`${cls.id}:${sub.id}`]),
+  })),
+}));
+
+/** יכולות המקצוע (ותת-המקצוע) עד רמה נתונה. */
+export function featuresUpToLevel(classId?: string, subclassId?: string, level = 20) {
+  const cls = getClass(classId);
+  if (!cls) return [] as { level: number; name: string; desc: string; from: string }[];
+  const sub = cls.subclasses.find((s) => s.id === subclassId);
+  const rows = [
+    ...cls.features.map((f) => ({ ...f, from: cls.nameHe })),
+    ...(sub ? sub.features.map((f) => ({ ...f, from: sub.nameHe })) : []),
+  ].filter((f) => f.level <= level);
+  return rows.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+}
 
 export function getClass(id?: string) { return CLASSES.find((c) => c.id === id); }
 

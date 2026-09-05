@@ -21,6 +21,16 @@ import gnome from "../assets/races/gnome.jpg.asset.json";
 import aasimar from "../assets/races/aasimar.jpg.asset.json";
 import harengon from "../assets/races/harengon.jpg.asset.json";
 
+import grung from "../assets/races/grung.jpg.asset.json";
+import firbolg from "../assets/races/firbolg.jpg.asset.json";
+import goblin from "../assets/races/goblin.jpg.asset.json";
+import fairy from "../assets/races/fairy.jpg.asset.json";
+import kobold from "../assets/races/kobold.jpg.asset.json";
+import goliath from "../assets/races/goliath.jpg.asset.json";
+import hobgoblin from "../assets/races/hobgoblin.jpg.asset.json";
+import bugbear from "../assets/races/bugbear.jpg.asset.json";
+import changeling from "../assets/races/changeling.jpg.asset.json";
+
 export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   human: human.url,
   elf: elf.url,
@@ -42,6 +52,15 @@ export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   gnome: gnome.url,
   aasimar: aasimar.url,
   harengon: harengon.url,
+  grung: grung.url,
+  firbolg: firbolg.url,
+  goblin: goblin.url,
+  fairy: fairy.url,
+  kobold: kobold.url,
+  goliath: goliath.url,
+  hobgoblin: hobgoblin.url,
+  bugbear: bugbear.url,
+  changeling: changeling.url,
 };
 
 

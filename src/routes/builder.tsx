@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { emptyCharacter } from "@/lib/calculations";
 import { RACES } from "@/data/races";
-import { CLASSES } from "@/data/classes";
+import { CLASSES, featuresUpToLevel } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS, isFeatAvailable } from "@/data/feats";
 import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
@@ -276,6 +276,46 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
   );
 }
 
+// ============ יכולות המקצוע לפי רמה (1–20) עם סרגל רמה ============
+function ClassFeatureBrowser({ c }: { c: Character }) {
+  const [showLevel, setShowLevel] = useState(c.level);
+  useEffect(() => setShowLevel(c.level), [c.level]);
+  const rows = featuresUpToLevel(c.classId, c.subclassId, showLevel);
+  if (!rows.length) return null;
+  const byLevel = new Map<number, typeof rows>();
+  for (const f of rows) byLevel.set(f.level, [...(byLevel.get(f.level) ?? []), f]);
+  return (
+    <div className="p-3 rounded-md bg-background/40 border border-border space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h4 className="display text-primary">יכולות לפי רמה — עד רמה {showLevel}</h4>
+        <span className="text-xs text-muted-foreground">{rows.length} יכולות</span>
+      </div>
+      <input
+        type="range" min={1} max={20} value={showLevel}
+        onChange={(e) => setShowLevel(Number(e.target.value))}
+        className="w-full accent-primary"
+        aria-label="סרגל רמה"
+      />
+      <div className="max-h-[320px] overflow-y-auto space-y-2 text-sm">
+        {[...byLevel.keys()].sort((a, b) => a - b).map(lvl => (
+          <div key={lvl}>
+            <div className="display text-primary text-sm">רמה {lvl}</div>
+            <ul className="space-y-1 ps-3">
+              {byLevel.get(lvl)!.map(f => (
+                <li key={f.from + f.name}>
+                  <b>{f.name}</b>
+                  <span className="text-xs text-muted-foreground"> · {f.from}</span>
+                  {f.desc && <div className="text-muted-foreground">{f.desc}</div>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ============ Step 2 — Class + Subclass ============
 function Step2Class({ c, update }: { c: Character; update: (p: Partial<Character>) => void }) {
   const cls = CLASSES.find(x => x.id === c.classId);
@@ -294,14 +334,8 @@ function Step2Class({ c, update }: { c: Character; update: (p: Partial<Character
       </div>
       {cls && (
         <>
-          <div className="p-3 rounded-md bg-background/40 border border-border">
-            <h4 className="display text-primary mb-1">תכונות {cls.nameHe} (עד רמה {c.level})</h4>
-            <ul className="text-sm space-y-1">
-              {cls.features.filter(f => f.level <= c.level).map(f => (
-                <li key={f.name}><b className="text-primary">רמה {f.level} — {f.name}:</b> {f.desc}</li>
-              ))}
-            </ul>
-          </div>
+          <ClassFeatureBrowser c={c} />
+
           {subAvailable && (
             <div>
               <h3 className="display text-lg text-primary">תת-קלאס</h3>
