@@ -30,6 +30,18 @@ import goliath from "../assets/races/goliath.jpg.asset.json";
 import hobgoblin from "../assets/races/hobgoblin.jpg.asset.json";
 import bugbear from "../assets/races/bugbear.jpg.asset.json";
 import changeling from "../assets/races/changeling.jpg.asset.json";
+import orc from "../assets/races/orc.jpg.asset.json";
+import dhampir from "../assets/races/dhampir.jpg.asset.json";
+import loxodon from "../assets/races/loxodon.jpg.asset.json";
+import locathah from "../assets/races/locathah.jpg.asset.json";
+import verdan from "../assets/races/verdan.jpg.asset.json";
+import satyr from "../assets/races/satyr.jpg.asset.json";
+import tortle from "../assets/races/tortle.jpg.asset.json";
+import leonin from "../assets/races/leonin.jpg.asset.json";
+import minotaur from "../assets/races/minotaur.jpg.asset.json";
+import yuanti from "../assets/races/yuan-ti.jpg.asset.json";
+
+
 
 export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   human: human.url,
