@@ -188,7 +188,7 @@ export function calculateCharacter(c: Character): DerivedStats {
   if (c.acOverride !== undefined && c.acOverride > 0) ac = c.acOverride;
 
   // Speed
-  let speed = race?.speed ?? 30;
+  let speed = subrace?.speed ?? race?.speed ?? 30;
   c.featIds.forEach(id => {
     const f = getFeat(id);
     if (f?.bonuses?.speed) speed += f.bonuses.speed;
