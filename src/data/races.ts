@@ -582,8 +582,6 @@ export const RACES: Race[] = [
     darkvision: 60,
     languages: ["Common", "+1 choice"],
     traits: [
-      { name: "Animal Enhancement (Manta Glide)", desc: "כנפי-דגל — נפילה איטית + תזוזה אופקית." },
-      { name: "Animal Enhancement (Nimble Climber)", desc: "מהירות טיפוס 30ft." },
       { name: "Animal Enhancement", desc: "בחר שיפור חייתי ברמה 1, ושיפור נוסף ברמה 5.", level: 1, special: true },
     ],
     subraceLabel: "שיפור חייתי (Animal Enhancement)",
