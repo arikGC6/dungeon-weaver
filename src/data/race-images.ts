@@ -73,7 +73,18 @@ export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   hobgoblin: hobgoblin.url,
   bugbear: bugbear.url,
   changeling: changeling.url,
+  orc: orc.url,
+  dhampir: dhampir.url,
+  loxodon: loxodon.url,
+  locathah: locathah.url,
+  verdan: verdan.url,
+  satyr: satyr.url,
+  tortle: tortle.url,
+  leonin: leonin.url,
+  minotaur: minotaur.url,
+  "yuan-ti": yuanti.url,
 };
+
 
 
 export function defaultRaceImage(raceId: string): string | undefined {
