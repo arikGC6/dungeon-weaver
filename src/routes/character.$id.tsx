@@ -251,10 +251,18 @@ function CharacterPage() {
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             {race && (
               <div>
-                <div className="display text-accent mb-1">גזע — {race.nameHe}</div>
+                <div className="display text-accent mb-1">גזע — {race.nameHe}{subrace ? ` · ${subrace.nameHe}` : ""}</div>
                 <ul className="space-y-1">
-                  {race.traits.concat(subrace?.traits ?? []).map(t => <li key={t.name}><b>{t.name}:</b> {t.desc}</li>)}
+                  {race.traits.map(t => ({ t, from: race.nameHe })).concat((subrace?.traits ?? []).map(t => ({ t, from: subrace!.nameHe }))).map(({ t, from }) => (
+                    <li key={`${from}-${t.name}`} className={t.level && t.level > c.level ? "opacity-50" : ""}>
+                      <b>{t.name}</b>
+                      {t.level ? <span className="text-[10px] mx-1 px-1.5 py-0.5 rounded bg-primary/20 text-primary">רמה {t.level}</span> : null}
+                      {t.special ? <span className="text-[10px] mx-1 px-1.5 py-0.5 rounded bg-accent/30">✦ גימיק</span> : null}
+                      <span className="text-[10px] text-muted-foreground mx-1">({from})</span>: {t.desc}
+                    </li>
+                  ))}
                 </ul>
+
               </div>
             )}
             {cls && (
