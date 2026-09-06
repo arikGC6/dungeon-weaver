@@ -194,7 +194,7 @@ export function exportCharacterPdf(c: Character) {
 
   ${feats.length ? `<h2>Feats / Fates</h2><ul class="features">${feats.map(f => `<li><b>${f!.nameHe} (${f!.name}):</b> ${f!.description}</li>`).join("")}</ul>` : ""}
 
-  ${race ? `<h2>תכונות גזע</h2><ul class="features">${race.traits.concat(subrace?.traits ?? []).map(t => `<li><b>${t.name}:</b> ${t.desc}</li>`).join("")}</ul>` : ""}
+  ${race ? `<h2>תכונות גזע${subrace ? ` — ${race.nameHe} · ${subrace.nameHe}` : ""}</h2><ul class="features">${race.traits.map(t => ({ t, from: race.nameHe })).concat((subrace?.traits ?? []).map(t => ({ t, from: subrace!.nameHe }))).map(({ t, from }) => `<li><b>${t.name}:</b>${t.level ? ` <span class="pill">רמה ${t.level}</span>` : ""}${t.special ? ' <span class="pill">✦ גימיק</span>' : ""} ${t.desc} <span style="font-size:10px;color:#7b5a3a">(${from})</span></li>`).join("")}</ul>` : ""}
 
   ${cls ? `<h2>תכונות קלאס</h2><ul class="features">${cls.features.filter(f => f.level <= c.level).map(f => `<li><b>רמה ${f.level} — ${f.name}:</b> ${f.desc}</li>`).join("")}${sub ? sub.features.filter(f => f.level <= c.level).map(f => `<li><b>תת-קלאס (${sub.nameHe}) — ${f.name}:</b> ${f.desc}</li>`).join("") : ""}</ul>` : ""}
 

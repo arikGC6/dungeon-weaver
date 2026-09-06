@@ -46,6 +46,38 @@ export const RACES: Race[] = [
       { id: "high-elf", name: "High Elf", nameHe: "אלף גבוה", abilityBonuses: [{ ability: "int", amount: 1 }], traits: [{ name: "Cantrip", desc: "כישוף Cantrip מ-Wizard." }, { name: "Extra Language", desc: "שפה נוספת." }] },
       { id: "wood-elf", name: "Wood Elf", nameHe: "אלף יער", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Fleet of Foot", desc: "מהירות 35 ft." }, { name: "Mask of the Wild", desc: "התחבא בטבע גם כשרק מוסתר חלקית." }] },
       { id: "drow", name: "Drow", nameHe: "דרואו", abilityBonuses: [{ ability: "cha", amount: 1 }], traits: [{ name: "Superior Darkvision", desc: "120 ft." }, { name: "Sunlight Sensitivity", desc: "Disadvantage בשמש." }, { name: "Drow Magic", desc: "Dancing Lights cantrip; Faerie Fire ו-Darkness ברמות 3/5." }] },
+      {
+        id: "sea-elf", name: "Sea Elf", nameHe: "אלף ים", source: "MPMM",
+        desc: "אלפים שגדלו במים — שחייה, נשימה תת-מימית ושיחה עם יצורי ים.",
+        abilityBonuses: [{ ability: "con", amount: 1 }],
+        traits: [
+          { name: "Child of the Sea", desc: "נשימה באוויר ובמים; מהירות שחיה 30ft.", special: true },
+          { name: "Friend of the Sea", desc: "תקשורת פשוטה עם יצורים ימיים." },
+          { name: "Cold Resistance", desc: "Resistance לנזק קור." },
+        ],
+      },
+      {
+        id: "shadar-kai", name: "Shadar-kai", nameHe: "שאדר-קאי", source: "MPMM",
+        desc: "אלפי הצל של ה-Shadowfell, משרתי המלכה העורבת.",
+        abilityBonuses: [{ ability: "con", amount: 1 }],
+        traits: [
+          { name: "Blessing of the Raven Queen", desc: "Bonus Action — טלפורט 30ft; מרמה 3 גם Resistance לכל נזק עד תחילת התור הבא. פעם פר long rest.", level: 1, special: true },
+          { name: "Necrotic Resistance", desc: "Resistance לנזק נקרוטי." },
+        ],
+      },
+      {
+        id: "eladrin", name: "Eladrin", nameHe: "אלדרין", source: "MPMM",
+        desc: "אלפי ה-Feywild המשתנים עם העונות — כל עונה משנה את אפקט ה-Fey Step.",
+        abilityBonuses: [{ ability: "cha", amount: 1 }],
+        traits: [
+          { name: "Fey Step", desc: "Bonus Action — טלפורט 30ft, פעם פר short rest.", level: 1, special: true },
+          { name: "Season: Autumn", desc: "אחרי Fey Step: שני יצורים ב-10ft — WIS save או charmed לדקה." },
+          { name: "Season: Winter", desc: "אחרי Fey Step: יצור ב-5ft — WIS save או frightened עד סוף התור הבא." },
+          { name: "Season: Spring", desc: "אחרי Fey Step: החלף מקום עם יצור מסכים ב-5ft." },
+          { name: "Season: Summer", desc: "אחרי Fey Step: כל יצור ב-5ft סופג נזק אש = בונוס בקיאות." },
+        ],
+      },
+
     ],
   },
   {
@@ -62,6 +94,19 @@ export const RACES: Race[] = [
     subraces: [
       { id: "hill-dwarf", name: "Hill Dwarf", nameHe: "גמד גבעות", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Dwarven Toughness", desc: "+1 HP לרמה." }] },
       { id: "mountain-dwarf", name: "Mountain Dwarf", nameHe: "גמד הרים", abilityBonuses: [{ ability: "str", amount: 2 }], traits: [{ name: "Armor Training", desc: "Proficiency ב-light ו-medium armor." }] },
+      {
+        id: "duergar", name: "Duergar", nameHe: "דוארגר (גמד אפור)", source: "MPMM",
+        desc: "גמדי המעמקים — קסם הזיה ופסיכי, ראיית לילה מעולה.",
+        abilityBonuses: [{ ability: "str", amount: 1 }],
+        darkvision: 120,
+        traits: [
+          { name: "Superior Darkvision", desc: "ראיית חשכה 120ft." },
+          { name: "Duergar Magic", desc: "מרמה 3 — Enlarge/Reduce; מרמה 5 — Invisibility. פעם פר long rest ללא רכיבים.", level: 3, special: true },
+          { name: "Dwarven Resilience", desc: "Advantage נגד רעל + Resistance לנזק רעל." },
+          { name: "Psionic Fortitude", desc: "Advantage על saves נגד charmed ו-stunned." },
+        ],
+      },
+
     ],
   },
   {
@@ -89,6 +134,19 @@ export const RACES: Race[] = [
       { name: "Breath Weapon", desc: "התקפה מבוססת CON, 2d6, DEX/CON save." },
       { name: "Damage Resistance", desc: "לפי אבות." },
     ],
+    subraceLabel: "שושלת דרקונית",
+    subraces: [
+      { id: "db-black", name: "Black (Acid)", nameHe: "שחור — חומצה", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "קו 5×30ft, DEX save, נזק חומצה 2d6 (עולה ברמות 6/11/16).", special: true }, { name: "Damage Resistance", desc: "Resistance לחומצה." }] },
+      { id: "db-blue", name: "Blue (Lightning)", nameHe: "כחול — ברק", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "קו 5×30ft, DEX save, נזק ברק.", special: true }, { name: "Damage Resistance", desc: "Resistance לברק." }] },
+      { id: "db-brass", name: "Brass (Fire)", nameHe: "פליז — אש", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "קו 5×30ft, DEX save, נזק אש.", special: true }, { name: "Damage Resistance", desc: "Resistance לאש." }] },
+      { id: "db-bronze", name: "Bronze (Lightning)", nameHe: "ברונזה — ברק", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "קו 5×30ft, DEX save, נזק ברק.", special: true }, { name: "Damage Resistance", desc: "Resistance לברק." }] },
+      { id: "db-copper", name: "Copper (Acid)", nameHe: "נחושת — חומצה", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "קו 5×30ft, DEX save, נזק חומצה.", special: true }, { name: "Damage Resistance", desc: "Resistance לחומצה." }] },
+      { id: "db-gold", name: "Gold (Fire)", nameHe: "זהב — אש", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "חרוט 15ft, DEX save, נזק אש.", special: true }, { name: "Damage Resistance", desc: "Resistance לאש." }] },
+      { id: "db-green", name: "Green (Poison)", nameHe: "ירוק — רעל", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "חרוט 15ft, CON save, נזק רעל.", special: true }, { name: "Damage Resistance", desc: "Resistance לרעל." }] },
+      { id: "db-red", name: "Red (Fire)", nameHe: "אדום — אש", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "חרוט 15ft, DEX save, נזק אש.", special: true }, { name: "Damage Resistance", desc: "Resistance לאש." }] },
+      { id: "db-silver", name: "Silver (Cold)", nameHe: "כסף — קור", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "חרוט 15ft, CON save, נזק קור.", special: true }, { name: "Damage Resistance", desc: "Resistance לקור." }] },
+      { id: "db-white", name: "White (Cold)", nameHe: "לבן — קור", abilityBonuses: [], traits: [{ name: "Breath Weapon", desc: "חרוט 15ft, CON save, נזק קור.", special: true }, { name: "Damage Resistance", desc: "Resistance לקור." }] },
+    ],
   },
   {
     id: "gnome", name: "Gnome", nameHe: "גנום", source: "PHB",
@@ -100,6 +158,18 @@ export const RACES: Race[] = [
     subraces: [
       { id: "forest-gnome", name: "Forest Gnome", nameHe: "גנום יער", abilityBonuses: [{ ability: "dex", amount: 1 }], traits: [{ name: "Speak with Small Beasts", desc: "" }, { name: "Minor Illusion cantrip", desc: "" }] },
       { id: "rock-gnome", name: "Rock Gnome", nameHe: "גנום סלע", abilityBonuses: [{ ability: "con", amount: 1 }], traits: [{ name: "Artificer's Lore", desc: "" }, { name: "Tinker", desc: "" }] },
+      {
+        id: "deep-gnome", name: "Deep Gnome (Svirfneblin)", nameHe: "דיפ גנום", source: "MPMM",
+        desc: "גנומי המעמקים — אמני היעלמות והסתתרות בסלע.",
+        abilityBonuses: [{ ability: "dex", amount: 1 }],
+        darkvision: 120,
+        traits: [
+          { name: "Superior Darkvision", desc: "ראיית חשכה 120ft." },
+          { name: "Gift of the Svirfneblin", desc: "פעם פר long rest — Disguise Self או Nondetection על עצמך.", level: 1, special: true },
+          { name: "Svirfneblin Camouflage", desc: "Advantage על Stealth בסלע ובאדמה." },
+        ],
+      },
+
     ],
   },
   {
@@ -133,6 +203,17 @@ export const RACES: Race[] = [
     traits: [
       { name: "Hellish Resistance", desc: "Resistance לנזק אש." },
       { name: "Infernal Legacy", desc: "Thaumaturgy; Hellish Rebuke ברמה 3; Darkness ברמה 5." },
+    ],
+    subraceLabel: "מורשת שדית",
+    subraces: [
+      { id: "tf-infernal", name: "Infernal (Asmodeus)", nameHe: "אינפרנלי", desc: "המורשת הקלאסית של ה-PHB.", abilityBonuses: [{ ability: "int", amount: 1 }], traits: [{ name: "Infernal Legacy", desc: "Thaumaturgy; Hellish Rebuke ברמה 3; Darkness ברמה 5.", level: 1, special: true }] },
+      { id: "tf-zariel", name: "Zariel", nameHe: "זריאל", desc: "מורשת לוחמת מ-Avernus.", abilityBonuses: [{ ability: "str", amount: 1 }], traits: [{ name: "Legacy of Avernus", desc: "Thaumaturgy; Searing Smite ברמה 3; Branding Smite ברמה 5.", level: 1, special: true }] },
+      { id: "tf-glasya", name: "Glasya", nameHe: "גלאסיה", desc: "מורשת גנבים והתחמקות.", abilityBonuses: [{ ability: "dex", amount: 1 }], traits: [{ name: "Legacy of Malbolge", desc: "Minor Illusion; Disguise Self ברמה 3; Invisibility ברמה 5.", level: 1, special: true }] },
+      { id: "tf-levistus", name: "Levistus", nameHe: "לוויסטוס", desc: "מורשת קרח וקור.", abilityBonuses: [{ ability: "con", amount: 1 }], traits: [{ name: "Legacy of Stygia", desc: "Ray of Frost; Armor of Agathys ברמה 3; Darkness ברמה 5.", level: 1, special: true }] },
+      { id: "tf-mephistopheles", name: "Mephistopheles", nameHe: "מפיסטופלס", desc: "מורשת קסם ולהבות.", abilityBonuses: [{ ability: "int", amount: 1 }], traits: [{ name: "Legacy of Cania", desc: "Mage Hand; Burning Hands ברמה 3; Flame Blade ברמה 5.", level: 1, special: true }] },
+      { id: "tf-dispater", name: "Dispater", nameHe: "דיספטר", desc: "מורשת ערמומיות והסתתרות.", abilityBonuses: [{ ability: "dex", amount: 1 }], traits: [{ name: "Legacy of Dis", desc: "Thaumaturgy; Disguise Self ברמה 3; Detect Thoughts ברמה 5.", level: 1, special: true }] },
+      { id: "tf-fierna", name: "Fierna", nameHe: "פיארנה", desc: "מורשת שכנוע וקסם חברתי.", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Legacy of Phlegethos", desc: "Friends; Charm Person ברמה 3; Suggestion ברמה 5.", level: 1, special: true }] },
+      { id: "tf-mammon", name: "Mammon", nameHe: "ממון", desc: "מורשת זהב וחישוב.", abilityBonuses: [{ ability: "int", amount: 1 }], traits: [{ name: "Legacy of Minauros", desc: "Mage Hand; Tenser's Floating Disk ברמה 3; Arcane Lock ברמה 5.", level: 1, special: true }] },
     ],
   },
   {
@@ -501,9 +582,13 @@ export const RACES: Race[] = [
     darkvision: 60,
     languages: ["Common", "+1 choice"],
     traits: [
-      { name: "Animal Enhancement (Manta Glide)", desc: "כנפי-דגל — נפילה איטית + תזוזה אופקית." },
-      { name: "Animal Enhancement (Nimble Climber)", desc: "מהירות טיפוס 30ft." },
-      { name: "Animal Enhancement (Underwater Adaptation)", desc: "מהירות שחיה 30ft + נשימה." },
+      { name: "Animal Enhancement", desc: "בחר שיפור חייתי ברמה 1, ושיפור נוסף ברמה 5.", level: 1, special: true },
+    ],
+    subraceLabel: "שיפור חייתי (Animal Enhancement)",
+    subraces: [
+      { id: "simic-manta", name: "Manta Glide", nameHe: "גלישת מנטה", desc: "כנפי-דגל: נפילה איטית ותנועה אופקית.", abilityBonuses: [], traits: [{ name: "Manta Glide", desc: "כשאתה נופל וללא incapacitated — נפילה 60ft/סבב ללא נזק נפילה, ותזוזה אופקית 2ft לכל 1ft נפילה.", level: 1, special: true }, { name: "Grappling Appendages (רמה 5)", desc: "שתי זרועות נוספות: התקפה לא-חמושה 1d6 + grapple ללא יד פנויה.", level: 5 }, { name: "Carapace (רמה 5)", desc: "שריון חיצוני — AC מינימלי 13 + מודיפייר DEX.", level: 5 }, { name: "Acid Spit (רמה 5)", desc: "Ranged 30ft, DEX save DC 8+PB+CON, 2d10 נזק חומצה, פעם פר short rest.", level: 5 }] },
+      { id: "simic-climber", name: "Nimble Climber", nameHe: "מטפס זריז", desc: "מהירות טיפוס שווה למהירות ההליכה.", abilityBonuses: [], traits: [{ name: "Nimble Climber", desc: "מהירות טיפוס 30ft.", level: 1, special: true }, { name: "Grappling Appendages (רמה 5)", desc: "שתי זרועות נוספות: 1d6 + grapple.", level: 5 }, { name: "Carapace (רמה 5)", desc: "AC מינימלי 13 + DEX.", level: 5 }, { name: "Acid Spit (רמה 5)", desc: "30ft, 2d10 חומצה, פעם פר short rest.", level: 5 }] },
+      { id: "simic-underwater", name: "Underwater Adaptation", nameHe: "התאמה תת-מימית", desc: "זימים — נשימה במים ומהירות שחיה.", abilityBonuses: [], traits: [{ name: "Underwater Adaptation", desc: "נשימה במים; מהירות שחיה 30ft.", level: 1, special: true }, { name: "Grappling Appendages (רמה 5)", desc: "שתי זרועות נוספות: 1d6 + grapple.", level: 5 }, { name: "Carapace (רמה 5)", desc: "AC מינימלי 13 + DEX.", level: 5 }, { name: "Acid Spit (רמה 5)", desc: "30ft, 2d10 חומצה, פעם פר short rest.", level: 5 }] },
     ],
   },
   // === Grung ===

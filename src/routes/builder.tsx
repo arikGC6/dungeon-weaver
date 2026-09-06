@@ -228,13 +228,19 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
       )}
       {race?.subraces && race.subraces.length > 0 && (
         <div>
-          <h3 className="display text-lg text-primary mt-3 mb-2">תת-גזע</h3>
+          <h3 className="display text-lg text-primary mt-3 mb-2">{race.subraceLabel ?? "תת-גזע"}</h3>
           <div className="grid sm:grid-cols-2 gap-2">
             {race.subraces.map(sr => (
               <button key={sr.id} onClick={() => update({ subraceId: sr.id })}
                 className={`text-right p-3 rounded-md border ${c.subraceId === sr.id ? "bg-primary/20 border-primary" : "border-border hover:bg-secondary/40"}`}>
                 <div className="font-semibold">{sr.nameHe} <span className="text-xs text-muted-foreground">({sr.name})</span></div>
-                <div className="text-xs">{sr.abilityBonuses.map(b => `${ABILITY_SHORT[b.ability]}+${b.amount}`).join(", ")}</div>
+                {sr.desc && <div className="text-xs text-muted-foreground mt-0.5">{sr.desc}</div>}
+                <div className="text-xs mt-1">
+                  {sr.abilityBonuses.map(b => `${ABILITY_SHORT[b.ability]}+${b.amount}`).join(", ")}
+                  {sr.speed ? ` · מהירות ${sr.speed}ft` : ""}
+                  {sr.darkvision ? ` · ראיית חשכה ${sr.darkvision}ft` : ""}
+                  {sr.source ? ` · ${sr.source}` : ""}
+                </div>
               </button>
             ))}
           </div>
@@ -242,12 +248,25 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
       )}
       {race && (
         <div className="mt-4 p-3 rounded-md bg-background/40 border border-border space-y-3">
-          <h4 className="display text-primary mb-1">תכונות {race.nameHe}</h4>
+          <h4 className="display text-primary mb-1">
+            תכונות {race.nameHe}
+            {race.subraces?.find(s => s.id === c.subraceId) ? ` · ${race.subraces.find(s => s.id === c.subraceId)!.nameHe}` : ""}
+          </h4>
           <ul className="text-sm space-y-1">
-            {race.traits.concat(race.subraces?.find(s => s.id === c.subraceId)?.traits ?? []).map(t => (
-              <li key={t.name}><b className="text-primary">{t.name}:</b> {t.desc}</li>
-            ))}
+            {race.traits
+              .map(t => ({ t, from: race.nameHe }))
+              .concat((race.subraces?.find(s => s.id === c.subraceId)?.traits ?? []).map(t => ({ t, from: race.subraces!.find(s => s.id === c.subraceId)!.nameHe })))
+              .map(({ t, from }) => (
+                <li key={`${from}-${t.name}`} className={t.level && t.level > c.level ? "opacity-50" : ""}>
+                  <b className="text-primary">{t.name}</b>
+                  {t.level ? <span className="text-[10px] mx-1 px-1.5 py-0.5 rounded bg-primary/20 text-primary">רמה {t.level}</span> : null}
+                  {t.special ? <span className="text-[10px] mx-1 px-1.5 py-0.5 rounded bg-accent/30">✦ גימיק</span> : null}
+                  <span className="text-[10px] text-muted-foreground mx-1">({from})</span>
+                  : {t.desc}
+                </li>
+              ))}
           </ul>
+
           <div className="pt-2 border-t border-border">
             <div className="display text-sm text-accent mb-1">✏️ עריכת בונוסי גזע (STR/DEX/…)</div>
             <p className="text-xs text-muted-foreground mb-2">אם ה-DM שלך משתמש בכללי Tasha (בונוסים גמישים) — דרוס פה את הבונוס לכל יכולת.</p>
