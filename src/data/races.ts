@@ -122,6 +122,8 @@ export const RACES: Race[] = [
     subraces: [
       { id: "lightfoot", name: "Lightfoot", nameHe: "רגל-קלה", abilityBonuses: [{ ability: "cha", amount: 1 }], traits: [{ name: "Naturally Stealthy", desc: "התחבא מאחורי יצור גדול." }] },
       { id: "stout", name: "Stout", nameHe: "חסון", abilityBonuses: [{ ability: "con", amount: 1 }], traits: [{ name: "Stout Resilience", desc: "Advantage על רעל; resistance." }] },
+      { id: "ghostwise", name: "Ghostwise", nameHe: "רוח-חכם", source: "SCAG", desc: "הוביטים בודדים מיערות עתיקים.", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Silent Speech", desc: "טלפתיה ליצור אחד בטווח 30ft שמבין שפה שאתה מדבר.", special: true }] },
+      { id: "lotusden", name: "Lotusden", nameHe: "לוטוסדן", source: "EGtW", desc: "שומרי יערות קשורים לטבע.", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Child of the Wood", desc: "Druidcraft; Entangle ברמה 3; Spike Growth ברמה 5 (WIS).", special: true }, { name: "Timberwalk", desc: "Disadvantage לעוקבים אחריך; מעבר חופשי בצמחייה לא קסומה." }] },
     ],
   },
   {
@@ -182,6 +184,14 @@ export const RACES: Race[] = [
       { name: "Fey Ancestry", desc: "Advantage נגד charm; immune sleep magic." },
       { name: "Skill Versatility", desc: "Proficiency ב-2 מיומנויות לבחירה." },
     ],
+    subraceLabel: "מוצא אלפי (SCAG)",
+    subraces: [
+      { id: "he-standard", name: "Standard", nameHe: "רגיל", abilityBonuses: [], traits: [] },
+      { id: "he-high", name: "High Elf Descent", nameHe: "צאצא אלף עילי", source: "SCAG", desc: "מחליף את Skill Versatility.", abilityBonuses: [], traits: [{ name: "Elf Weapon Training", desc: "Proficiency ב-longsword, shortsword, shortbow, longbow." }, { name: "Cantrip", desc: "Cantrip אחד מרשימת ה-Wizard (INT)." }] },
+      { id: "he-wood", name: "Wood Elf Descent", nameHe: "צאצא אלף יער", source: "SCAG", abilityBonuses: [], speed: 35, traits: [{ name: "Fleet of Foot", desc: "מהירות 35ft." }, { name: "Mask of the Wild", desc: "התחבאות בתוך תופעות טבע קלות." }] },
+      { id: "he-drow", name: "Drow Descent", nameHe: "צאצא דרואו", source: "SCAG", abilityBonuses: [], traits: [{ name: "Drow Magic", desc: "Dancing Lights; Faerie Fire ברמה 3; Darkness ברמה 5 (CHA).", special: true }] },
+      { id: "he-aquatic", name: "Aquatic Elf Descent", nameHe: "צאצא אלף ימי", source: "SCAG", abilityBonuses: [], traits: [{ name: "Swim Speed", desc: "מהירות שחייה 30ft." }] },
+    ],
   },
   {
     id: "half-orc", name: "Half-Orc", nameHe: "חצי-אורק", source: "PHB",
@@ -226,6 +236,12 @@ export const RACES: Race[] = [
       { name: "Celestial Resistance", desc: "Resistance לנזק רעל ולנזק נקרוטי." },
       { name: "Healing Hands", desc: "מגע מרפא = לרמה d4." },
       { name: "Light Bearer", desc: "Light cantrip." },
+    ],
+    subraceLabel: "סוג אסימאר",
+    subraces: [
+      { id: "protector", name: "Protector", nameHe: "מגן", abilityBonuses: [{ ability: "wis", amount: 1 }], traits: [{ name: "Radiant Soul", desc: "פעם ב-long rest, action: כנפיים (fly 30ft) לדקה, +רמה radiant damage פעם בתור.", level: 3, special: true }] },
+      { id: "scourge", name: "Scourge", nameHe: "מעניש", abilityBonuses: [{ ability: "con", amount: 1 }], traits: [{ name: "Radiant Consumption", desc: "הילת אור 10ft: חצי רמה radiant לכל יצור (גם לך) בסוף תור, +רמה radiant פעם בתור.", level: 3, special: true }] },
+      { id: "fallen", name: "Fallen", nameHe: "נופל", abilityBonuses: [{ ability: "str", amount: 1 }], traits: [{ name: "Necrotic Shroud", desc: "יצורים ב-10ft: CHA save או frightened; +רמה necrotic פעם בתור.", level: 3, special: true }] },
     ],
   },
   {
@@ -365,6 +381,13 @@ export const RACES: Race[] = [
     darkvision: 60,
     languages: ["Common"],
     traits: [{ name: "Shifting", desc: "Bonus action — temp HP ויכולת לפי subrace." }],
+    subraceLabel: "סוג שיפטר",
+    subraces: [
+      { id: "beasthide", name: "Beasthide", nameHe: "עור-חיה", abilityBonuses: [{ ability: "con", amount: 2 }], traits: [{ name: "Tough", desc: "Proficiency ב-Athletics." }, { name: "Shifting Feature", desc: "בזמן shift: +1d6 temp HP ו-+1 AC.", special: true }] },
+      { id: "longtooth", name: "Longtooth", nameHe: "ניב-ארוך", abilityBonuses: [{ ability: "str", amount: 2 }], traits: [{ name: "Fierce", desc: "Proficiency ב-Intimidation." }, { name: "Shifting Feature", desc: "בזמן shift: bonus action נשיכה 1d6+STR piercing.", special: true }] },
+      { id: "swiftstride", name: "Swiftstride", nameHe: "צעד-מהיר", abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "cha", amount: 1 }], traits: [{ name: "Graceful", desc: "Proficiency ב-Acrobatics." }, { name: "Shifting Feature", desc: "בזמן shift: +10ft מהירות; reaction — זוז 10ft כשאויב מסתיים לידך.", special: true }] },
+      { id: "wildhunt", name: "Wildhunt", nameHe: "צייד-פרא", abilityBonuses: [{ ability: "wis", amount: 2 }], traits: [{ name: "Natural Tracker", desc: "Proficiency ב-Survival." }, { name: "Shifting Feature", desc: "בזמן shift: advantage על WIS checks; אין advantage על התקפות נגדך.", special: true }] },
+    ],
   },
   {
     id: "centaur", name: "Centaur", nameHe: "קנטאור", source: "MOoT",
@@ -617,6 +640,73 @@ export const RACES: Race[] = [
       { name: "Observant and Athletic", desc: "Proficiency ב-Athletics + Perception." },
     ],
   },
+  { id: "githyanki", name: "Githyanki", nameHe: "גית'יאנקי", source: "MPMM", speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "str", amount: 2 }, { ability: "int", amount: 1 }], languages: ["Common", "Gith", "+1 choice"],
+    traits: [
+      { name: "Astral Knowledge", desc: "Proficiency במיומנות אחת וכלי/נשק אחד לבחירה (מתחלף ב-long rest)." },
+      { name: "Githyanki Psionics", desc: "Mage Hand (בלתי נראה); Jump ברמה 3; Misty Step ברמה 5.", special: true },
+      { name: "Psychic Resilience", desc: "Resistance לנזק psychic." },
+    ] },
+  { id: "githzerai", name: "Githzerai", nameHe: "גית'זראי", source: "MPMM", speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "wis", amount: 2 }, { ability: "int", amount: 1 }], languages: ["Common", "Gith"],
+    traits: [
+      { name: "Mental Discipline", desc: "Advantage על saves נגד charmed ו-frightened." },
+      { name: "Githzerai Psionics", desc: "Mage Hand; Shield ברמה 3; Detect Thoughts ברמה 5.", special: true },
+      { name: "Psychic Resilience", desc: "Resistance לנזק psychic." },
+    ] },
+  { id: "kalashtar", name: "Kalashtar", nameHe: "קלשטאר", source: "ERftLW", speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "wis", amount: 2 }, { ability: "cha", amount: 1 }], languages: ["Common", "Quori", "+1 choice"],
+    traits: [
+      { name: "Dual Mind", desc: "Advantage על WIS saves." },
+      { name: "Mental Discipline", desc: "Resistance לנזק psychic." },
+      { name: "Mind Link", desc: "טלפתיה בטווח 10×רמה ft.", special: true },
+      { name: "Severed from Dreams", desc: "חסין לקסם שדורש חלומות." },
+    ] },
+  { id: "vedalken", name: "Vedalken", nameHe: "ודלקן", source: "GGtR", speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "int", amount: 2 }, { ability: "wis", amount: 1 }], languages: ["Common", "Vedalken", "+1 choice"],
+    traits: [
+      { name: "Vedalken Dispassion", desc: "Advantage על INT/WIS/CHA saves." },
+      { name: "Tireless Precision", desc: "Proficiency במיומנות וכלי לבחירה; +1d4 לבדיקות שלהם.", special: true },
+      { name: "Partially Amphibious", desc: "נשימה במים עד שעה." },
+    ] },
+  { id: "triton", name: "Triton", nameHe: "טריטון", source: "MPMM", speed: 30, size: "Medium", darkvision: 60,
+    abilityBonuses: [{ ability: "str", amount: 1 }, { ability: "con", amount: 1 }, { ability: "cha", amount: 1 }], languages: ["Common", "Primordial"],
+    traits: [
+      { name: "Amphibious", desc: "נשימה במים ובאוויר; שחייה 30ft." },
+      { name: "Control Air and Water", desc: "Fog Cloud; Gust of Wind ברמה 3; Water Walk ברמה 5.", special: true },
+      { name: "Emissary of the Sea", desc: "תקשורת פשוטה עם חיות מים." },
+      { name: "Guardian of the Depths", desc: "Resistance לנזק קור." },
+    ] },
+  { id: "lizardfolk", name: "Lizardfolk", nameHe: "איש-לטאה", source: "MPMM", speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "con", amount: 2 }, { ability: "wis", amount: 1 }], languages: ["Common", "Draconic"],
+    traits: [
+      { name: "Bite", desc: "התקפה ללא נשק 1d6+STR slashing." },
+      { name: "Hungry Jaws", desc: "Bonus action נשיכה; פגיעה = temp HP לפי Prof bonus.", special: true },
+      { name: "Natural Armor", desc: "AC = 13 + DEX ללא שריון." },
+      { name: "Hold Breath", desc: "עצירת נשימה 15 דקות; שחייה 30ft." },
+      { name: "Nature's Intuition", desc: "Proficiency ב-2 מ: Animal Handling, Medicine, Nature, Perception, Stealth, Survival." },
+    ] },
+  { id: "kender", name: "Kender", nameHe: "קנדר", source: "DSotDQ", speed: 30, size: "Small",
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "cha", amount: 1 }], languages: ["Common", "+1 choice"],
+    traits: [
+      { name: "Fearless", desc: "Advantage נגד frightened; פעם ב-long rest הופך כישלון להצלחה." },
+      { name: "Kender Aptitude", desc: "Proficiency ב-Insight/Investigation/Sleight of Hand/Stealth/Survival (אחד)." },
+      { name: "Taunt", desc: "Bonus action: WIS save או disadvantage על התקפות שלא נגדך.", special: true },
+    ] },
+  { id: "giff", name: "Giff", nameHe: "גיף", source: "SiAS", speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "str", amount: 2 }, { ability: "con", amount: 1 }], languages: ["Common"],
+    traits: [
+      { name: "Astral Spark", desc: "פגיעה בנשק פשוט/מלחמה: +Prof bonus force damage, פעמים = Prof bonus.", special: true },
+      { name: "Firearms Mastery", desc: "Proficiency בכלי ירייה; מתעלם מ-loading." },
+      { name: "Hippo Build", desc: "Advantage על STR checks/saves; נספר כ-Large לנשיאה." },
+    ] },
+  { id: "hadozee", name: "Hadozee", nameHe: "הדוזי", source: "SiAS", speed: 30, size: "Medium",
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "con", amount: 1 }], languages: ["Common"],
+    traits: [
+      { name: "Dexterous Feet", desc: "Bonus action — שימוש בחפץ עם הרגליים." },
+      { name: "Glide", desc: "דאייה 5ft אופקית לכל 1ft נפילה; ללא נזק נפילה.", special: true },
+      { name: "Hadozee Dodge", desc: "Reaction: הפחתת נזק 1d6+Prof, פעמים = Prof bonus." },
+    ] },
 ];
 
 export function getRace(id?: string): Race | undefined {
