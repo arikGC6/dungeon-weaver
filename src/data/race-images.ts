@@ -40,11 +40,13 @@ import tortle from "../assets/races/tortle.jpg.asset.json";
 import leonin from "../assets/races/leonin.jpg.asset.json";
 import minotaur from "../assets/races/minotaur.jpg.asset.json";
 import yuanti from "../assets/races/yuan-ti.jpg.asset.json";
+import shifter from "../assets/races/shifter.jpg.asset.json";
 
 
 
 export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   human: human.url,
+  shifter: shifter.url,
   elf: elf.url,
   "half-elf": halfElf.url,
   "half-orc": halfOrc.url,
