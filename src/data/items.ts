@@ -242,6 +242,23 @@ export const ITEMS: Item[] = [
   { id: "antitoxin", name: "Antitoxin", nameHe: "אנטי-רעל", category: "potion", rarity: "common",
     description: "Advantage על saves נגד רעל לשעה." },
 
+
+  // === Musical instruments (bard spellcasting focus) ===
+  { id: "inst_guitar", name: "Guitar", nameHe: "גיטרה", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  { id: "inst_violin", name: "Violin", nameHe: "כינור", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  { id: "inst_flute", name: "Flute", nameHe: "חליל", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  { id: "inst_drum", name: "Drum", nameHe: "תוף", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  { id: "inst_harmonica", name: "Harmonica", nameHe: "מפוחית", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  { id: "inst_harp", name: "Harp", nameHe: "נבל", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  { id: "inst_banjo", name: "Banjo", nameHe: "באנג'ו", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  { id: "inst_keyboard", name: "Keyboard", nameHe: "קלידים", category: "gear", description: "כלי נגינה — מוקד הטלה לברד." },
+  // === Magic instruments ===
+  { id: "minst_storm_guitar", name: "Stormstring Guitar", nameHe: "גיטרת הסערה", category: "wondrous", rarity: "rare", attunement: true,
+    description: "כישופים שמטילים דרכה שגורמים נזק מוסיפים +1d6 נזק ברק (lightning) ליעד אחד." },
+  { id: "minst_healing_guitar", name: "Guitar of the Healing Chord", nameHe: "גיטרת האקורד המרפא", category: "wondrous", rarity: "very rare", attunement: true,
+    description: "פעם ביום (action): כל בני הברית ב-30ft מתרפאים 2d8 + CHA mod." },
+  { id: "minst_charm_guitar", name: "Silver-Tongue Guitar", nameHe: "גיטרת לשון הכסף", category: "wondrous", rarity: "uncommon", attunement: true,
+    description: "Advantage על בדיקות Charisma (Persuasion/Deception/Performance/Intimidation) בזמן שאתה מנגן." },
   // === Adventuring gear (non-magical, free quantity) ===
   { id: "torch", name: "Torch", nameHe: "לפיד", category: "gear",
     description: "אור 20ft + 20ft עמום, שעה. 1 fire damage כנשק." },

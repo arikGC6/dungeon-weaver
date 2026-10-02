@@ -65,18 +65,6 @@ export const RACES: Race[] = [
           { name: "Necrotic Resistance", desc: "Resistance לנזק נקרוטי." },
         ],
       },
-      {
-        id: "eladrin", name: "Eladrin", nameHe: "אלדרין", source: "MPMM",
-        desc: "אלפי ה-Feywild המשתנים עם העונות — כל עונה משנה את אפקט ה-Fey Step.",
-        abilityBonuses: [{ ability: "cha", amount: 1 }],
-        traits: [
-          { name: "Fey Step", desc: "Bonus Action — טלפורט 30ft, פעם פר short rest.", level: 1, special: true },
-          { name: "Season: Autumn", desc: "אחרי Fey Step: שני יצורים ב-10ft — WIS save או charmed לדקה." },
-          { name: "Season: Winter", desc: "אחרי Fey Step: יצור ב-5ft — WIS save או frightened עד סוף התור הבא." },
-          { name: "Season: Spring", desc: "אחרי Fey Step: החלף מקום עם יצור מסכים ב-5ft." },
-          { name: "Season: Summer", desc: "אחרי Fey Step: כל יצור ב-5ft סופג נזק אש = בונוס בקיאות." },
-        ],
-      },
 
     ],
   },
@@ -587,13 +575,14 @@ export const RACES: Race[] = [
   // === Verdan (Acquisitions Incorporated) ===
   {
     id: "verdan", name: "Verdan", nameHe: "וֶרְדַן", source: "AI",
-    speed: 30, size: "Small",
+    speed: 30, size: "Small", sizeAtLevel: { level: 5, size: "Medium" },
     abilityBonuses: [{ ability: "cha", amount: 2 }, { ability: "wis", amount: 1 }],
     languages: ["Common", "Goblin", "+1 choice"],
     traits: [
       { name: "Persuasive Magic", desc: "Friends cantrip; ברמה 3 — Charm Person 1×/rest." },
       { name: "Telepathic Insight", desc: "Advantage על WIS/CHA saves נגד magic." },
       { name: "Limited Telepathy", desc: "טלפתיה 30ft." },
+      { name: "Growth Spurt", desc: "מתחת לרמה 5 — Small; מרמה 5 — Medium.", level: 5, special: true },
       { name: "Black Blood Healing", desc: "רגנרציה מוגברת ב-rest קצר: קוביית hit die מקסימלית." },
     ],
   },
@@ -707,8 +696,58 @@ export const RACES: Race[] = [
       { name: "Glide", desc: "דאייה 5ft אופקית לכל 1ft נפילה; ללא נזק נפילה.", special: true },
       { name: "Hadozee Dodge", desc: "Reaction: הפחתת נזק 1d6+Prof, פעמים = Prof bonus." },
     ] },
+  { id: "eladrin", name: "Eladrin", nameHe: "אלדרין", source: "MPMM", speed: 30, size: "Medium", darkvision: 60,
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "cha", amount: 1 }], languages: ["Common", "Elvish"],
+    traits: [
+      { name: "Fey Ancestry", desc: "Advantage נגד charmed." },
+      { name: "Keen Senses", desc: "Proficiency ב-Perception." },
+      { name: "Trance", desc: "4 שעות טראנס במקום שינה." },
+      { name: "Fey Step", desc: "Bonus Action — טלפורט 30ft, פעמים = Prof bonus ל-long rest. אפקט לפי העונה שבחרת.", special: true },
+    ],
+    subraceLabel: "עונה",
+    subraces: [
+      { id: "el-autumn", name: "Autumn", nameHe: "סתיו", abilityBonuses: [], traits: [{ name: "Fey Step: Autumn", desc: "אחרי הטלפורט: עד 2 יצורים ב-10ft — WIS save או charmed לדקה.", level: 3, special: true }] },
+      { id: "el-winter", name: "Winter", nameHe: "חורף", abilityBonuses: [], traits: [{ name: "Fey Step: Winter", desc: "לפני הטלפורט: יצור ב-5ft — WIS save או frightened עד סוף התור הבא.", level: 3, special: true }] },
+      { id: "el-spring", name: "Spring", nameHe: "אביב", abilityBonuses: [], traits: [{ name: "Fey Step: Spring", desc: "אפשר לטלפרט יצור מסכים ב-5ft במקומך.", level: 3, special: true }] },
+      { id: "el-summer", name: "Summer", nameHe: "קיץ", abilityBonuses: [], traits: [{ name: "Fey Step: Summer", desc: "אחרי הטלפורט: כל יצור ב-5ft סופג נזק אש = CHA mod (מינ' 1).", level: 3, special: true }] },
+    ] },
+  { id: "opteran", name: "Opteran", nameHe: "אופטרן", source: "Homebrew", speed: 30, size: "Small",
+    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "wis", amount: 1 }], languages: ["Common", "Sylvan"],
+    traits: [
+      { name: "Insect Wings", desc: "מהירות תעופה 30ft (לא בשריון בינוני/כבד).", special: true },
+      { name: "Antennae", desc: "Advantage על Perception מבוסס ריח/רטט." },
+      { name: "Metamorphosis", desc: "ברמה 5 — הגוף מתבגר: נחשב Medium.", level: 5 },
+    ] },
 ];
 
 export function getRace(id?: string): Race | undefined {
   return RACES.find((r) => r.id === id);
+}
+
+/** Effective size — handles races that grow with level (e.g. Verdan). */
+export function raceSize(race: Race | undefined, level: number): Race["size"] {
+  if (!race) return "Medium";
+  if (race.sizeAtLevel && level >= race.sizeAtLevel.level) return race.sizeAtLevel.size;
+  return race.size;
+}
+export const SIZE_HE: Record<Race["size"], string> = { Small: "קטן", Medium: "בינוני", Large: "גדול" };
+
+/** Capability tags used by the race filter (derived from data + trait text). */
+export type RaceCapability = "fly" | "swim" | "water" | "darkvision" | "fast" | "small" | "telepathy" | "natural_armor";
+export const RACE_CAPABILITY_LABELS: Record<RaceCapability, string> = {
+  fly: "🪽 תעופה/דאייה", swim: "🌊 שחייה", water: "🫧 נשימה במים", darkvision: "👁️ ראיית חשכה",
+  fast: "🏃 מהירות 35+", small: "🐭 גודל קטן", telepathy: "🧠 טלפתיה", natural_armor: "🛡️ שריון טבעי",
+};
+export function raceCapabilities(r: Race): Set<RaceCapability> {
+  const txt = [...r.traits, ...(r.subraces ?? []).flatMap(s => s.traits)].map(t => `${t.name} ${t.desc}`).join(" ").toLowerCase();
+  const out = new Set<RaceCapability>();
+  if (/fly|flight|wings|glide|תעופה|כנפיים|דאייה/.test(txt)) out.add("fly");
+  if (/swim|שחי/.test(txt)) out.add("swim");
+  if (/amphibious|water breathing|aquatic|breathe|נשימה במים/.test(txt)) out.add("water");
+  if (r.darkvision || (r.subraces ?? []).some(s => s.darkvision)) out.add("darkvision");
+  if (r.speed >= 35 || (r.subraces ?? []).some(s => (s.speed ?? 0) >= 35)) out.add("fast");
+  if (r.size === "Small") out.add("small");
+  if (/telepath|טלפתי/.test(txt)) out.add("telepathy");
+  if (/natural armor|carapace|shell|ac = 1|שריון טבעי/.test(txt)) out.add("natural_armor");
+  return out;
 }
