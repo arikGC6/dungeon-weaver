@@ -40,6 +40,10 @@ import tortle from "../assets/races/tortle.jpg.asset.json";
 import leonin from "../assets/races/leonin.jpg.asset.json";
 import minotaur from "../assets/races/minotaur.jpg.asset.json";
 import yuanti from "../assets/races/yuan-ti.jpg.asset.json";
+import simicHybrid from "../assets/races/simic-hybrid.jpg.asset.json";
+import opteran from "../assets/races/opteran.jpg.asset.json";
+import vedalken from "../assets/races/vedalken.jpg.asset.json";
+import genasi from "../assets/races/genasi.jpg.asset.json";
 import shifter from "../assets/races/shifter.jpg.asset.json";
 import reborn from "../assets/races/reborn.jpg.asset.json";
 import centaur from "../assets/races/centaur.jpg.asset.json";
@@ -49,6 +53,11 @@ import centaur from "../assets/races/centaur.jpg.asset.json";
 export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   human: human.url,
   shifter: shifter.url,
+  "simic-hybrid": simicHybrid.url,
+  "opteran": opteran.url,
+  "vedalken": vedalken.url,
+  "genasi": genasi.url,
+
   reborn: reborn.url,
   centaur: centaur.url,
   elf: elf.url,
