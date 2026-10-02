@@ -64,6 +64,7 @@ export interface Race {
   source: string;
   speed: number; // base walking speed in ft
   size: "Small" | "Medium" | "Large";
+  sizeAtLevel?: { level: number; size: "Small" | "Medium" | "Large" }; // races that grow (Verdan)
   abilityBonuses: AbilityBonus[];
   darkvision?: number;
   languages: string[];

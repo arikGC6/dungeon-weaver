@@ -1,3 +1,4 @@
+import { raceSize, SIZE_HE } from "../data/races";
 import type { Character } from "./dnd-types";
 import { ABILITY_SHORT, ABILITY_LABELS, SKILL_LIST, formatMod } from "./dnd-types";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground, resolveBackground } from "./calculations";
@@ -124,6 +125,7 @@ export function exportCharacterPdf(c: Character) {
         <span><b>קלאס:</b> ${cls?.nameHe ?? "—"}${sub ? ` (${sub.nameHe})` : ""}</span>
         <span><b>רמה:</b> ${c.level}</span>
         <span><b>גזע:</b> ${race?.nameHe ?? "—"}${subrace ? ` (${subrace.nameHe})` : ""}</span>
+        <span><b>גודל:</b> ${SIZE_HE[raceSize(race, c.level)]}</span>
         <span><b>רקע:</b> ${bg?.nameHe ?? "—"}</span>
         <span><b>מערך:</b> ${c.alignment ?? "—"}</span>
         <span><b>שחקן:</b> ${c.player ?? "—"}</span>

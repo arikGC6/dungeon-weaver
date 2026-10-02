@@ -134,6 +134,11 @@ export const WEAPONS: Weapon[] = [
   W("wcr_rope_dart", "Rope Dart", "חץ-חבל", "simple_ranged", "1d4", "piercing", ["Finesse", "Thrown", "Special"], { range: "20/60", weight: 2, notes: "בפגיעה — מותר לגרור את היעד 10ft או להוריד אותו מגובה." }),
   W("wcr_smoke_bomb_launcher", "Smoke Launcher", "משגר עשן", "simple_ranged", "—", "—", ["Ammunition", "Special"], { range: "30/60", weight: 2, notes: "יוצר ענן עשן ברדיוס 10ft — מאפשר Hide מיידי." }),
   W("wcr_poison_darts", "Berserk Darts", "חצי הזעם", "simple_ranged", "1d4", "piercing", ["Finesse", "Thrown", "Special"], { range: "30/90", weight: 0.25, notes: "CON save DC 13 או היעד תוקף את הקרוב אליו בתורו." }),
+
+  // ===== Magic instrument-weapons =====
+  W("wmi_harp_bow", "Harpstring Bow", "קשת-נבל", "martial_ranged", "1d8", "piercing", ["Ammunition", "Two-Handed", "Magic", "Instrument"], { range: "150/600", notes: "גם נבל. אם יש לך proficiency בנבל: 3 פעמים ביום ירייה מנוגנת עם Advantage על ההתקפה." }),
+  W("wmi_violin_crossbow", "Violin Crossbow", "כינור-רובה חצים", "martial_ranged", "1d8", "piercing", ["Ammunition", "Loading", "Two-Handed", "Magic", "Instrument"], { range: "80/320", notes: "Bonus action — הופך מכינור (מוקד הטלה) לרובה חצים וחזרה." }),
+  W("wmi_poison_flute", "Viper Flute", "חליל הצפע", "simple_ranged", "1d4", "piercing", ["Magic", "Instrument"], { range: "30/90", notes: "יורה חץ רעיל: +1d6 poison; CON save DC 13 או Poisoned עד סוף התור הבא." }),
 ];
 
 export const getWeapon = (id: string) => WEAPONS.find(w => w.id === id);
