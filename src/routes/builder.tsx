@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { emptyCharacter } from "@/lib/calculations";
-import { RACES } from "@/data/races";
+import { RACES, raceSize, SIZE_HE, raceCapabilities, RACE_CAPABILITY_LABELS, type RaceCapability } from "@/data/races";
 import { CLASSES, featuresUpToLevel } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS, isFeatAvailable } from "@/data/feats";
@@ -183,7 +183,11 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
   const [filter, setFilter] = useState("");
   useHydrateRacePortraits();
   const { portraits, setPortrait, clearPortrait } = useRacePortraits();
-  const filtered = RACES.filter(r => !filter || r.nameHe.includes(filter) || r.name.toLowerCase().includes(filter.toLowerCase()));
+  const [caps, setCaps] = useState<RaceCapability[]>([]);
+  const [minSpeed, setMinSpeed] = useState(0);
+  const filtered = RACES.filter(r => (!filter || r.nameHe.includes(filter) || r.name.toLowerCase().includes(filter.toLowerCase()))
+    && r.speed >= minSpeed
+    && caps.every(cp => raceCapabilities(r).has(cp)));
 
   const upload = async (raceId: string, file?: File | null) => {
     if (!file) return;
@@ -195,6 +199,21 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
     <div className="space-y-4">
       <h2 className="display text-2xl text-primary">בחר גזע</h2>
       <input className="input w-full" placeholder="חפש גזע..." value={filter} onChange={e => setFilter(e.target.value)} />
+      <div className="flex flex-wrap gap-1.5 items-center" aria-label="סינון לפי יכולות">
+        {(Object.keys(RACE_CAPABILITY_LABELS) as RaceCapability[]).map(cp => (
+          <button key={cp} type="button" onClick={() => setCaps(v => v.includes(cp) ? v.filter(x => x !== cp) : [...v, cp])}
+            className={`text-xs px-2 py-1 rounded-full border ${caps.includes(cp) ? "bg-primary/25 border-primary" : "border-border hover:bg-secondary/40"}`}>
+            {RACE_CAPABILITY_LABELS[cp]}
+          </button>
+        ))}
+        <label className="text-xs flex items-center gap-1 mr-2">מהירות מינ׳
+          <select className="input py-0.5 text-xs" value={minSpeed} onChange={e => setMinSpeed(Number(e.target.value))}>
+            {[0, 30, 35, 40].map(v => <option key={v} value={v}>{v ? `${v}ft+` : "הכל"}</option>)}
+          </select>
+        </label>
+        {(caps.length > 0 || minSpeed > 0) && <button type="button" className="text-xs underline" onClick={() => { setCaps([]); setMinSpeed(0); }}>נקה</button>}
+        <span className="text-xs text-muted-foreground">{filtered.length} גזעים</span>
+      </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[360px] overflow-y-auto">
         {filtered.map(r => (
           <button key={r.id} onClick={() => update({ raceId: r.id, subraceId: undefined })}
@@ -203,7 +222,7 @@ function Step1Race({ c, update }: { c: Character; update: (p: Partial<Character>
               <RacePortrait raceId={r.id} nameHe={r.nameHe} />
               <div className="min-w-0">
                 <div className="font-semibold">{r.nameHe} <span className="text-xs text-muted-foreground">({r.name})</span></div>
-                <div className="text-xs text-muted-foreground">מהירות {r.speed}ft · {r.size} {r.darkvision ? `· darkvision ${r.darkvision}` : ""}</div>
+                <div className="text-xs text-muted-foreground">מהירות {r.speed}ft · {SIZE_HE[raceSize(r, c.level)]} {r.darkvision ? `· darkvision ${r.darkvision}` : ""}</div>
                 <div className="text-xs mt-1">{r.abilityBonuses.map(b => `${ABILITY_SHORT[b.ability]}${b.amount >= 0 ? "+" : ""}${b.amount}`).join(", ")}</div>
               </div>
             </div>

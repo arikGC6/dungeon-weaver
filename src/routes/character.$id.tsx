@@ -1,3 +1,4 @@
+import { raceSize, SIZE_HE } from "@/data/races";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCharacters, useHydrateCharacters } from "@/lib/character-store";
 import { calculateCharacter, getRace, getClass, getFeat, getItem, getSpell, getBackground, resolveBackground } from "@/lib/calculations";
@@ -70,7 +71,7 @@ function CharacterPage() {
             <div className="w-40 h-40 mx-auto rounded-md bg-secondary border-2 border-border flex items-center justify-center text-6xl">🧙</div>
           )}
           <h2 className="display text-2xl text-primary mt-3">{c.name}</h2>
-          <p className="text-sm text-muted-foreground">{race?.nameHe}{subrace ? ` · ${subrace.nameHe}` : ""}</p>
+          <p className="text-sm text-muted-foreground">{race?.nameHe}{subrace ? ` · ${subrace.nameHe}` : ""} · גודל {SIZE_HE[raceSize(race, c.level)]}</p>
           <p className="text-sm text-muted-foreground">{cls?.nameHe}{sub ? ` (${sub.nameHe})` : ""} · רמה {c.level}</p>
           {c.multiclass && c.multiclass.length > 0 && (
             <p className="text-xs text-accent">
