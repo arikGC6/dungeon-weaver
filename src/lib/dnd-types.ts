@@ -237,6 +237,8 @@ export interface Character {
   // Warlock: pact boon (Chain/Blade/Tome/Talisman) + eldritch invocations
   pactBoonId?: string;
   invocationIds?: string[];
+  // Class option picks (Battle Master maneuvers, Rune Knight runes, Totem spirit) keyed by group id.
+  classChoices?: Record<string, string[]>;
 
 
   spellIds: string[];      // known/learned spells

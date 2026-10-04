@@ -122,7 +122,7 @@ export const CLASS_OPTION_GROUPS: ClassOptionGroup[] = [
     ],
   },
   {
-    id: "totem", label: "רוח טוטם (Totem Warrior)", classId: "barbarian", subclassId: "totem_warrior",
+    id: "totem", label: "רוח טוטם (Totem Warrior)", classId: "barbarian", subclassId: "totem",
     countAt: [[3, 1]],
     options: [
       { id: "bear", name: "Bear", desc: "בזעם: Resistance לכל נזק חוץ מ-Psychic" },

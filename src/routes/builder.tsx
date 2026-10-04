@@ -6,6 +6,7 @@ import { RACES, raceSize, SIZE_HE, raceCapabilities, RACE_CAPABILITY_LABELS, typ
 import { CLASSES, featuresUpToLevel } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS, isFeatAvailable } from "@/data/feats";
+import { availableOptionGroups } from "@/data/grants";
 import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";

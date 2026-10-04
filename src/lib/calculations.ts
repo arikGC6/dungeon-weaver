@@ -6,6 +6,7 @@ import { getItem, ARMOR_BASE } from "../data/items";
 import { getSpell } from "../data/spells";
 import { getBackground } from "../data/backgrounds";
 import { getFightingStyle } from "../data/fighting-styles";
+import { computeGrants } from "../data/grants";
 
 export interface DerivedStats {
   abilities: Record<Ability, number>;
@@ -400,6 +401,14 @@ export function calculateCharacter(c: Character): DerivedStats {
   const asiRemaining = Math.max(0, asiTotal - asiUsed);
   const asiNextAt = asiLevels.find(l => l > level);
   const asi = { total: asiTotal, used: asiUsed, remaining: asiRemaining, levels: asiLevels, nextAt: asiNextAt };
+
+  {
+    const g = computeGrants(c, { level, pb: proficiencyBonus, mods: abilityMods });
+    grantedAttacks.push(...g.attacks);
+    g.spellIds.forEach(id => { if (getSpell(id) && !alwaysPreparedSpellIds.includes(id)) alwaysPreparedSpellIds.push(id); });
+    classResources.push(...g.resources);
+    subclassEffects.push(...g.effects);
+  }
 
   return {
     abilities, abilityMods, proficiencyBonus, ac, hpMax, speed, initiative,
