@@ -6,6 +6,7 @@ import { RACES, raceSize, SIZE_HE, raceCapabilities, RACE_CAPABILITY_LABELS, typ
 import { CLASSES, featuresUpToLevel } from "@/data/classes";
 import { BACKGROUNDS } from "@/data/backgrounds";
 import { FEATS, isFeatAvailable } from "@/data/feats";
+import { availableOptionGroups } from "@/data/grants";
 import { FIGHTING_STYLES, fightingStyleSlots, fightingStylesFor } from "@/data/fighting-styles";
 import { ITEMS } from "@/data/items";
 import { SPELLS, SCHOOL_LABELS_HE } from "@/data/spells";
@@ -899,6 +900,32 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
           );
         })}
       </div>
+
+      {availableOptionGroups(c).map(({ group, max }) => {
+        const picked = c.classChoices?.[group.id] ?? [];
+        const togglePick = (id: string) => {
+          const next = picked.includes(id) ? picked.filter(x => x !== id) : picked.length < max ? [...picked, id] : picked;
+          update({ classChoices: { ...(c.classChoices ?? {}), [group.id]: next } });
+        };
+        return (
+          <div key={group.id} className="border-t border-border pt-3">
+            <h3 className="display text-xl text-primary mb-1">{group.label}</h3>
+            <p className="text-xs text-muted-foreground mb-2">נבחרו {picked.length}/{max} ברמה הנוכחית. הבחירות מופיעות אוטומטית בלשונית המתקפות / ההשפעות בגיליון.</p>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {group.options.map(o => {
+                const on = picked.includes(o.id);
+                return (
+                  <button key={o.id} type="button" onClick={() => togglePick(o.id)}
+                    className={`text-right p-2 rounded border ${on ? "border-primary bg-primary/15" : "border-border bg-background/40"}`}>
+                    <div className="font-semibold">{on ? "✅ " : ""}{o.name} {o.attack && <span className="text-[10px] text-accent">⚔️ מתקפה</span>}</div>
+                    <div className="text-xs text-muted-foreground">{o.desc}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
 
       {fsSlots > 0 && (
         <div className="border-t border-border pt-3">

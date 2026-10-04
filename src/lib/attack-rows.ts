@@ -1,6 +1,7 @@
 import type { Character, Spell } from "./dnd-types";
 import { formatMod } from "./dnd-types";
 import { getSpellAttackMeta } from "../data/spell-attacks";
+import { hasItem, STORM_GUITAR_BONUS } from "../data/grants";
 
 export interface SpellAttackRow {
   id: string;
@@ -51,7 +52,7 @@ export function resolveSpellAttackRow(
     range: ov.range || spell.range,
     area: ov.area || meta?.area || "יעד יחיד",
     bonusOrDc: ov.bonus || defaultBonus,
-    damageDice: ov.damageDice || meta?.damageDice || "—",
+    damageDice: (ov.damageDice || meta?.damageDice || "—") + (!ov.damageDice && meta?.damageDice && hasItem(c, "minst_storm_guitar") ? ` ${STORM_GUITAR_BONUS} (גיטרה)` : ""),
     damageType: ov.damageType || meta?.damageType || "—",
     saveEffect: ov.saveEffect || (meta?.attackType === "save" ? (meta.saveEffect ?? "—") : "—"),
     higherLevel: ov.higherLevel || meta?.higherLevel || "—",
