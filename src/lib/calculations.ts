@@ -406,7 +406,7 @@ export function calculateCharacter(c: Character): DerivedStats {
     const g = computeGrants(c, { level, pb: proficiencyBonus, mods: abilityMods });
     grantedAttacks.push(...g.attacks);
     g.spellIds.forEach(id => { if (getSpell(id) && !alwaysPreparedSpellIds.includes(id)) alwaysPreparedSpellIds.push(id); });
-    classResources.push(...g.resources);
+    classResources.push(...g.resources.map(r => ({ ...r, className: r.className ?? "" })));
     subclassEffects.push(...g.effects);
   }
 
