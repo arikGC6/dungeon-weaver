@@ -190,5 +190,71 @@ export function computeGrants(c: Character, x: Ctx) {
   if (c.itemIds.some(i => i.id === "wmi_harp_bow")) {
     attacks.push({ name: "ירייה מנוגנת (Harpstring Bow)", bonus: formatMod(x.mods.dex + x.pb), damage: `1d8${formatMod(x.mods.dex)}`, damageType: "דקירה (piercing)", range: "150/600", resource: "3/יום", notes: "Advantage על ההתקפה (דורש proficiency בנבל)", source: "חפץ: קשת-נבל" });
   }
+  const cf = classFeatureGrants(c, x, new Set(attacks.map(a => a.name)));
+  attacks.push(...cf.attacks); spellIds.push(...cf.spellIds);
   return { attacks, spellIds, resources, effects };
+}
+
+// ---------- Generic class-feature classifier ----------
+// Every unlocked class/subclass feature is inspected: features naming a known spell go to the
+// Spells tab; features that are actions/attacks (action keyword or damage dice) become Attack cards.
+import { getClass } from "./classes";
+import { SPELLS } from "./spells";
+
+const SPELL_INDEX = SPELLS.filter(s => s.name.length > 3)
+  .map(s => ({ id: s.id, re: new RegExp(`\\b${s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`) }));
+const PASSIVE = /^(Ability Score Improvement|Spellcasting|Pact Magic|Primal Path|Expertise|Unarmored Defense|Fighting Style|.*Subclass.*|Otherworldly Patron|Sacred Oath|Arcane Tradition|Martial Archetype|Roguish Archetype|Divine Domain|Druid Circle|Bardic College|Sorcerous Origin|Ranger Archetype|Monastic Tradition|Artificer Specialist)/i;
+
+function actionType(t: string): string {
+  if (/bonus action/i.test(t)) return "Bonus Action";
+  if (/reaction/i.test(t)) return "Reaction";
+  if (/\baction\b|attack action/i.test(t)) return "Action";
+  if (/on hit|בפגיעה|פעם בתור|once per turn/i.test(t)) return "בפגיעה (פעם בתור)";
+  return "יכולת";
+}
+function uses(t: string): string {
+  const rest = /long rest/i.test(t) ? "Long Rest" : /short rest/i.test(t) ? "Short Rest" : "";
+  const prof = /prof(iciency)? bonus|פעמים = prof/i.test(t) ? "PB×" : "";
+  if (prof && rest) return `${prof} / ${rest}`;
+  if (rest) return `1 / ${rest}`;
+  if (/spell slot|סלוט/i.test(t)) return "Spell Slot";
+  if (/\bki\b/i.test(t)) return "Ki";
+  if (/superiority/i.test(t)) return "Superiority Die";
+  if (/פעמים|times|uses/i.test(t)) return "מוגבל (ראה תיאור)";
+  return "חופשי";
+}
+const IS_COMBAT = /\d+d\d+|\baction\b|bonus action|reaction|attack|התקפ|נזק|damage|save|הצלת/i;
+
+export function classFeatureGrants(c: Character, x: Ctx, existingNames: Set<string>) {
+  const attacks: GrantedAttack[] = [];
+  const spellIds: string[] = [];
+  const entries = [{ classId: c.classId }, ...(c.multiclass ?? []).map(m => ({ classId: m.classId }))];
+  for (const { classId } of entries) {
+    const cls = getClass(classId);
+    if (!cls) continue;
+    const cl = classLevelOf(c, classId);
+    const sub = cls.subclasses.find(s => s.id === cl.subclassId);
+    const feats = [...cls.features, ...(sub?.features ?? [])].filter(f => f.level <= cl.level && f.desc);
+    const seen = new Set<string>();
+    for (const f of feats) {
+      const base = f.name.replace(/\s*\(.*\)$/, "");
+      if (seen.has(base) || PASSIVE.test(f.name)) continue;
+      const text = `${f.name} ${f.desc}`;
+      const spells = SPELL_INDEX.filter(s => s.re.test(text)).map(s => s.id);
+      if (spells.length) { spellIds.push(...spells); seen.add(base); continue; }
+      if (!IS_COMBAT.test(text)) continue;
+      // Keep only the highest-level version of a scaling feature (e.g. Brutal Critical 1→2→3 dice).
+      const later = feats.filter(g => g.name.replace(/\s*\(.*\)$/, "") === base).pop()!;
+      seen.add(base);
+      if ([...existingNames].some(n => n.includes(base))) continue;
+      const dice = `${later.name} ${later.desc}`.match(/\d+d\d+/)?.[0] ?? "—";
+      attacks.push({
+        name: later.name, bonus: /save|הצלת/i.test(later.desc) && cls.spellAbility ? `DC ${8 + x.pb + x.mods[cls.spellAbility]}` : "—",
+        damage: dice, damageType: "ראה תיאור", range: "—",
+        resource: `${actionType(later.desc)} · ${uses(later.desc)}`,
+        notes: later.desc, source: `${sub && sub.features.includes(later) ? sub.nameHe : cls.nameHe} ${later.level}`,
+      });
+    }
+  }
+  return { attacks, spellIds };
 }

@@ -67,6 +67,8 @@ export const WEAPONS: Weapon[] = [
 
   // ===== Martial ranged =====
   W("w_blowgun", "Blowgun", "מקל נשיפה", "martial_ranged", "1", "piercing", ["Ammunition", "Loading"], { range: "25/100", weight: 1, cost: "10 gp" }),
+  W("w_yklwa", "Yklwa", "יקלווה", "simple_melee", "1d8", "piercing", ["Thrown"], { range: "10/30", weight: 3, cost: "1 gp" }),
+  W("w_hoopak", "Hoopak", "הופאק", "martial_melee", "1d6", "piercing", ["Ammunition", "Finesse", "Two-Handed"], { range: "40/160", weight: 2, cost: "1 gp", notes: "כנשק טווח: 1d4 bludgeoning עם כדורי קלע." }),
   W("w_crossbow_hand", "Hand Crossbow", "קשת יד", "martial_ranged", "1d6", "piercing", ["Ammunition", "Light", "Loading"], { range: "30/120", weight: 3, cost: "75 gp" }),
   W("w_crossbow_heavy", "Heavy Crossbow", "קשת-חצים כבדה", "martial_ranged", "1d10", "piercing", ["Ammunition", "Heavy", "Loading", "Two-Handed"], { range: "100/400", weight: 18, cost: "50 gp" }),
   W("w_longbow", "Longbow", "קשת ארוכה", "martial_ranged", "1d8", "piercing", ["Ammunition", "Heavy", "Two-Handed"], { range: "150/600", weight: 2, cost: "50 gp" }),
