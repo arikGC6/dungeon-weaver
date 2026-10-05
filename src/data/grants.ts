@@ -202,7 +202,7 @@ import { getClass } from "./classes";
 import { SPELLS } from "./spells";
 
 const SPELL_INDEX = SPELLS.filter(s => s.name.length > 3)
-  .map(s => ({ id: s.id, re: new RegExp(`\\b${s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i") }));
+  .map(s => ({ id: s.id, re: new RegExp(`\\b${s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`) }));
 const PASSIVE = /^(Ability Score Improvement|Spellcasting|Pact Magic|Primal Path|Expertise|Unarmored Defense|Fighting Style|.*Subclass.*|Otherworldly Patron|Sacred Oath|Arcane Tradition|Martial Archetype|Roguish Archetype|Divine Domain|Druid Circle|Bardic College|Sorcerous Origin|Ranger Archetype|Monastic Tradition|Artificer Specialist)/i;
 
 function actionType(t: string): string {
