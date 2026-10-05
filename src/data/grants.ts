@@ -217,6 +217,9 @@ function uses(t: string): string {
   const prof = /prof(iciency)? bonus|פעמים = prof/i.test(t) ? "PB×" : "";
   if (prof && rest) return `${prof} / ${rest}`;
   if (rest) return `1 / ${rest}`;
+  if (/spell slot|סלוט/i.test(t)) return "Spell Slot";
+  if (/\bki\b/i.test(t)) return "Ki";
+  if (/superiority/i.test(t)) return "Superiority Die";
   if (/פעמים|times|uses/i.test(t)) return "מוגבל (ראה תיאור)";
   return "חופשי";
 }
@@ -244,7 +247,7 @@ export function classFeatureGrants(c: Character, x: Ctx, existingNames: Set<stri
       const later = feats.filter(g => g.name.replace(/\s*\(.*\)$/, "") === base).pop()!;
       seen.add(base);
       if ([...existingNames].some(n => n.includes(base))) continue;
-      const dice = later.desc.match(/\d+d\d+/)?.[0] ?? "—";
+      const dice = `${later.name} ${later.desc}`.match(/\d+d\d+/)?.[0] ?? "—";
       attacks.push({
         name: later.name, bonus: /save|הצלת/i.test(later.desc) && cls.spellAbility ? `DC ${8 + x.pb + x.mods[cls.spellAbility]}` : "—",
         damage: dice, damageType: "ראה תיאור", range: "—",
