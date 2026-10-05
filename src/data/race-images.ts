@@ -7,10 +7,10 @@ import halfOrc from "../assets/races/half-orc.jpg.asset.json";
 import dragonborn from "../assets/races/dragonborn.jpg.asset.json";
 import tiefling from "../assets/races/tiefling.jpg.asset.json";
 import tabaxi from "../assets/races/tabaxi.jpg.asset.json";
-import kenku from "../assets/races/kenku.jpg.asset.json";
-import warforged from "../assets/races/warforged.jpg.asset.json";
+import kenku from "../assets/races/kenku4.jpg.asset.json";
+import warforged from "../assets/races/warforged4.jpg.asset.json";
 import autognome from "../assets/races/autognome.jpg.asset.json";
-import plasmoid from "../assets/races/plasmoid.jpg.asset.json";
+import plasmoid from "../assets/races/plasmoid4.jpg.asset.json";
 import owlin from "../assets/races/owlin.jpg.asset.json";
 import aarakocra from "../assets/races/aarakocra3.jpg.asset.json";
 import thriKreen from "../assets/races/thri-kreen.jpg.asset.json";
@@ -18,8 +18,8 @@ import hexblood from "../assets/races/hexblood3.jpg.asset.json";
 import halfling from "../assets/races/halfling.jpg.asset.json";
 import dwarf from "../assets/races/dwarf3.jpg.asset.json";
 import gnome from "../assets/races/gnome3.jpg.asset.json";
-import aasimar from "../assets/races/aasimar.jpg.asset.json";
-import harengon from "../assets/races/harengon.jpg.asset.json";
+import aasimar from "../assets/races/aasimar4.jpg.asset.json";
+import harengon from "../assets/races/harengon4.jpg.asset.json";
 
 import grung from "../assets/races/grung3.jpg.asset.json";
 import firbolg from "../assets/races/firbolg3.jpg.asset.json";
@@ -35,22 +35,28 @@ import dhampir from "../assets/races/dhampir.jpg.asset.json";
 import loxodon from "../assets/races/loxodon.jpg.asset.json";
 import verdan from "../assets/races/verdan.jpg.asset.json";
 import satyr from "../assets/races/satyr3.jpg.asset.json";
-import tortle from "../assets/races/tortle.jpg.asset.json";
+import tortle from "../assets/races/tortle4.jpg.asset.json";
 import leonin from "../assets/races/leonin.jpg.asset.json";
 import minotaur from "../assets/races/minotaur3.jpg.asset.json";
-import yuanti from "../assets/races/yuan-ti.jpg.asset.json";
+import yuanti from "../assets/races/yuan-ti4.jpg.asset.json";
 import simicHybrid from "../assets/races/simic-hybrid.jpg.asset.json";
 import opteran from "../assets/races/opteran.jpg.asset.json";
 import vedalken from "../assets/races/vedalken.jpg.asset.json";
 import genasi from "../assets/races/genasi.jpg.asset.json";
 import shifter from "../assets/races/shifter.jpg.asset.json";
 import reborn from "../assets/races/reborn.jpg.asset.json";
+import githyanki from "../assets/races/githyanki4.jpg.asset.json";
+import eladrin from "../assets/races/eladrin4.jpg.asset.json";
+import lizardfolk from "../assets/races/lizardfolk4.jpg.asset.json";
 import centaur from "../assets/races/centaur.jpg.asset.json";
 
 
 
 export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   human: human.url,
+  githyanki: githyanki.url,
+  eladrin: eladrin.url,
+  lizardfolk: lizardfolk.url,
   shifter: shifter.url,
   "simic-hybrid": simicHybrid.url,
   "opteran": opteran.url,
