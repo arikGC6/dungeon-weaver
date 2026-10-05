@@ -33,7 +33,6 @@ import changeling from "../assets/races/changeling.jpg.asset.json";
 import orc from "../assets/races/orc.jpg.asset.json";
 import dhampir from "../assets/races/dhampir.jpg.asset.json";
 import loxodon from "../assets/races/loxodon.jpg.asset.json";
-import locathah from "../assets/races/locathah.jpg.asset.json";
 import verdan from "../assets/races/verdan.jpg.asset.json";
 import satyr from "../assets/races/satyr3.jpg.asset.json";
 import tortle from "../assets/races/tortle.jpg.asset.json";
@@ -91,7 +90,6 @@ export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   orc: orc.url,
   dhampir: dhampir.url,
   loxodon: loxodon.url,
-  locathah: locathah.url,
   verdan: verdan.url,
   satyr: satyr.url,
   tortle: tortle.url,

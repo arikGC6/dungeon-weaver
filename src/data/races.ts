@@ -617,18 +617,6 @@ export const RACES: Race[] = [
       { name: "Standing Leap", desc: "קפיצה 25ft/15ft." },
     ],
   },
-  // === Locathah ===
-  {
-    id: "locathah", name: "Locathah", nameHe: "לוקאתה", source: "LR",
-    speed: 30, size: "Medium",
-    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "con", amount: 1 }],
-    languages: ["Common", "Aquan"],
-    traits: [
-      { name: "Aquatic", desc: "נשימה במים; מהירות שחיה 30ft." },
-      { name: "Leviathan Will", desc: "Advantage נגד charmed, frightened, paralyzed, poisoned, stunned." },
-      { name: "Observant and Athletic", desc: "Proficiency ב-Athletics + Perception." },
-    ],
-  },
   { id: "githyanki", name: "Githyanki", nameHe: "גית'יאנקי", source: "MPMM", speed: 30, size: "Medium",
     abilityBonuses: [{ ability: "str", amount: 2 }, { ability: "int", amount: 1 }], languages: ["Common", "Gith", "+1 choice"],
     traits: [
@@ -675,20 +663,6 @@ export const RACES: Race[] = [
       { name: "Hold Breath", desc: "עצירת נשימה 15 דקות; שחייה 30ft." },
       { name: "Nature's Intuition", desc: "Proficiency ב-2 מ: Animal Handling, Medicine, Nature, Perception, Stealth, Survival." },
     ] },
-  { id: "kender", name: "Kender", nameHe: "קנדר", source: "DSotDQ", speed: 30, size: "Small",
-    abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "cha", amount: 1 }], languages: ["Common", "+1 choice"],
-    traits: [
-      { name: "Fearless", desc: "Advantage נגד frightened; פעם ב-long rest הופך כישלון להצלחה." },
-      { name: "Kender Aptitude", desc: "Proficiency ב-Insight/Investigation/Sleight of Hand/Stealth/Survival (אחד)." },
-      { name: "Taunt", desc: "Bonus action: WIS save או disadvantage על התקפות שלא נגדך.", special: true },
-    ] },
-  { id: "giff", name: "Giff", nameHe: "גיף", source: "SiAS", speed: 30, size: "Medium",
-    abilityBonuses: [{ ability: "str", amount: 2 }, { ability: "con", amount: 1 }], languages: ["Common"],
-    traits: [
-      { name: "Astral Spark", desc: "פגיעה בנשק פשוט/מלחמה: +Prof bonus force damage, פעמים = Prof bonus.", special: true },
-      { name: "Firearms Mastery", desc: "Proficiency בכלי ירייה; מתעלם מ-loading." },
-      { name: "Hippo Build", desc: "Advantage על STR checks/saves; נספר כ-Large לנשיאה." },
-    ] },
   { id: "hadozee", name: "Hadozee", nameHe: "הדוזי", source: "SiAS", speed: 30, size: "Medium",
     abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "con", amount: 1 }], languages: ["Common"],
     traits: [
@@ -711,7 +685,7 @@ export const RACES: Race[] = [
       { id: "el-spring", name: "Spring", nameHe: "אביב", abilityBonuses: [], traits: [{ name: "Fey Step: Spring", desc: "אפשר לטלפרט יצור מסכים ב-5ft במקומך.", level: 3, special: true }] },
       { id: "el-summer", name: "Summer", nameHe: "קיץ", abilityBonuses: [], traits: [{ name: "Fey Step: Summer", desc: "אחרי הטלפורט: כל יצור ב-5ft סופג נזק אש = CHA mod (מינ' 1).", level: 3, special: true }] },
     ] },
-  { id: "opteran", name: "Opteran", nameHe: "אופטרן", source: "Homebrew", speed: 30, size: "Small",
+  { id: "opteran", name: "Opteran", nameHe: "אופטרן", source: "Homebrew", speed: 30, size: "Small", sizeAtLevel: { level: 5, size: "Medium" },
     abilityBonuses: [{ ability: "dex", amount: 2 }, { ability: "wis", amount: 1 }], languages: ["Common", "Sylvan"],
     traits: [
       { name: "Insect Wings", desc: "מהירות תעופה 30ft (לא בשריון בינוני/כבד).", special: true },
