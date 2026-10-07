@@ -67,6 +67,19 @@ function raceAttacks(c: Character, x: Ctx): GrantedAttack[] {
   if (r === "tortle") out.push(natural("טפרים (Claws)", "1d4", "חיתוך (slashing)", "str", x, "גזע: Tortle"));
   if (r === "satyr") out.push(natural("נגיחה (Ram)", "1d4", "הלם (bludgeoning)", "str", x, "גזע: Satyr"));
   if (r === "lizardfolk") out.push(natural("נשיכה (Bite)", "1d6", "דקירה (piercing)", "str", x, "גזע: Lizardfolk", "Hungry Jaws: 1/Short Rest כ-Bonus Action — temp HP = CON mod"));
+  if (r === "goliath") {
+    const use = `PB (${x.pb}) / Long Rest`;
+    const G: Record<string, Omit<GrantedAttack, "source">> = {
+      "gol-cloud": { name: "Cloud's Jaunt", bonus: "—", damage: "—", damageType: "טלפורט", range: "30ft", resource: `Bonus Action · ${use}`, notes: "טלפורט קסום למקום פנוי שאתה רואה" },
+      "gol-fire": { name: "Fire's Burn", bonus: "—", damage: "+1d10", damageType: "אש (fire)", range: "בפגיעה", resource: `בפגיעה · ${use}`, notes: "נזק נוסף לאחר פגיעת התקפה" },
+      "gol-frost": { name: "Frost's Chill", bonus: "—", damage: "+1d6", damageType: "קור (cold)", range: "בפגיעה", resource: `בפגיעה · ${use}`, notes: "מהירות המטרה −10ft עד תחילת תורך" },
+      "gol-hill": { name: "Hill's Tumble", bonus: "—", damage: "Prone", damageType: "—", range: "בפגיעה", resource: `בפגיעה · ${use}`, notes: "מטרה Large או קטנה נופלת Prone" },
+      "gol-stone": { name: "Stone's Endurance", bonus: "—", damage: `−(1d12${formatMod(x.mods.con)})`, damageType: "הפחתת נזק", range: "עצמי", resource: `Reaction · ${use}`, notes: "מפחית מהנזק שחטפת" },
+      "gol-storm": { name: "Storm's Thunder", bonus: "—", damage: "1d8", damageType: "רעם (thunder)", range: "60ft", resource: `Reaction · ${use}`, notes: "לתוקף שפגע בך" },
+    };
+    const g = G[c.subraceId ?? ""]; if (g) out.push({ ...g, source: "גזע: Goliath" });
+    if (x.level >= 5) out.push({ name: "Large Form", bonus: "—", damage: "—", damageType: "—", range: "עצמי", resource: "Bonus Action · 1/Long Rest", notes: "Large ל-10 דק', Advantage על STR, +10ft מהירות", source: "גזע: Goliath 5" });
+  }
   return out;
 }
 

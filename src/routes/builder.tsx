@@ -151,7 +151,11 @@ function Step0Basics({ c, update }: { c: Character; update: (p: Partial<Characte
         <div className="flex-1 min-w-[260px] grid sm:grid-cols-2 gap-3">
           <Field label="שם הדמות"><input value={c.name} onChange={e => update({ name: e.target.value })} className="input" /></Field>
           <Field label="שם השחקן"><input value={c.player ?? ""} onChange={e => update({ player: e.target.value })} className="input" /></Field>
-          <Field label="רמה"><input type="number" min={1} max={20} value={c.level} onChange={e => update({ level: Math.max(1, Math.min(20, +e.target.value || 1)) })} className="input" /></Field>
+          <Field label="רמה"><div className="flex items-center gap-1">
+            <button type="button" aria-label="הורד רמה" className="btn-ghost px-2 py-1 rounded border border-border" disabled={c.level <= 1} onClick={() => update({ level: Math.max(1, c.level - 1) })}>▼</button>
+            <input type="number" min={1} max={20} value={c.level} onChange={e => update({ level: Math.max(1, Math.min(20, +e.target.value || 1)) })} className="input w-16 text-center" />
+            <button type="button" aria-label="העלה רמה" className="btn-ghost px-2 py-1 rounded border border-border" disabled={c.level >= 20} onClick={() => update({ level: Math.min(20, c.level + 1) })}>▲</button>
+          </div></Field>
           <Field label="מערך (Alignment)">
             <select className="input" value={c.alignment ?? ""} onChange={e => update({ alignment: e.target.value })}>
               <option value="">— בחר —</option>
