@@ -185,7 +185,7 @@ export function computeGrants(c: Character, x: Ctx) {
   });
 
   for (const { group, max, classLevel } of availableOptionGroups(c)) {
-    const chosen = (c.classChoices?.[group.id] ?? []).slice(0, max);
+    const chosen = c.classChoices?.[group.id] ?? []; void max;
     const cx = { ...x, level: classLevel };
     chosen.forEach(id => {
       const o = group.options.find(o => o.id === id);
@@ -203,6 +203,8 @@ export function computeGrants(c: Character, x: Ctx) {
   if (c.itemIds.some(i => i.id === "wmi_harp_bow")) {
     attacks.push({ name: "ירייה מנוגנת (Harpstring Bow)", bonus: formatMod(x.mods.dex + x.pb), damage: `1d8${formatMod(x.mods.dex)}`, damageType: "דקירה (piercing)", range: "150/600", resource: "3/יום", notes: "Advantage על ההתקפה (דורש proficiency בנבל)", source: "חפץ: קשת-נבל" });
   }
+  const rt = raceTraitGrants(c, x, new Set(attacks.map(a => a.name)), new Set(spellIds));
+  attacks.push(...rt.attacks); spellIds.push(...rt.spellIds);
   const cf = classFeatureGrants(c, x, new Set(attacks.map(a => a.name)));
   attacks.push(...cf.attacks); spellIds.push(...cf.spellIds);
   return { attacks, spellIds, resources, effects };
@@ -236,6 +238,19 @@ function uses(t: string): string {
   if (/פעמים|times|uses/i.test(t)) return "מוגבל (ראה תיאור)";
   return "חופשי";
 }
+const DMG_TYPES: [RegExp, string][] = [
+  [/fire|אש/i, "אש (fire)"], [/cold|קור/i, "קור (cold)"], [/lightning|ברק/i, "ברק (lightning)"], [/thunder|רעם/i, "רעם (thunder)"],
+  [/acid|חומצה/i, "חומצה (acid)"], [/poison|רעל/i, "רעל (poison)"], [/necrotic|נמק/i, "נמק (necrotic)"], [/radiant|קורן|אור/i, "קורן (radiant)"],
+  [/psychic|נפשי/i, "נפשי (psychic)"], [/force|כוח טהור/i, "כוח (force)"], [/slashing|חות/i, "חיתוך (slashing)"], [/piercing|דוק|דקיר/i, "דקירה (piercing)"],
+  [/bludgeoning|חוב|הלם/i, "הלם (bludgeoning)"],
+];
+export function parseDamageType(t: string) { return DMG_TYPES.find(([re]) => re.test(t))?.[1] ?? "לפי הנשק / ראה תיאור"; }
+export function parseRange(t: string) {
+  const m = t.match(/(\d+)\s*(?:ft|feet|רגל)/i);
+  if (/self|עצמ/i.test(t) && !m) return "עצמי";
+  if (/touch|מגע/i.test(t)) return "מגע";
+  return m ? `${m[1]}ft` : /melee|קפא"פ|פנים/i.test(t) ? "מגע 5ft" : "—";
+}
 const IS_COMBAT = /\d+d\d+|\baction\b|bonus action|reaction|attack|התקפ|נזק|damage|save|הצלת/i;
 
 export function classFeatureGrants(c: Character, x: Ctx, existingNames: Set<string>) {
@@ -263,11 +278,35 @@ export function classFeatureGrants(c: Character, x: Ctx, existingNames: Set<stri
       const dice = `${later.name} ${later.desc}`.match(/\d+d\d+/)?.[0] ?? "—";
       attacks.push({
         name: later.name, bonus: /save|הצלת/i.test(later.desc) && cls.spellAbility ? `DC ${8 + x.pb + x.mods[cls.spellAbility]}` : "—",
-        damage: dice, damageType: "ראה תיאור", range: "—",
+        damage: dice, damageType: dice === "—" ? "—" : parseDamageType(later.desc), range: parseRange(later.desc),
         resource: `${actionType(later.desc)} · ${uses(later.desc)}`,
         notes: later.desc, source: `${sub && sub.features.includes(later) ? sub.nameHe : cls.nameHe} ${later.level}`,
       });
     }
+  }
+  return { attacks, spellIds };
+}
+
+// ---------- Generic race-trait classifier ----------
+import { getRace } from "./races";
+export function raceTraitGrants(c: Character, x: Ctx, existingNames: Set<string>, existingSpells: Set<string>) {
+  const attacks: GrantedAttack[] = []; const spellIds: string[] = [];
+  const race = getRace(c.raceId); if (!race) return { attacks, spellIds };
+  const sub = race.subraces?.find(s => s.id === c.subraceId);
+  const traits = [...race.traits, ...(sub?.traits ?? [])].filter(t => (t.level ?? 1) <= x.level);
+  const SKIP = /resilien|guardian of the depths|amphibious|resistance|darkvision|languages|proficiency|speed|build|size|creature type|longevity|age/i;
+  for (const t of traits) {
+    const text = `${t.name} ${t.desc}`;
+    const spells = SPELL_INDEX.filter(s => s.re.test(text)).map(s => s.id).filter(id => !existingSpells.has(id));
+    if (spells.length) { spellIds.push(...spells); continue; }
+    if (SKIP.test(t.name) || !(IS_COMBAT.test(text) || /long rest|short rest|פעם ב|תגובה|bonus|Prof/i.test(t.desc))) continue;
+    if ([...existingNames].some(n => n.toLowerCase().includes(t.name.toLowerCase().split(" (")[0]))) continue;
+    const dice = text.match(/\d+d\d+/)?.[0] ?? "—";
+    const dc = /save|הצלת/i.test(t.desc) ? `DC ${8 + x.pb + Math.max(x.mods.con, x.mods.cha, x.mods.wis)}` : /unarmed|claw|טפר|bite|נשיכ|horn|קרני/i.test(text) ? formatMod(x.mods.str + x.pb) : "—";
+    attacks.push({
+      name: t.name, bonus: dc, damage: dice, damageType: dice === "—" ? "—" : parseDamageType(t.desc), range: parseRange(t.desc),
+      resource: `${actionType(t.desc)} · ${uses(t.desc)}`, notes: t.desc, source: `גזע: ${sub?.nameHe ?? race.nameHe}`,
+    });
   }
   return { attacks, spellIds };
 }

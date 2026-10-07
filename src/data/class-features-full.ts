@@ -547,13 +547,6 @@ export const SUBCLASS_FEATURES_FULL: Record<string, ClassFeature[]> = {
     { level: 15, name: "Master of Runes", desc: "כל רונה 2× בין מנוחות." },
     { level: 18, name: "Runic Juggernaut", desc: "Giant's Might → 1d10, גודל Huge, +5ft טווח." },
   ],
-  "fighter:purple_dragon_knight": [
-    { level: 3, name: "Rallying Cry", desc: "Second Wind מרפא גם 3 בעלי ברית ברמת הלוחם HP." },
-    { level: 7, name: "Royal Envoy", desc: "Expertise ב-Persuasion ושפה נוספת." },
-    { level: 10, name: "Inspiring Surge", desc: "Action Surge מעניק לבעל ברית התקפה נוספת (שניים ברמה 18)." },
-    { level: 15, name: "Bulwark", desc: "Indomitable מאפשר גם לבעל ברית לגלגל מחדש הצלה." },
-    { level: 18, name: "Inspiring Surge Improvement", desc: "שני בעלי ברית מקבלים התקפה נוספת." },
-  ],
 
   // --- Monk ---
   "monk:open_hand": [
