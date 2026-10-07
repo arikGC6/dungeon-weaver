@@ -171,14 +171,6 @@ const CLASSES_RAW: DnDClass[] = [
           { level: 15, name: "Improved Shot", desc: "כל Arcane Shot — +1d6 force בסיס." },
           { level: 18, name: "Master Arcane Archer", desc: "בחר 2 shots נוספים." },
         ] },
-      { id: "purple_dragon_knight", name: "Purple Dragon Knight (Banneret)", nameHe: "אביר הדרקון הסגול",
-        features: [
-          { level: 3, name: "Rallying Cry", desc: "Second Wind — עד 3 בעלי ברית מקבלים 1d10+level HP." },
-          { level: 3, name: "Bonus Proficiency", desc: "Proficiency ב-Persuasion." },
-          { level: 7, name: "Royal Envoy", desc: "Expertise ב-Persuasion." },
-          { level: 10, name: "Inspiring Surge", desc: "Action Surge — בעל ברית סמוך מקבל התקפה." },
-          { level: 15, name: "Bulwark", desc: "Indomitable — בעל ברית מגלגל שוב save נכשל." },
-        ] },
     ],
     features: [
       { level: 1, name: "Fighting Style", desc: "בחירת סגנון קרב — בונוסים מוחלים אוטומטית." },

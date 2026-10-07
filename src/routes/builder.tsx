@@ -839,7 +839,6 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
   const toggleFs = (id: string) => {
     const has = currentFs.includes(id);
     let next = has ? currentFs.filter(x => x !== id) : [...currentFs, id];
-    if (!has && next.length > fsSlots) next = next.slice(-fsSlots);
     update({ fightingStyleIds: next });
   };
 
@@ -908,13 +907,13 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
       {availableOptionGroups(c).map(({ group, max }) => {
         const picked = c.classChoices?.[group.id] ?? [];
         const togglePick = (id: string) => {
-          const next = picked.includes(id) ? picked.filter(x => x !== id) : picked.length < max ? [...picked, id] : picked;
+          const next = picked.includes(id) ? picked.filter(x => x !== id) : [...picked, id];
           update({ classChoices: { ...(c.classChoices ?? {}), [group.id]: next } });
         };
         return (
           <div key={group.id} className="border-t border-border pt-3">
             <h3 className="display text-xl text-primary mb-1">{group.label}</h3>
-            <p className="text-xs text-muted-foreground mb-2">נבחרו {picked.length}/{max} ברמה הנוכחית. הבחירות מופיעות אוטומטית בלשונית המתקפות / ההשפעות בגיליון.</p>
+            <p className="text-xs text-muted-foreground mb-2">צפוי לפי החוקים: {max} · נבחרו: {picked.length} (ללא הגבלה). הבחירות מופיעות אוטומטית בלשונית המתקפות / ההשפעות בגיליון.</p>
             <div className="grid sm:grid-cols-2 gap-2">
               {group.options.map(o => {
                 const on = picked.includes(o.id);
@@ -931,12 +930,12 @@ function Step6Feats({ c, update }: { c: Character; update: (p: Partial<Character
         );
       })}
 
-      {fsSlots > 0 && (
+      {(
         <div className="border-t border-border pt-3">
           <h3 className="display text-xl text-primary mb-1">סגנון קרב · Fighting Style</h3>
-          <p className="text-xs text-muted-foreground mb-2">בחר {fsSlots} סגנון{fsSlots > 1 ? "ות" : ""} מבין המותרים למקצוע שלך. הבונוסים מיושמים אוטומטית.</p>
+          <p className="text-xs text-muted-foreground mb-2">צפוי לפי החוקים: <b className="text-primary">{fsSlots}</b> · נבחרו: <b className={currentFs.length > fsSlots ? "text-accent" : "text-primary"}>{currentFs.length}</b>. אין הגבלה — אפשר לבחור כל סגנון. הבונוסים מיושמים אוטומטית.</p>
           <div className="grid sm:grid-cols-2 gap-2">
-            {FIGHTING_STYLES.filter(s => legalFs.includes(s.id)).map(s => {
+            {FIGHTING_STYLES.map(s => {
               const chosen = currentFs.includes(s.id);
               return (
                 <button key={s.id} onClick={() => toggleFs(s.id)}
