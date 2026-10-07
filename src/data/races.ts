@@ -233,14 +233,22 @@ export const RACES: Race[] = [
     ],
   },
   {
-    id: "goliath", name: "Goliath", nameHe: "גוליאט", source: "VGTM",
-    speed: 30, size: "Medium",
+    id: "goliath", name: "Goliath", nameHe: "גוליאט", source: "PHB 2024",
+    speed: 35, size: "Medium",
     abilityBonuses: [{ ability: "str", amount: 2 }, { ability: "con", amount: 1 }],
     languages: ["Common", "Giant"],
     traits: [
-      { name: "Stone's Endurance", desc: "הפחתת נזק 1d12 + CON mod, פעם פר rest." },
-      { name: "Powerful Build", desc: "סופר כגדול לסחיבה." },
-      { name: "Mountain Born", desc: "Resistance לקור; ללא חסרון בגובה." },
+      { name: "Powerful Build", desc: "Advantage על בדיקות להשתחרר מ-Grappled; נחשב מידה אחת גדול יותר לסחיבה." },
+      { name: "Large Form", desc: "Bonus Action: הופך ל-Large ל-10 דקות — Advantage על בדיקות STR ו-+10ft מהירות. 1/Long Rest.", level: 5, special: true },
+    ],
+    subraceLabel: "מוצא ענקי (Giant Ancestry)",
+    subraces: [
+      { id: "gol-cloud", name: "Cloud Giant", nameHe: "ענק ענן", abilityBonuses: [], traits: [{ name: "Cloud's Jaunt", desc: "Bonus Action: טלפורט עד 30ft למקום פנוי שאתה רואה. שימושים = PB / Long Rest.", special: true }] },
+      { id: "gol-fire", name: "Fire Giant", nameHe: "ענק אש", abilityBonuses: [], traits: [{ name: "Fire's Burn", desc: "בפגיעת התקפה: +1d10 נזק אש. שימושים = PB / Long Rest.", special: true }] },
+      { id: "gol-frost", name: "Frost Giant", nameHe: "ענק כפור", abilityBonuses: [], traits: [{ name: "Frost's Chill", desc: "בפגיעת התקפה: +1d6 נזק קור ו-−10ft מהירות למטרה עד תחילת תורך. שימושים = PB / Long Rest.", special: true }] },
+      { id: "gol-hill", name: "Hill Giant", nameHe: "ענק גבעות", abilityBonuses: [], traits: [{ name: "Hill's Tumble", desc: "בפגיעה ביצור Large או קטן: המטרה נופלת Prone. שימושים = PB / Long Rest.", special: true }] },
+      { id: "gol-stone", name: "Stone Giant", nameHe: "ענק אבן", abilityBonuses: [], traits: [{ name: "Stone's Endurance", desc: "Reaction כשחוטף נזק: מפחית 1d12 + CON. שימושים = PB / Long Rest.", special: true }] },
+      { id: "gol-storm", name: "Storm Giant", nameHe: "ענק סערה", abilityBonuses: [], traits: [{ name: "Storm's Thunder", desc: "Reaction כשיצור ב-60ft פוגע בך: 1d8 נזק רעם אליו. שימושים = PB / Long Rest.", special: true }] },
     ],
   },
   {
