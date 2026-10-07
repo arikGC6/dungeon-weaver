@@ -294,12 +294,12 @@ export function raceTraitGrants(c: Character, x: Ctx, existingNames: Set<string>
   const race = getRace(c.raceId); if (!race) return { attacks, spellIds };
   const sub = race.subraces?.find(s => s.id === c.subraceId);
   const traits = [...race.traits, ...(sub?.traits ?? [])].filter(t => (t.level ?? 1) <= x.level);
-  const SKIP = /resistance|darkvision|languages|proficiency|speed|build|size|creature type|longevity|age/i;
+  const SKIP = /resilien|guardian of the depths|amphibious|resistance|darkvision|languages|proficiency|speed|build|size|creature type|longevity|age/i;
   for (const t of traits) {
     const text = `${t.name} ${t.desc}`;
     const spells = SPELL_INDEX.filter(s => s.re.test(text)).map(s => s.id).filter(id => !existingSpells.has(id));
     if (spells.length) { spellIds.push(...spells); continue; }
-    if (SKIP.test(t.name) || !IS_COMBAT.test(text)) continue;
+    if (SKIP.test(t.name) || !(IS_COMBAT.test(text) || /long rest|short rest|פעם ב|תגובה|bonus|Prof/i.test(t.desc))) continue;
     if ([...existingNames].some(n => n.toLowerCase().includes(t.name.toLowerCase().split(" (")[0]))) continue;
     const dice = text.match(/\d+d\d+/)?.[0] ?? "—";
     const dc = /save|הצלת/i.test(t.desc) ? `DC ${8 + x.pb + Math.max(x.mods.con, x.mods.cha, x.mods.wis)}` : /unarmed|claw|טפר|bite|נשיכ|horn|קרני/i.test(text) ? formatMod(x.mods.str + x.pb) : "—";
