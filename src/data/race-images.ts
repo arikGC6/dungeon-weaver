@@ -11,7 +11,7 @@ import kenku from "../assets/races/kenku4.jpg.asset.json";
 import warforged from "../assets/races/warforged4.jpg.asset.json";
 import autognome from "../assets/races/autognome.jpg.asset.json";
 import plasmoid from "../assets/races/plasmoid4.jpg.asset.json";
-import owlin from "../assets/races/owlin.jpg.asset.json";
+import owlin from "../assets/races/owlin5.jpg.asset.json";
 import aarakocra from "../assets/races/aarakocra3.jpg.asset.json";
 import thriKreen from "../assets/races/thri-kreen.jpg.asset.json";
 import hexblood from "../assets/races/hexblood3.jpg.asset.json";
@@ -32,7 +32,7 @@ import bugbear from "../assets/races/bugbear.jpg.asset.json";
 import changeling from "../assets/races/changeling.jpg.asset.json";
 import orc from "../assets/races/orc.jpg.asset.json";
 import dhampir from "../assets/races/dhampir.jpg.asset.json";
-import loxodon from "../assets/races/loxodon.jpg.asset.json";
+import loxodon from "../assets/races/loxodon5.jpg.asset.json";
 import verdan from "../assets/races/verdan.jpg.asset.json";
 import satyr from "../assets/races/satyr3.jpg.asset.json";
 import tortle from "../assets/races/tortle4.jpg.asset.json";
@@ -48,12 +48,16 @@ import reborn from "../assets/races/reborn.jpg.asset.json";
 import githyanki from "../assets/races/githyanki4.jpg.asset.json";
 import eladrin from "../assets/races/eladrin4.jpg.asset.json";
 import lizardfolk from "../assets/races/lizardfolk4.jpg.asset.json";
+import hadozee from "../assets/races/hadozee5.jpg.asset.json";
+import triton from "../assets/races/triton5.jpg.asset.json";
 import centaur from "../assets/races/centaur.jpg.asset.json";
 
 
 
 export const DEFAULT_RACE_IMAGES: Record<string, string> = {
   human: human.url,
+  hadozee: hadozee.url,
+  triton: triton.url,
   githyanki: githyanki.url,
   eladrin: eladrin.url,
   lizardfolk: lizardfolk.url,
