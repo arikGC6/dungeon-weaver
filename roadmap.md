@@ -1,0 +1,2 @@
+- [ ] Delete races Githzerai, Kalashtar
+- [ ] Metamagic options + subclass updates from uploaded notes (DC = 8+PB+mod)
