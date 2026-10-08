@@ -1,5 +1,7 @@
 import type { DnDClass } from "../lib/dnd-types";
 import { BASE_FEATURES_20, SUBCLASS_FEATURES_FULL, mergeFeatures } from "./class-features-full";
+import { SUBCLASS_UPDATES, RANGER_BASE_UPDATE, NEW_SUBCLASSES } from "./subclass-updates";
+import { SPELLS as ALL_SPELLS } from "./spells";
 
 // Subclass spells (granted, always prepared) referenced by spell id (matches src/data/spells.ts ids).
 // Class features summarized.
@@ -381,11 +383,26 @@ const CLASSES_RAW: DnDClass[] = [
 // מיזוג מסד היכולות המלא (רמות 1–20) אל כל מקצוע ותת-מקצוע.
 export const CLASSES: DnDClass[] = CLASSES_RAW.map((cls) => ({
   ...cls,
-  features: mergeFeatures(cls.features, BASE_FEATURES_20[cls.id]),
-  subclasses: cls.subclasses.map((sub) => ({
-    ...sub,
-    features: mergeFeatures(sub.features, SUBCLASS_FEATURES_FULL[`${cls.id}:${sub.id}`]),
-  })),
+  features: cls.id === "ranger"
+    ? [...RANGER_BASE_UPDATE, ...mergeFeatures(cls.features, BASE_FEATURES_20[cls.id]).filter(f => (/Ability Score/.test(f.name) && ![4, 8].includes(f.level)) || /Vanish/.test(f.name))].sort((a, b) => a.level - b.level)
+    : mergeFeatures(cls.features, BASE_FEATURES_20[cls.id]),
+  subclasses: [
+    ...cls.subclasses,
+    ...(NEW_SUBCLASSES[cls.id] ?? []).filter(n => !cls.subclasses.some(s => s.id === n.id)).map(n => ({ ...n, features: [] })),
+  ].map((sub: any) => {
+    const up = SUBCLASS_UPDATES[`${cls.id}:${sub.id}`];
+    if (!up) return { ...sub, features: mergeFeatures(sub.features, SUBCLASS_FEATURES_FULL[`${cls.id}:${sub.id}`]) };
+    const byLevel = new Map<number, string[]>();
+    for (const [lvl, name] of up.spells ?? []) {
+      const sp = ALL_SPELLS.find(x => x.name.toLowerCase() === name.toLowerCase());
+      if (sp) byLevel.set(lvl, [...(byLevel.get(lvl) ?? []), sp.id]);
+    }
+    return {
+      ...sub,
+      features: [...up.features].sort((a, b) => a.level - b.level),
+      grantedSpells: up.spells ? [...byLevel].map(([level, spellIds]) => ({ level, spellIds })) : sub.grantedSpells,
+    };
+  }),
 }));
 
 /** יכולות המקצוע (ותת-המקצוע) עד רמה נתונה. */
