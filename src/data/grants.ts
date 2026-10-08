@@ -404,7 +404,11 @@ const DMG_TYPES: [RegExp, string][] = [
   [/psychic|נפשי|תודעתי/i, "נפשי (psychic)"], [/force|כוח טהור/i, "כוח (force)"], [/slashing|חותך|חיתוך/i, "חיתוך (slashing)"], [/piercing|חודר|דוקר|דקירה/i, "דקירה (piercing)"],
   [/bludgeoning|מוחץ|חובט|הלם/i, "הלם (bludgeoning)"],
 ];
-export function parseDamageType(t: string) { return DMG_TYPES.find(([re]) => re.test(t))?.[1] ?? "לפי הנשק / ראה תיאור"; }
+export function parseDamageType(t: string) {
+  const i = t.search(/\d+d\d+/);
+  const near = i >= 0 ? t.slice(i, i + 30) : "";
+  return DMG_TYPES.find(([re]) => re.test(near))?.[1] ?? DMG_TYPES.find(([re]) => re.test(t))?.[1] ?? "לפי הנשק / ראה תיאור";
+}
 // Dice that scale with level: "1d4, עולה ל-1d6 ברמה 6, 1d8 ברמה 10" → highest unlocked.
 export function scaledDice(t: string, level: number): string {
   let dice = t.match(/\d+d\d+/)?.[0] ?? "—";
