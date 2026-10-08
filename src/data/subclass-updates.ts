@@ -938,7 +938,7 @@ export const SUBCLASS_UPDATES: Record<string, SubUpdate> = {
    {
     "level": 3,
     "name": "Swarmkeeper Magic + Gathered Swarm",
-    "desc": "הלב:"
+    "desc": "הלב: לחשים תמיד מוכנים: רמה 3 Faerie Fire, רמה 5 Web, רמה 9 Gaseous Form, רמה 13 Arcane Eye, רמה 17 Insect Plague. Gathered Swarm: פעם בתור מיד אחרי שפגעת בהתקפה, בחר אחד, טווח היכולת 30 פיט מהמטרה: נזק: +1d6 חודר (עולה ל-1d8 ברמה 11) למטרה. דחיפה: המטרה STR הצלה נגד DC הלחשים שלך, כישלון = דחיפה 15 פיט אופקית + היא Prone אם בחרת. הזזה: אתה זז 5 פיט בלי התקפות מזדמנות (הנחיל מרים אותך)."
    },
    {
     "level": 7,
