@@ -379,15 +379,17 @@ function matchSpells(text: string): string[] {
 const PASSIVE = /^(Ability Score Improvement|Spellcasting|Pact Magic|Primal Path|Expertise|Unarmored Defense|Fighting Style|.*Subclass.*|Otherworldly Patron|Sacred Oath|Arcane Tradition|Martial Archetype|Roguish Archetype|Divine Domain|Druid Circle|Bardic College|Sorcerous Origin|Ranger Archetype|Monastic Tradition|Artificer Specialist)/i;
 
 function actionType(t: string): string {
-  if (/bonus action/i.test(t)) return "Bonus Action";
-  if (/reaction/i.test(t)) return "Reaction";
-  if (/\baction\b|attack action/i.test(t)) return "Action";
+  if (/bonus action|פעולת בונוס/i.test(t)) return "Bonus Action";
+  if (/reaction|תגובה/i.test(t)) return "Reaction";
+  if (/\baction\b|attack action|פעולה/i.test(t)) return "Action";
   if (/on hit|בפגיעה|פעם בתור|once per turn/i.test(t)) return "בפגיעה (פעם בתור)";
   return "יכולת";
 }
 function uses(t: string): string {
-  const rest = /long rest/i.test(t) ? "Long Rest" : /short rest/i.test(t) ? "Short Rest" : "";
-  const prof = /prof(iciency)? bonus|פעמים = prof/i.test(t) ? "PB×" : "";
+  const rest = /long rest|מנוחה ארוכה/i.test(t) ? "Long Rest" : /short rest|מנוחה קצרה/i.test(t) ? "Short Rest" : "";
+  const prof = /prof(iciency)? bonus|פעמים = prof|PB פעמים|תוסף שליטה למנוחה/i.test(t) ? "PB×" : "";
+  if (/WIS mod פעמים|CHA mod פעמים/i.test(t)) return /long rest|ארוכה|ביום/i.test(t) ? "mod× / Long Rest" : "mod×";
+  if (/פעם ביום|1\/day/i.test(t)) return "1 / Long Rest";
   if (prof && rest) return `${prof} / ${rest}`;
   if (rest) return `1 / ${rest}`;
   if (/spell slot|סלוט/i.test(t)) return "Spell Slot";
@@ -433,9 +435,13 @@ export function classFeatureGrants(c: Character, x: Ctx, existingNames: Set<stri
       const base = f.name.replace(/\s*\(.*\)$/, "");
       if (seen.has(base) || PASSIVE.test(f.name)) continue;
       const text = `${f.name} ${f.desc}`;
-      const spells = matchSpells(text);
+      const spells = matchSpells(text).filter(id => {
+        const nm = SPELL_INDEX.find(s => s.id === id)!.name;
+        const m = text.match(new RegExp(`רמה (\\d+) ${nm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"));
+        return !m || cl.level >= +m[1];
+      });
       if (spells.length) { spellIds.push(...spells); if (!/\d+d\d+/.test(f.desc)) { seen.add(base); continue; } }
-      if (CHOICE_ONLY.test(f.name) || (/בחירה|בחר /.test(f.name + f.desc.slice(0, 40)) && !/\d+d\d+/.test(f.desc.slice(0, 80)))) { seen.add(base); continue; }
+      if (CHOICE_ONLY.test(f.name) || (/בחירה|בחר /.test(f.name + f.desc.slice(0, 40)) && !/\d+d\d+/.test(f.desc))) { seen.add(base); continue; }
       if (!IS_COMBAT.test(text)) continue;
       // Keep only the highest-level version of a scaling feature (e.g. Brutal Critical 1→2→3 dice).
       const later = feats.filter(g => g.name.replace(/\s*\(.*\)$/, "") === base).pop()!;
