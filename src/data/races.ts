@@ -632,21 +632,6 @@ export const RACES: Race[] = [
       { name: "Githyanki Psionics", desc: "Mage Hand (בלתי נראה); Jump ברמה 3; Misty Step ברמה 5.", special: true },
       { name: "Psychic Resilience", desc: "Resistance לנזק psychic." },
     ] },
-  { id: "githzerai", name: "Githzerai", nameHe: "גית'זראי", source: "MPMM", speed: 30, size: "Medium",
-    abilityBonuses: [{ ability: "wis", amount: 2 }, { ability: "int", amount: 1 }], languages: ["Common", "Gith"],
-    traits: [
-      { name: "Mental Discipline", desc: "Advantage על saves נגד charmed ו-frightened." },
-      { name: "Githzerai Psionics", desc: "Mage Hand; Shield ברמה 3; Detect Thoughts ברמה 5.", special: true },
-      { name: "Psychic Resilience", desc: "Resistance לנזק psychic." },
-    ] },
-  { id: "kalashtar", name: "Kalashtar", nameHe: "קלשטאר", source: "ERftLW", speed: 30, size: "Medium",
-    abilityBonuses: [{ ability: "wis", amount: 2 }, { ability: "cha", amount: 1 }], languages: ["Common", "Quori", "+1 choice"],
-    traits: [
-      { name: "Dual Mind", desc: "Advantage על WIS saves." },
-      { name: "Mental Discipline", desc: "Resistance לנזק psychic." },
-      { name: "Mind Link", desc: "טלפתיה בטווח 10×רמה ft.", special: true },
-      { name: "Severed from Dreams", desc: "חסין לקסם שדורש חלומות." },
-    ] },
   { id: "vedalken", name: "Vedalken", nameHe: "ודלקן", source: "GGtR", speed: 30, size: "Medium",
     abilityBonuses: [{ ability: "int", amount: 2 }, { ability: "wis", amount: 1 }], languages: ["Common", "Vedalken", "+1 choice"],
     traits: [
