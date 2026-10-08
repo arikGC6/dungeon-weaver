@@ -369,7 +369,13 @@ import { getClass } from "./classes";
 import { SPELLS } from "./spells";
 
 const SPELL_INDEX = SPELLS.filter(s => s.name.length > 3)
-  .map(s => ({ id: s.id, re: new RegExp(`\\b${s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`) }));
+  .sort((a, b) => b.name.length - a.name.length)
+  .map(s => ({ id: s.id, name: s.name, re: new RegExp(`\\b${s.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`) }));
+function matchSpells(text: string): string[] {
+  let rest = text; const out: string[] = [];
+  for (const s of SPELL_INDEX) if (s.re.test(rest)) { out.push(s.id); rest = rest.replace(s.re, " "); }
+  return out;
+}
 const PASSIVE = /^(Ability Score Improvement|Spellcasting|Pact Magic|Primal Path|Expertise|Unarmored Defense|Fighting Style|.*Subclass.*|Otherworldly Patron|Sacred Oath|Arcane Tradition|Martial Archetype|Roguish Archetype|Divine Domain|Druid Circle|Bardic College|Sorcerous Origin|Ranger Archetype|Monastic Tradition|Artificer Specialist)/i;
 
 function actionType(t: string): string {
@@ -391,18 +397,25 @@ function uses(t: string): string {
   return "חופשי";
 }
 const DMG_TYPES: [RegExp, string][] = [
-  [/fire|אש/i, "אש (fire)"], [/cold|קור/i, "קור (cold)"], [/lightning|ברק/i, "ברק (lightning)"], [/thunder|רעם/i, "רעם (thunder)"],
-  [/acid|חומצה/i, "חומצה (acid)"], [/poison|רעל/i, "רעל (poison)"], [/necrotic|נמק/i, "נמק (necrotic)"], [/radiant|קורן|אור/i, "קורן (radiant)"],
-  [/psychic|נפשי/i, "נפשי (psychic)"], [/force|כוח טהור/i, "כוח (force)"], [/slashing|חות/i, "חיתוך (slashing)"], [/piercing|דוק|דקיר/i, "דקירה (piercing)"],
-  [/bludgeoning|חוב|הלם/i, "הלם (bludgeoning)"],
+  [/fire|(^|[\s,(])אש($|[\s,).])/i, "אש (fire)"], [/cold|(^|[\s,(])קור($|[\s,).])/i, "קור (cold)"], [/lightning|ברק/i, "ברק (lightning)"], [/thunder|רעם/i, "רעם (thunder)"],
+  [/acid|חומצה/i, "חומצה (acid)"], [/poison|רעל/i, "רעל (poison)"], [/necrotic|נקרוטי|נמק/i, "נמק (necrotic)"], [/radiant|קורן/i, "קורן (radiant)"],
+  [/psychic|נפשי|תודעתי/i, "נפשי (psychic)"], [/force|כוח טהור/i, "כוח (force)"], [/slashing|חותך|חיתוך/i, "חיתוך (slashing)"], [/piercing|חודר|דוקר|דקירה/i, "דקירה (piercing)"],
+  [/bludgeoning|מוחץ|חובט|הלם/i, "הלם (bludgeoning)"],
 ];
 export function parseDamageType(t: string) { return DMG_TYPES.find(([re]) => re.test(t))?.[1] ?? "לפי הנשק / ראה תיאור"; }
+// Dice that scale with level: "1d4, עולה ל-1d6 ברמה 6, 1d8 ברמה 10" → highest unlocked.
+export function scaledDice(t: string, level: number): string {
+  let dice = t.match(/\d+d\d+/)?.[0] ?? "—";
+  for (const m of t.matchAll(/(\d+d\d+)\s*(?:ברמה|at level|ברמת)\s*(\d+)/gi)) if (level >= +m[2]) dice = m[1];
+  return dice;
+}
 export function parseRange(t: string) {
   const m = t.match(/(\d+)\s*(?:ft|feet|רגל)/i);
   if (/self|עצמ/i.test(t) && !m) return "עצמי";
   if (/touch|מגע/i.test(t)) return "מגע";
   return m ? `${m[1]}ft` : /melee|קפא"פ|פנים/i.test(t) ? "מגע 5ft" : "—";
 }
+const CHOICE_ONLY = /^(אויב מועדף|חוקר טבעי|סגנון לחימה|ASI|Extra Attack|Hunter's Prey|Defensive Tactics|Multiattack$|Superior Hunter's Defense|Metamagic|Bonus Proficiency|Heavy Armor|Form of the Beast)/i;
 const IS_COMBAT = /\d+d\d+|\baction\b|bonus action|reaction|attack|התקפ|נזק|damage|save|הצלת/i;
 
 export function classFeatureGrants(c: Character, x: Ctx, existingNames: Set<string>) {
@@ -420,14 +433,15 @@ export function classFeatureGrants(c: Character, x: Ctx, existingNames: Set<stri
       const base = f.name.replace(/\s*\(.*\)$/, "");
       if (seen.has(base) || PASSIVE.test(f.name)) continue;
       const text = `${f.name} ${f.desc}`;
-      const spells = SPELL_INDEX.filter(s => s.re.test(text)).map(s => s.id);
-      if (spells.length) { spellIds.push(...spells); seen.add(base); continue; }
+      const spells = matchSpells(text);
+      if (spells.length) { spellIds.push(...spells); if (!/\d+d\d+/.test(f.desc)) { seen.add(base); continue; } }
+      if (CHOICE_ONLY.test(f.name) || (/בחירה|בחר /.test(f.name + f.desc.slice(0, 40)) && !/\d+d\d+/.test(f.desc.slice(0, 80)))) { seen.add(base); continue; }
       if (!IS_COMBAT.test(text)) continue;
       // Keep only the highest-level version of a scaling feature (e.g. Brutal Critical 1→2→3 dice).
       const later = feats.filter(g => g.name.replace(/\s*\(.*\)$/, "") === base).pop()!;
       seen.add(base);
       if ([...existingNames].some(n => n.includes(base))) continue;
-      const dice = `${later.name} ${later.desc}`.match(/\d+d\d+/)?.[0] ?? "—";
+      const dice = scaledDice(`${later.name} ${later.desc}`, cl.level);
       attacks.push({
         name: later.name, bonus: /save|הצלת/i.test(later.desc) && cls.spellAbility ? `DC ${8 + x.pb + x.mods[cls.spellAbility]}` : "—",
         damage: dice, damageType: dice === "—" ? "—" : parseDamageType(later.desc), range: parseRange(later.desc),
@@ -449,7 +463,7 @@ export function raceTraitGrants(c: Character, x: Ctx, existingNames: Set<string>
   const SKIP = /resilien|guardian of the depths|amphibious|resistance|darkvision|languages|proficiency|speed|build|size|creature type|longevity|age/i;
   for (const t of traits) {
     const text = `${t.name} ${t.desc}`;
-    const spells = SPELL_INDEX.filter(s => s.re.test(text)).map(s => s.id).filter(id => !existingSpells.has(id));
+    const spells = matchSpells(text).filter(id => !existingSpells.has(id));
     if (spells.length) { spellIds.push(...spells); continue; }
     if (SKIP.test(t.name) || !(IS_COMBAT.test(text) || /long rest|short rest|פעם ב|תגובה|bonus|Prof/i.test(t.desc))) continue;
     if ([...existingNames].some(n => n.toLowerCase().includes(t.name.toLowerCase().split(" (")[0]))) continue;
